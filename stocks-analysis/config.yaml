@@ -1,0 +1,95 @@
+tickers:
+  - name: "VOO"
+    type: index
+  - name: "SCHD"
+    type: index
+  - name: "QQQM"
+    type: index
+  - name: "VUG"
+    type: index
+  - name: "XLV"
+    type: index
+  - name: "QQQ"
+    type: index
+  - name: "AMZN"
+    type: stock
+  - name: "MSFT"
+    type: stock
+  - name: "AAPL"
+    type: stock
+  - name: "LLY"
+    type: stock
+  - name: "TSLA"
+    type: stock
+  - name: "NVDA"
+    type: stock
+  - name: "QCOM"
+    type: stock
+  - name: "AMD"
+    type: stock
+  - name: "AMGN"
+    type: stock
+  - name: "XOM"
+    type: stock
+  - name: "DFS"
+    type: stock
+  - name: "ULTA"
+    type: stock
+  - name: "AXP"
+    type: stock
+  - name: "PHM"
+    type: stock
+  - name: "META"
+    type: stock
+  - name: "PFE"
+    type: stock
+  - name: "NVO"
+    type: stock
+  - name: "ASML"
+    type: stock
+  - name: "TMUS"
+    type: stock
+  - name: "SNY"
+    type: stock
+  - name: "PLTR"
+    type: stock
+  - name: "HD"
+    type: stock
+  - name: "OC"
+    type: stock
+  - name: "PANW"
+    type: stock
+  - name: "DG"
+    type: stock
+  - name: "WMT"
+    type: stock
+  - name: "COST"
+    type: stock
+  - name: "MCD"
+    type: stock
+  - name: "AVGO"
+    type: stock
+  - name: "SBUX"
+    type: stock
+  - name: "CMG"
+    type: stock
+  - name: "SYK"
+    type: stock
+  - name: "V"
+    type: stock
+  - name: "ECL"
+    type: stock
+  - name: "CAT"
+    type: stock
+  - name: "UBER"
+    type: stock
+  - name: "GOOGL"
+    type: stock
+  - name: "LMT"
+    type: stock
+  - name: "NFLX"
+    type: stock
+  - name: "TSM"
+    type: stock
+  - name: "REGN"
+    type: stock

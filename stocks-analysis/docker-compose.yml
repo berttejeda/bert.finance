@@ -1,0 +1,14 @@
+services:
+  stock-analysis:
+    image: berttejeda/bert.finance-stock-analysis:0.1.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stock-analysis
+    working_dir: /app
+    environment:
+      TZ: "US/Eastern"
+    ports:
+      - "8000:8000"
+    volumes:
+      - $PWD/config.yaml:/app/config.yaml
