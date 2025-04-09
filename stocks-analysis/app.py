@@ -300,7 +300,7 @@ def compute_analysis(**kwargs):
         df = pd.DataFrame(stock_data, columns=columns)
         df.to_csv(session_cache_file_path, index=False)
     elif session_cache_file_exists:
-        logger.info(f'Using cached data from ${session_cache_file_path}')
+        logger.info(f'Using cached data from {session_cache_file_path}')
         df = pd.read_csv(session_cache_file_path)
     else:
         raise InternalServerError('Instructed to use cache first, but no cache file found')
@@ -453,4 +453,4 @@ def export():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", debug=debug)
