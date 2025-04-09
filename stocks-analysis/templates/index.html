@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Stock Analysis Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      
+      th button {
+        border: none;
+        cursor: pointer;
+        display: block;
+        font: inherit;
+        height: 100%;
+        margin: 0;
+        min-width: max-content;
+        padding: 0.5rem 1rem;
+        position: relative;
+        width: 100%;
+      }
+
+      .lightbox-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 9999;
+      }
+
+      .lightbox-overlay.active {
+        display: flex;
+      }
+
+      .lightbox-image {
+        max-width: 90%;
+        max-height: 80%;
+        transition: transform 0.3s ease;
+        touch-action: pinch-zoom;
+      }
+
+      .lightbox-caption {
+        color: #fff;
+        margin-top: 1rem;
+      }
+
+      #loading-indicator {
+          display: none;
+          text-align: center;
+          padding: 1rem;
+      }
+
+      .sticky-table-wrapper {
+          max-height: 800px;
+          overflow-y: auto;
+      }
+      .sticky-table-wrapper table {
+          border-collapse: separate;
+          border-spacing: 0;
+      }
+      .sticky-table-wrapper thead th {
+          position: sticky;
+          top: 0;
+          background-color: #f8f9fa;
+          z-index: 2;
+          box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+      }
+        .timestamp-text {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .search-bar {
+            position: absolute;
+            top: 3.5rem;
+            right: 4rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .header-bar {
+            background-color: #000;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-bar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        input { margin-bottom: 10px; padding: 6px; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h1>📊 Stock Analysis Dashboard</h1>
+        <div class="timestamp-text">
+            {% if timestamp %}Date of Last Analysis: {{ timestamp }}{% endif %}
+        </div>
+    </div>
+    <form method="POST" onsubmit="showLoading()" action="/">
+        <div class="row mb-3">
+<!--            <div class="col">-->
+<!--                <input type="text" name="ticker" class="form-control" placeholder="Enter Ticker (e.g., NVDA)" required>-->
+<!--            </div>-->
+<!--            <div class="col">-->
+<!--                <select name="target_day" class="form-select" required>-->
+<!--                    <option value="0">Monday</option>-->
+<!--                    <option value="1">Tuesday</option>-->
+<!--                    <option value="2">Wednesday</option>-->
+<!--                    <option value="3">Thursday</option>-->
+<!--                    <option value="4">Friday</option>-->
+<!--                    <option value="next_friday">Next Friday</option>-->
+<!--                </select>-->
+<!--            </div>-->
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Run Analysis</button>
+
+            </div>
+        </div>
+    </form>
+
+    <div id="loading-indicator">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Analyzing data, please wait...</p>
+    </div>
+
+    {% if analysis %}
+    <td class="table-search">
+        <input class="fuzzy-search" placeholder="Filter">
+    </td>
+    <div id="stock-data" class="sticky-table-wrapper">
+    <table class="table table-striped table-bordered table-hover table-sm table-responsive">
+        <thead>
+            <tr>
+                {% for key,_ in analysis[0].items() %}
+                {% if 'Description' not in key and key != 'INFO' %}
+                <th><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
+                {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody class="list" id="table-content">
+        {% for stock_data in analysis %}
+        <tr>
+            <td>
+            <a href="#" class="stock-link Ticker"
+               data-bs-toggle="modal"
+               data-bs-target="#stockModal"
+               data-symbol="{{ stock_data['Ticker'] }}"
+               data-info="{{ stock_data['INFO'] }}">
+              {{ stock_data['Ticker'] }}
+            </a>
+            </td>
+            <td class="Current Price">{{ stock_data['Current Price'] }}</td>
+            <td class="50-Day Moving Average">{{ stock_data['50-Day Moving Average'] }}</td>
+            <td class="100-Day Moving Average">{{ stock_data['100-Day Moving Average'] }}</td>
+            <td class="200-Day Moving Average">{{ stock_data['200-Day Moving Average'] }}</td>
+            <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data['RSI Chart'] }}" class="img-fluid"></div></td>
+            <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data['MACD Chart'] }}" class="img-fluid"></div></td>
+            <td class="Bollinger Band Signal">{{ stock_data['Bollinger Band Signal'] }}</td>
+            <td class="P/E Ratio">{{ stock_data['P/E Ratio'] }}</td>
+            <td class="Next Earnings Date">{{ stock_data['Next Earnings Date'] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <div id="lightbox" class="lightbox-overlay">
+      <img id="lightbox-img" class="lightbox-image" src="" alt="">
+
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="stockModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalTitle">Stock Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div id="modalContent"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {% endif %}
+        <script>
+    function showLoading() {
+        document.getElementById('loading-indicator').style.display = 'block';
+    }
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+        var options = {
+        valueNames: ['Ticker', 'Current Price', '50-Day Moving Average', '100-Day Moving Average', '200-Day Moving Average',
+        'RSI Chart', 'MACD Chart', 'Bollinger Band Signal', 'P/E Ratio', 'Next Earnings Date']
+        };
+        var stock_list = new List(document.body, options);
+
+        const loader = document.getElementById('loading-indicator');
+        if (loader && loader.style.display === 'block') {
+            setTimeout(() => {
+                loader.style.transition = 'opacity 0.5s ease-out';
+                loader.style.opacity = 0;
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 500);
+        }
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+
+        let scale = 1;
+
+        document.querySelectorAll('div > img').forEach(img => {
+          img.addEventListener('click', () => {
+            const markdown = img.getAttribute('data-caption') || '';
+            const htmlCaption = marked.parse(markdown);
+            lightbox.classList.add('active');
+            lightboxImg.src = img.src;
+            lightboxCaption.innerHTML = htmlCaption;
+            scale = 1;
+            lightboxImg.style.transform = `scale(${scale})`;
+          });
+        });
+
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) {
+            lightbox.classList.remove('active');
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            lightbox.classList.remove('active');
+          }
+        });
+
+        // Touch & zoom
+        let lastTouchEnd = 0;
+        let initialDistance = null;
+
+        lightboxImg.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          scale += e.deltaY * -0.001;
+          scale = Math.min(Math.max(1, scale), 4);
+          lightboxImg.style.transform = `scale(${scale})`;
+        });
+
+        lightboxImg.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 2) {
+            initialDistance = getDistance(e.touches[0], e.touches[1]);
+          }
+        }, { passive: false });
+
+        lightboxImg.addEventListener('touchmove', (e) => {
+          if (e.touches.length === 2 && initialDistance) {
+            const newDistance = getDistance(e.touches[0], e.touches[1]);
+            scale = Math.min(Math.max(1, scale * (newDistance / initialDistance)), 4);
+            lightboxImg.style.transform = `scale(${scale})`;
+            initialDistance = newDistance;
+            e.preventDefault();
+          }
+        }, { passive: false });
+
+        lightboxImg.addEventListener('touchend', (e) => {
+          if (e.touches.length < 2) {
+            initialDistance = null;
+          }
+          const now = new Date().getTime();
+          if (now - lastTouchEnd <= 300) {
+            // Double tap to zoom
+            scale = scale === 1 ? 2 : 1;
+            lightboxImg.style.transform = `scale(${scale})`;
+          }
+          lastTouchEnd = now;
+        });
+
+        function getDistance(touch1, touch2) {
+          const dx = touch2.clientX - touch1.clientX;
+          const dy = touch2.clientY - touch1.clientY;
+          return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        document.querySelectorAll('.stock-link').forEach(link => {
+          link.addEventListener('click', function () {
+            const symbol = this.dataset.symbol;
+            const company_info = this.dataset.info;
+            const website = this.dataset.website;
+            document.getElementById('modalTitle').textContent = `${symbol} - Details`;
+            document.getElementById('modalContent').innerHTML = marked.parse(company_info);
+          });
+        });
+
+    });
+    </script>
+</body>
+</html>
