@@ -139,7 +139,7 @@
         <p>Analyzing data, please wait...</p>
     </div>
 
-    {% if analysis %}
+    {% if stock_data_analysis %}
     <td class="table-search">
         <input class="fuzzy-search" placeholder="Filter">
     </td>
@@ -147,7 +147,7 @@
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
             <tr>
-                {% for key,_ in analysis[0].items() %}
+                {% for key,_ in stock_data_analysis[0][0].items() %}
                 {% if 'Description' not in key and key != 'INFO' %}
                 <th><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
@@ -155,26 +155,26 @@
             </tr>
         </thead>
         <tbody class="list" id="table-content">
-        {% for stock_data in analysis %}
+        {% for stock_data in stock_data_analysis %}
         <tr>
             <td>
             <a href="#" class="stock-link Ticker"
                data-bs-toggle="modal"
                data-bs-target="#stockModal"
-               data-symbol="{{ stock_data['Ticker'] }}"
-               data-info="{{ stock_data['INFO'] }}">
-              {{ stock_data['Ticker'] }}
+               data-symbol="{{ stock_data[0]['Ticker'] }}"
+               data-info="{{ stock_data[0]['INFO'] }}">
+              {{ stock_data[0]['Ticker'] }}
             </a>
             </td>
-            <td class="Current Price">{{ stock_data['Current Price'] }}</td>
-            <td class="50-Day Moving Average">{{ stock_data['50-Day Moving Average'] }}</td>
-            <td class="100-Day Moving Average">{{ stock_data['100-Day Moving Average'] }}</td>
-            <td class="200-Day Moving Average">{{ stock_data['200-Day Moving Average'] }}</td>
-            <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data['RSI Chart'] }}" class="img-fluid"></div></td>
-            <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data['MACD Chart'] }}" class="img-fluid"></div></td>
-            <td class="Bollinger Band Signal">{{ stock_data['Bollinger Band Signal'] }}</td>
-            <td class="P/E Ratio">{{ stock_data['P/E Ratio'] }}</td>
-            <td class="Next Earnings Date">{{ stock_data['Next Earnings Date'] }}</td>
+            <td class="Current Price">{{ stock_data[0]['Current Price'] }}</td>
+            <td class="50-Day MA">{{ stock_data[0]['50-Day MA'] }}</td>
+            <td class="100-Day MA">{{ stock_data[0]['100-Day MA'] }}</td>
+            <td class="200-Day MA">{{ stock_data[0]['200-Day MA'] }}</td>
+            <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div></td>
+            <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div></td>
+            <td class="Bollinger Band Signal">{{ stock_data[0]['Bollinger Band Signal'] }}</td>
+            <td class="P/E Ratio">{{ stock_data[0]['P/E Ratio'] }}</td>
+            <td class="Next Earnings Date">{{ stock_data[0]['Next Earnings Date'] }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -210,7 +210,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
-        valueNames: ['Ticker', 'Current Price', '50-Day Moving Average', '100-Day Moving Average', '200-Day Moving Average',
+        valueNames: ['Ticker', 'Current Price', '50-Day MA', '100-Day MA', '200-Day MA',
         'RSI Chart', 'MACD Chart', 'Bollinger Band Signal', 'P/E Ratio', 'Next Earnings Date']
         };
         var stock_list = new List(document.body, options);

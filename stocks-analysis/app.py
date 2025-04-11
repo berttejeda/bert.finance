@@ -1,14 +1,16 @@
 from datetime import datetime
 from btconfig import Config
-from flask import Flask, render_template, request, send_file, session
-from werkzeug.exceptions import InternalServerError
+from flask import Flask, render_template, request, session
+from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
+from werkzeug.exceptions import InternalServerError
 
 import matplotlib
 import matplotlib.pyplot as plt
 import io
 import base64
 import argparse
+import pickle
 import logging
 import time
 import yfinance as yf
@@ -24,55 +26,66 @@ logger = logging.getLogger('stock-analyzer.main')
 def parse_args():
     parser = argparse.ArgumentParser(description="Stock Analysis Script")
     parser.add_argument('--no-use-cache-first', '-no-cache', action='store_true', default=False, help='Use cached data first')
-    parser.add_argument('--serve-app', '-s', action='store_true', default=True, help='Serve the data via python Flask')
-    parser.add_argument('--cache-file-path', '-f', default='data.csv', help='Path to the cache file (csv)')
+    parser.add_argument('--cache-file-path', '-f', default='data.pkl', help='Path to the cache file (pkl)')
     parser.add_argument('--cache-expiry-in-minutes', '-c', default=5, help='How long in minutes before we expire the data cache')
-    parser.add_argument('--historical-period', '-p', default="1y", help='Serve the data via python Flask')
+    parser.add_argument('--host-address', '-l', default="0.0.0.0", help='Specify host listening address')
+    parser.add_argument('--threads', '-t', default=1, help='Specify max number of CPU threads for parallel processing')
+    parser.add_argument('--host-port', '-p', default=5000, help='Specify host listening port')
+    parser.add_argument('--historical-period', '-P', default="1y", help='Historical period')
     parser.add_argument('--debug', '-D', action='store_true', required=False, default=False)
     parser.add_argument('--verbose', '-v', action='store_true', required=False, default=False)
     return parser.parse_known_args()
 
 # Initialize App Config
 config = Config(config_file_uri='config.yaml').read()
-ticker_data = config.get('tickers')
+tickers = config.get('tickers')
+schema = config.get('data.schema')
 
 # CLI Args
 args, unknown = parse_args()
 debug = args.debug
 no_use_cache_first = args.no_use_cache_first
 cache_expiry_in_minutes = int(args.cache_expiry_in_minutes)
-serve_app = args.serve_app
 historical_period = args.historical_period
 cache_file_obj = Path(args.cache_file_path).resolve()
+host_address = args.host_address
+host_port = args.host_port
+try:
+    num_threads = int(args.threads)
+except Exception as e:
+    logger.warning(f"Invalid value for number of threads {args.threads}, defaulting to 1")
+    num_threads = 1
+num_cpus = cpu_count()
+if num_threads > num_cpus:
+    num_threads = num_cpus
 
 # Fetch stock data
-def fetch_stock_data(tickers):
+def fetch_stock_data(current_process_name, ticker):
     data = []
-    for ticker in tickers:
-        ticker_name = ticker['name']
-        ticker_type = ticker['type']
-        # Log messages at different levels
-        logger.info(f'Retrieving price data for {ticker_name}')
-        stock = yf.Ticker(ticker_name)
-        pe_ratio = stock.info.get('trailingPE', None)
-        hist = stock.history(period=historical_period)  # Fetch historical data
+    ticker_name = ticker['name']
+    ticker_type = ticker['type']
+    # Log messages at different levels
+    logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
+    stock = yf.Ticker(ticker_name)
+    pe_ratio = stock.info.get('trailingPE', None)
+    hist = stock.history(period=historical_period)  # Fetch historical data
 
-        if not hist.empty:
-            current_price = round(hist["Close"].iloc[-1], 2)
-            ma_50 = round(hist["Close"].rolling(window=50).mean().iloc[-1], 2)
-            ma_100 = round(hist["Close"].rolling(window=100).mean().iloc[-1], 2)
-            ma_200 = round(hist["Close"].rolling(window=200).mean().iloc[-1], 2)
+    if not hist.empty:
+        current_price = round(hist["Close"].iloc[-1], 2)
+        ma_50 = round(hist["Close"].rolling(window=50).mean().iloc[-1], 2)
+        ma_100 = round(hist["Close"].rolling(window=100).mean().iloc[-1], 2)
+        ma_200 = round(hist["Close"].rolling(window=200).mean().iloc[-1], 2)
 
-            # Add technical indicators
-            delta = hist['Close'].diff()
-            gain = delta.where(delta > 0, 0)
-            loss = -delta.where(delta < 0, 0)
-            avg_gain = gain.rolling(window=14).mean()
-            avg_loss = loss.rolling(window=14).mean()
-            rs = avg_gain / avg_loss
-            rsi = 100 - (100 / (1 + rs))
-            rsi_chart = fig_to_base64(plot_rsi(rsi))
-            rsi_chart_description = """
+        # Add technical indicators
+        delta = hist['Close'].diff()
+        gain = delta.where(delta > 0, 0)
+        loss = -delta.where(delta < 0, 0)
+        avg_gain = gain.rolling(window=14).mean()
+        avg_loss = loss.rolling(window=14).mean()
+        rs = avg_gain / avg_loss
+        rsi = 100 - (100 / (1 + rs))
+        rsi_chart = fig_to_base64(plot_rsi(rsi))
+        rsi_chart_description = """
 RSI – Relative Strength Index
 
 This is a technical indicator in stock and crypto trading.
@@ -90,11 +103,11 @@ How it's used:
 - Example:
   A stock’s RSI is 25 → this could signal it's oversold → potential buying opportunity (after confirming with other data).
 """
-            exp1 = hist['Close'].ewm(span=12, adjust=False).mean()
-            exp2 = hist['Close'].ewm(span=26, adjust=False).mean()
-            macd = exp1 - exp2
-            macd_chart = fig_to_base64(plot_macd(macd))
-            macd_chart_description = """
+        exp1 = hist['Close'].ewm(span=12, adjust=False).mean()
+        exp2 = hist['Close'].ewm(span=26, adjust=False).mean()
+        macd = exp1 - exp2
+        macd_chart = fig_to_base64(plot_macd(macd))
+        macd_chart_description = """
 MACD – Moving Average Convergence Divergence
 
 This is a technical indicator in stock and crypto trading.
@@ -122,41 +135,41 @@ When the histogram bars grow/shrink, it shows increasing/decreasing momentum.
 Example:
   - MACD crosses above the signal line and the histogram turns positive = bullish signal.
 """
-            if ticker_type == 'stock':
-                if len(stock.calendar) > 0:
-                    earnings_dates = stock.calendar.get('Earnings Date', ["N/A"])
-                else:
-                    earnings_dates = ["N/A"]
+        if ticker_type == 'stock':
+            if len(stock.calendar) > 0:
+                earnings_dates = stock.calendar.get('Earnings Date', ["N/A"])
             else:
                 earnings_dates = ["N/A"]
         else:
-            current_price = ma_50 = ma_100 = ma_200 = earnings_date = "N/A"
-        next_earnings_date = earnings_dates[0]
-        # predicted_price_movement = predict_bollinger_movement(ticker_name)
-        stock_signals = bollinger_signal(ticker_name)
-        stock_signal = stock_signals['Signal']
-        company_info = f"""
+            earnings_dates = ["N/A"]
+    else:
+        current_price = ma_50 = ma_100 = ma_200 = earnings_date = "N/A"
+    next_earnings_date = earnings_dates[0]
+    # predicted_price_movement = predict_bollinger_movement(ticker_name)
+    stock_signals = bollinger_signal(ticker_name)
+    stock_signal = stock_signals['Signal']
+    company_info = f"""
 ### Company Info
 - **Summary**: {stock.info.get('longBusinessSummary', 'No summary available.')}
 - **Industry**: {stock.info.get('industry', 'n/a')}
 - **Sector**: {stock.info.get('sector', 'n/a')}
 - **Website**: [{stock.info.get('website', '#')}]({stock.info.get('website', '#')})
 """
-        data.append([
-            ticker_name,
-            company_info,
-            current_price,
-            ma_50,
-            ma_100,
-            ma_200,
-            rsi_chart,
-            rsi_chart_description,
-            macd_chart,
-            macd_chart_description,
-            stock_signal,
-            pe_ratio,
-            next_earnings_date
-        ])
+    data.append([
+        ticker_name,
+        company_info,
+        current_price,
+        ma_50,
+        ma_100,
+        ma_200,
+        rsi_chart,
+        rsi_chart_description,
+        macd_chart,
+        macd_chart_description,
+        stock_signal,
+        pe_ratio,
+        next_earnings_date
+    ])
     return data
 
 def bollinger_signal(ticker, period=25, std_dev=2):
@@ -247,8 +260,8 @@ def predict_bollinger_movement(ticker, period=20, std_dev=2):
     else:
         return "neutral"
 
-def check_if_expired(num_minutes: int, file_path: Path) -> bool:
-    """Checks if a file is older than 5 minutes.
+def check_if_expired(num_minutes: int, file_path: Path) -> [datetime, bool]:
+    """Checks if a file is older than num_minutes.
 
     Args:
         file_path: The path to the file.
@@ -257,116 +270,22 @@ def check_if_expired(num_minutes: int, file_path: Path) -> bool:
         True if the file is older than 5 minutes, False otherwise.
     """
     if not file_path.exists() or not file_path.is_file():
-        return False
-
-    file_modification_time = file_path.stat().st_mtime
-    current_time = time.time()
-    difference_in_seconds = int(current_time - file_modification_time)
-    is_expired = difference_in_seconds > (num_minutes * 60)
-    return file_modification_time, is_expired
-
-def compute_analysis(**kwargs):
-    columns = [
-        "Ticker",
-        "INFO",
-        "Current Price",
-        "50-Day Moving Average",
-        "100-Day Moving Average",
-        "200-Day Moving Average",
-        "RSI Chart",
-        "RSI Chart Description",
-        "MACD Chart",
-        "MACD Chart Description",
-        "Bollinger Band Signal",
-        "P/E Ratio",
-        "Next Earnings Date"
-    ]
-    session_id = kwargs['session_id']
-    cache_file = cache_file_obj
-    session_cache_file_obj = cache_file.parent / f'{cache_file.stem}-{session_id}{cache_file.suffix}'
-    session_cache_file_path = session_cache_file_obj.as_posix()
-    session_cache_file_exists = session_cache_file_obj.exists()
-    cache_has_expired = False
-    if session_cache_file_exists:
-        file_modification_time, cache_has_expired = check_if_expired(cache_expiry_in_minutes, session_cache_file_obj)
-        date_of_analysis = datetime.fromtimestamp(file_modification_time).strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return timestamp, True
     else:
-        date_of_analysis = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    refresh_cache_file = True if any([cache_has_expired, not session_cache_file_exists]) else False
-    if no_use_cache_first or refresh_cache_file:
-        logger.info(f'Refreshing data cache')
-        stock_data = fetch_stock_data(ticker_data)
-        # Create DataFrame
-        df = pd.DataFrame(stock_data, columns=columns)
-        df.to_csv(session_cache_file_path, index=False)
-    elif session_cache_file_exists:
-        logger.info(f'Using cached data from {session_cache_file_path}')
-        df = pd.read_csv(session_cache_file_path)
-    else:
-        raise InternalServerError('Instructed to use cache first, but no cache file found')
-    return date_of_analysis, df.to_dict(orient='records')
+        file_modification_time = file_path.stat().st_mtime
+        current_time = time.time()
+        difference_in_seconds = int(current_time - file_modification_time)
+        is_expired = difference_in_seconds > (num_minutes * 60)
+        timestamp = datetime.fromtimestamp(file_modification_time).strftime("%Y-%m-%d %H:%M:%S")
+        return timestamp, is_expired
 
-def fetch_ticker_data(ticker, target_day):
-    end_date = pd.Timestamp.today()
-    start_date = end_date - pd.DateOffset(months=5)
-    data = yf.download(ticker, start=start_date, end=end_date)
-    data.index = pd.to_datetime(data.index)
-    data['Weekday'] = data.index.weekday
-
-    # Add technical indicators
-    data['MA20'] = data['Close'].rolling(window=20).mean()
-    data['MA50'] = data['Close'].rolling(window=50).mean()
-    delta = data['Close'].diff()
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
-    avg_gain = gain.rolling(window=14).mean()
-    avg_loss = loss.rolling(window=14).mean()
-    rs = avg_gain / avg_loss
-    data['RSI'] = 100 - (100 / (1 + rs))
-
-    exp1 = data['Close'].ewm(span=12, adjust=False).mean()
-    exp2 = data['Close'].ewm(span=26, adjust=False).mean()
-    data['MACD'] = exp1 - exp2
-    data['Signal'] = data['MACD'].ewm(span=9, adjust=False).mean()
-
-    # Volume is already included
-
-    # P/E Ratio
-    pe_ratio = None
-    try:
-        ticker_info = yf.Ticker(ticker).info
-        pe_ratio = ticker_info.get('trailingPE', None)
-    except:
-        pass
-
-    # Friday and Target Day logic
-    fridays = data[data['Weekday'] == 4]
-    targets = data[data['Weekday'] == target_day] if isinstance(target_day, int) else data[data['Weekday'] == 4]
-
-    results = []
-    for friday_date, friday_row in fridays.iterrows():
-        if target_day == "next_friday":
-            target_date = friday_date + pd.Timedelta(days=7)
-        else:
-            days_until_target = (target_day - 4 + 7) % 7
-            target_date = friday_date + pd.Timedelta(days=days_until_target)
-
-        if target_date in targets.index:
-            target_close = float(targets.loc[target_date]['Close'])
-            friday_close = float(friday_row['Close'])
-            change_pct = ((target_close - friday_close) / friday_close) * 100
-
-            results.append({
-                'Friday': friday_date.date(),
-                'Friday Close': round(friday_close, 2),
-                'Target Day': target_date.date(),
-                'Target Close': round(target_close, 2),
-                'Change (%)': round(change_pct, 2)
-            })
-
-    summary_df = pd.DataFrame(results)
-    return data, summary_df, pe_ratio
-
+def compute_analysis(ticker):
+    current_process_name = current_process().name
+    stock_data = fetch_stock_data(current_process_name, ticker)
+    # Create DataFrame
+    df = pd.DataFrame(stock_data, columns=schema)
+    return df.to_dict(orient='records')
 
 def plot_price_chart(data):
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -384,6 +303,7 @@ def plot_rsi(data):
     ax.axhline(70, linestyle='--', color='red')
     ax.axhline(30, linestyle='--', color='green')
     ax.set_title("RSI Chart")
+    ax.legend()
     return fig
 
 
@@ -412,45 +332,35 @@ matplotlib.use('Agg')
 @app.route('/', methods=['GET', 'POST'])
 def index():
     context = {}
-    if 'session_id' not in session:
-        session['session_id'] = str(uuid.uuid4())  # Generate a session ID
-    session_id = session['session_id']
     if request.method == 'POST':
-        # ticker = request.form['ticker']
-        # target_day = request.form['target_day']
-        # target_day = int(target_day) if target_day.isdigit() else target_day
-        # data, summary_df, pe_ratio = fetch_ticker_data(ticker, target_day)
-        date_of_analysis, analysis = compute_analysis(session_id=session_id)
-        # chart = fig_to_base64(plot_price_chart(data))
-        # rsi_chart = fig_to_base64(plot_rsi(data))
-        # macd_chart = fig_to_base64(plot_macd(data))
+        logger.info("Main process - Starting stock data fetch")
+        if 'session_id' not in session:
+            session['session_id'] = str(uuid.uuid4())  # Generate a session ID
+        session_id = session['session_id']
+        start_time = time.time()
+        session_cache_file_obj = cache_file_obj.parent / f'{cache_file_obj.stem}-{session_id}{cache_file_obj.suffix}'
+        session_cache_file_path = session_cache_file_obj.as_posix()
+        session_cache_file_exists = session_cache_file_obj.exists()
+        date_of_analysis, cache_has_expired = check_if_expired(cache_expiry_in_minutes, session_cache_file_obj)
+        if no_use_cache_first or cache_has_expired:
+            logger.info(f'Refreshing data cache')
+            with Pool(processes=num_threads) as pool:
+                stock_data_analysis = pool.map(compute_analysis, tickers)
+                with open(session_cache_file_path, 'wb') as f:
+                    pickle.dump(stock_data_analysis, f)
+        elif session_cache_file_exists:
+            logger.info(f'Using cached data from {session_cache_file_path}')
+            with open(session_cache_file_path, 'rb') as f:
+                stock_data_analysis = pickle.load(f)
+        else:
+            raise InternalServerError('Instructed to use cache first, but no cache file found')
         context.update({
-            # 'ticker': ticker,
-            # 'summary_table': summary_df.to_html(classes='table table-striped', index=False),
-            # 'pe_ratio': pe_ratio,
-            # 'chart': chart,
-            # 'rsi_chart': rsi_chart,
-            # 'macd_chart': macd_chart,
             'timestamp': date_of_analysis,
-            'analysis': analysis
+            'stock_data_analysis': stock_data_analysis
         })
+        duration = time.time() - start_time
+        logger.info(f"Main process - Completed stock data fetch in {duration:.2f} seconds")
     return render_template('index.html', **context)
 
-
-@app.route('/export', methods=['POST'])
-def export():
-    ticker = request.form['ticker']
-    target_day = request.form['target_day']
-    target_day = int(target_day) if target_day.isdigit() else target_day
-
-    _, summary_df, _ = fetch_ticker_data(ticker, target_day)
-
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        summary_df.to_excel(writer, index=False, sheet_name='Summary')
-    output.seek(0)
-    return send_file(output, as_attachment=True, download_name=f'{ticker}_summary.xlsx')
-
-
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=debug)
+    app.run(host=host_address, port=host_port, debug=debug)
