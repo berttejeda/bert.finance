@@ -1,2 +1,3 @@
 .dir-exec.sh
 venv
+*.pkl

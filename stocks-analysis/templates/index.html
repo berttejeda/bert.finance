@@ -170,13 +170,14 @@
               {{ stock_data[0]['Ticker'] }}
             </a>
             </td>
-            <td class="Current Price">{{ stock_data[0]['Current Price'] }}</td>
-            <td class="50-Day MA">{{ stock_data[0]['50-Day MA'] }}</td>
-            <td class="100-Day MA">{{ stock_data[0]['100-Day MA'] }}</td>
-            <td class="200-Day MA">{{ stock_data[0]['200-Day MA'] }}</td>
+            <td class="Price">{{ stock_data[0]['Price'] }}</td>
+            <td class="50-MA">{{ stock_data[0]['50-MA'] }}</td>
+            <td class="100-MA">{{ stock_data[0]['100-MA'] }}</td>
+            <td class="200-MA">{{ stock_data[0]['200-MA'] }}</td>
             <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div></td>
             <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div></td>
-            <td class="Bollinger Band Signal">{{ stock_data[0]['Bollinger Band Signal'] }}</td>
+            <td class="VROC Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div></td>
+            <td class="StockSignal">{{ stock_data[0]['StockSignal'] }}</td>
             <td class="P/E Ratio">{{ stock_data[0]['P/E Ratio'] }}</td>
             <td class="Next Earnings Date">{{ stock_data[0]['Next Earnings Date'] }}</td>
         </tr>
@@ -214,8 +215,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
-        valueNames: ['Ticker', 'Current Price', '50-Day MA', '100-Day MA', '200-Day MA',
-        'RSI Chart', 'MACD Chart', 'Bollinger Band Signal', 'P/E Ratio', 'Next Earnings Date']
+        valueNames: ['Ticker', 'Price', '50-MA', '100-MA', '200-MA',
+        'RSI Chart', 'MACD Chart', 'VROC Chart', 'StockSignal', 'P/E Ratio', 'Next Earnings Date']
         };
         var stock_list = new List(document.body, options);
 

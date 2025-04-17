@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from btconfig import Config
 from flask import Flask, render_template, request, session
 from multiprocessing import cpu_count, current_process, Pool
@@ -67,7 +67,9 @@ def fetch_stock_data(current_process_name, ticker):
     # Log messages at different levels
     logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
     stock = yf.Ticker(ticker_name)
+    stock_downloaded_data = yf.download(ticker_name, period="5d", interval="1h")
     pe_ratio = stock.info.get('trailingPE', None)
+    vroc = calculate_vroc(stock_downloaded_data)
     hist = stock.history(period=historical_period)  # Fetch historical data
 
     if not hist.empty:
@@ -77,14 +79,14 @@ def fetch_stock_data(current_process_name, ticker):
         ma_200 = round(hist["Close"].rolling(window=200).mean().iloc[-1], 2)
 
         # Add technical indicators
-        delta = hist['Close'].diff()
-        gain = delta.where(delta > 0, 0)
-        loss = -delta.where(delta < 0, 0)
-        avg_gain = gain.rolling(window=14).mean()
-        avg_loss = loss.rolling(window=14).mean()
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
-        rsi_chart = fig_to_base64(plot_rsi(rsi))
+        rsi = calculate_rsi(hist)
+        vroc_signal = calculate_vroc_signals(stock_downloaded_data, rsi)
+        vroc_signal_chart = fig_to_base64(plot_vroc(ticker_name, vroc_signal))
+        vroc_signal_chart_description = """
+This indicator measures the percentage change in trading volume over a specific period. 
+A rising VROC could signal increasing interest in a stock.
+"""
+        rsi_chart = fig_to_base64(plot_rsi(ticker_name, rsi))
         rsi_chart_description = """
 RSI – Relative Strength Index
 
@@ -106,7 +108,7 @@ How it's used:
         exp1 = hist['Close'].ewm(span=12, adjust=False).mean()
         exp2 = hist['Close'].ewm(span=26, adjust=False).mean()
         macd = exp1 - exp2
-        macd_chart = fig_to_base64(plot_macd(macd))
+        macd_chart = fig_to_base64(plot_macd(ticker_name, macd))
         macd_chart_description = """
 MACD – Moving Average Convergence Divergence
 
@@ -166,10 +168,35 @@ Example:
         rsi_chart_description,
         macd_chart,
         macd_chart_description,
+        vroc_signal_chart,
+        vroc_signal_chart_description,
         stock_signal,
         pe_ratio,
         next_earnings_date
     ])
+    return data
+
+def calculate_rsi(data, period=14):
+    delta = data['Close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
+
+def calculate_vroc(data, period=5):
+    # Group into trading days and sum volumes per day
+    data['VROC'] = data['Volume'].pct_change(periods=period) * 100
+    return data
+
+def calculate_vroc_signals(data, rsi, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
+    # Function to calculate VROC
+    # Signal generation
+    data['Signal'] = 0
+    data.loc[(data['VROC'] > vroc_buy_threshold) & (rsi < rsi_buy_threshold), 'Signal'] = 1
+    data.loc[(data['VROC'] < vroc_sell_threshold) & (rsi > rsi_sell_threshold), 'Signal'] = -1
     return data
 
 def bollinger_signal(ticker, period=25, std_dev=2):
@@ -296,26 +323,29 @@ def plot_price_chart(data):
     ax.legend()
     return fig
 
+def plot_vroc(ticker, data):
+    fig = plt.figure(figsize=(12, 2))
+    plt.title(f'{ticker} VROC Chart')
+    plt.plot(data['VROC'], label='VROC', color='orange')
+    return fig
 
-def plot_rsi(data):
+def plot_rsi(ticker, data):
     fig, ax = plt.subplots(figsize=(12, 2))
     ax.plot(data.index, data, label='RSI', color='purple')
     ax.axhline(70, linestyle='--', color='red')
     ax.axhline(30, linestyle='--', color='green')
-    ax.set_title("RSI Chart")
+    ax.set_title(f'{ticker} RSI Chart')
     ax.legend()
     return fig
 
-
-def plot_macd(data):
+def plot_macd(ticker, data):
     signal = data.ewm(span=9, adjust=False).mean()
     fig, ax = plt.subplots(figsize=(12, 2))
     ax.plot(data.index, data, label='MACD', color='blue')
     ax.plot(data.index, signal, label='Signal', color='orange')
-    ax.set_title("MACD Chart")
+    ax.set_title(f'{ticker} MACD Chart')
     ax.legend()
     return fig
-
 
 def fig_to_base64(fig):
     img = io.BytesIO()
