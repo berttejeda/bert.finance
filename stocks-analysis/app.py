@@ -69,7 +69,6 @@ def fetch_stock_data(current_process_name, ticker):
     stock = yf.Ticker(ticker_name)
     stock_downloaded_data = yf.download(ticker_name, period="5d", interval="1h")
     pe_ratio = stock.info.get('trailingPE', None)
-    vroc = calculate_vroc(stock_downloaded_data)
     hist = stock.history(period=historical_period)  # Fetch historical data
 
     if not hist.empty:
@@ -83,7 +82,10 @@ def fetch_stock_data(current_process_name, ticker):
         vroc_signal = calculate_vroc_signals(stock_downloaded_data, rsi)
         vroc_signal_chart = fig_to_base64(plot_vroc(ticker_name, vroc_signal))
         vroc_signal_chart_description = """
+VROC - Volume Rate of Change
+
 This indicator measures the percentage change in trading volume over a specific period. 
+
 A rising VROC could signal increasing interest in a stock.
 """
         rsi_chart = fig_to_base64(plot_rsi(ticker_name, rsi))
@@ -186,13 +188,9 @@ def calculate_rsi(data, period=14):
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-def calculate_vroc(data, period=5):
-    # Group into trading days and sum volumes per day
-    data['VROC'] = data['Volume'].pct_change(periods=period) * 100
-    return data
-
-def calculate_vroc_signals(data, rsi, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
+def calculate_vroc_signals(data, rsi, period=14, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
     # Function to calculate VROC
+    data['VROC'] = data['Volume'].pct_change(periods=period) * 100
     # Signal generation
     data['Signal'] = 0
     data.loc[(data['VROC'] > vroc_buy_threshold) & (rsi < rsi_buy_threshold), 'Signal'] = 1
