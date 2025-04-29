@@ -5,6 +5,7 @@ data:
     - "Price"
     - "50-MA"
     - "100-MA"
+    - "150-MA"
     - "200-MA"
     - "RSI Chart"
     - "RSI Chart Description"
@@ -12,11 +13,14 @@ data:
     - "MACD Chart Description"
     - "VROC Chart"
     - "VROC Chart Description"
-    - "StockSignal"
+    - "News Chart"
+    - "News Chart Description"
+    - "Σ-BOLL"
+    - "Σ-MA"
     - "P/E Ratio"
     - "Next Earnings Date"
 tickers:
-  - name: GME
+  - name: "GME"
     type: stock
   - name: "VOO"
     type: index
@@ -111,4 +115,5 @@ tickers:
   - name: "TSM"
     type: stock
   - name: "REGN"
-    type: stock
+    type: stock    
+

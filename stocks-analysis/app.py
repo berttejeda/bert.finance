@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, session
 from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
 from werkzeug.exceptions import InternalServerError
+from finvizfinance.quote import finvizfinance
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -15,6 +16,7 @@ import logging
 import time
 import yfinance as yf
 import pandas as pd
+import tzlocal
 import uuid
 
 # Configure the logging system
@@ -22,6 +24,8 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # Create a logger
 logger = logging.getLogger('stock-analyzer.main')
+# Get the local timezone
+local_tz = tzlocal.get_localzone()
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Stock Analysis Script")
@@ -64,7 +68,10 @@ def fetch_stock_data(current_process_name, ticker):
     data = []
     ticker_name = ticker['name']
     ticker_type = ticker['type']
-    # Log messages at different levels
+    logger.info(f'{current_process_name} - Retrieving news data for {ticker_name}')
+    stock_news_data = fetch_ticker_news_data(ticker_name)
+    stock_news_chart = fig_to_base64(plot_stock_news_data(ticker_name, stock_news_data))
+    stock_news_chart_description = create_news_markdown(ticker_name, stock_news_data)
     logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
     stock = yf.Ticker(ticker_name)
     stock_downloaded_data = yf.download(ticker_name, period="5d", interval="1h")
@@ -75,6 +82,7 @@ def fetch_stock_data(current_process_name, ticker):
         current_price = round(hist["Close"].iloc[-1], 2)
         ma_50 = round(hist["Close"].rolling(window=50).mean().iloc[-1], 2)
         ma_100 = round(hist["Close"].rolling(window=100).mean().iloc[-1], 2)
+        ma_150 = round(hist["Close"].rolling(window=150).mean().iloc[-1], 2)
         ma_200 = round(hist["Close"].rolling(window=200).mean().iloc[-1], 2)
 
         # Add technical indicators
@@ -150,8 +158,8 @@ Example:
         current_price = ma_50 = ma_100 = ma_200 = earnings_date = "N/A"
     next_earnings_date = earnings_dates[0]
     # predicted_price_movement = predict_bollinger_movement(ticker_name)
-    stock_signals = bollinger_signal(ticker_name)
-    stock_signal = stock_signals['Signal']
+    ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
+    bollinger_stock_signal = get_bollinger_stock_signal(ticker_name)['Signal']
     company_info = f"""
 ### Company Info
 - **Summary**: {stock.info.get('longBusinessSummary', 'No summary available.')}
@@ -165,6 +173,7 @@ Example:
         current_price,
         ma_50,
         ma_100,
+        ma_150,
         ma_200,
         rsi_chart,
         rsi_chart_description,
@@ -172,11 +181,30 @@ Example:
         macd_chart_description,
         vroc_signal_chart,
         vroc_signal_chart_description,
-        stock_signal,
+        stock_news_chart,
+        stock_news_chart_description,
+        bollinger_stock_signal,
+        ma_stock_signal,
         pe_ratio,
         next_earnings_date
     ])
     return data
+
+def create_news_markdown(ticker, data):
+    markdown_content = f'# {ticker} News\n{data.to_markdown()}'
+    return markdown_content
+
+def fetch_ticker_news_data(ticker, period=7):
+    stock = finvizfinance(ticker)
+    news = stock.ticker_news()
+    # Get today's date and filter news from the last NN days
+    today = datetime.now()
+    time_delta = today - timedelta(days=period)
+    # Convert Date column to date and filter news items
+    news['Date'] = pd.to_datetime(news['Date'], unit='s', errors='coerce')
+    news = stock.ticker_news()
+    news.loc[news['Date'] > time_delta, 'Date'] = pd.to_datetime(news.loc[news['Date'] > time_delta, 'Date'])
+    return news
 
 def calculate_rsi(data, period=14):
     delta = data['Close'].diff()
@@ -197,12 +225,31 @@ def calculate_vroc_signals(data, rsi, period=14, vroc_buy_threshold=20, vroc_sel
     data.loc[(data['VROC'] < vroc_sell_threshold) & (rsi > rsi_sell_threshold), 'Signal'] = -1
     return data
 
-def bollinger_signal(ticker, period=25, std_dev=2):
+def get_ma_stock_signal(current_price, ma_50, ma_150):
+
+    if current_price > ma_50 and current_price > ma_150:
+        ma_signal = "Buy"
+    elif current_price < ma_50 and current_price < ma_150:
+        ma_signal = "Sell"
+    else:
+        ma_signal = "Hold"
+
+    return {
+        "Signal": ma_signal,
+    }
+
+
+def get_bollinger_stock_signal(ticker, period=25, std_dev=2):
     """
-    Returns a trading signal based on Bollinger Bands:
-    - 'Buy' if price < lower band
-    - 'Sell' if price > upper band
-    - 'Hold' if in between
+    Returns trading signals based on various factors, e.g. Bollinger Bands:
+    - MovingAverageSignal:
+        - 'Buy' if price > 50-Day Moving Average && price > 150-Day Moving Average
+        - 'Sell' if price < 50-Day Moving Average && price < 150-Day Moving Average
+        - else, 'Hold'
+    - Bollinger:
+        - 'Buy' if price < lower band
+        - 'Sell' if price > upper band
+        - 'Hold' if in between
     """
     df = yf.download(ticker, period='3mo', interval='1d', progress=False, auto_adjust=True)
 
@@ -226,14 +273,14 @@ def bollinger_signal(ticker, period=25, std_dev=2):
     lower = latest['Lower'].item()
 
     if close < lower:
-        signal = "Buy"
+        bollinger_signal = "Buy"
     elif close > upper:
-        signal = "Sell"
+        bollinger_signal = "Sell"
     else:
-        signal = "Hold"
+        bollinger_signal = "Hold"
 
     return {
-        "Signal": signal,
+        "Signal": bollinger_signal,
         "Close": round(close, 2),
         "Upper Band": round(upper, 2),
         "Lower Band": round(lower, 2)
@@ -319,6 +366,22 @@ def plot_price_chart(data):
     ax.plot(data.index, data['MA50'], label='MA50')
     ax.set_title("Price and Moving Averages")
     ax.legend()
+    return fig
+
+def plot_stock_news_data(ticker, data):
+    # article_count = data.groupby('Date').size().reset_index(name='ArticleCount')
+    # fig = plt.figure(figsize=(12, 2))
+    # plt.plot(article_count['Date'], article_count['ArticleCount'])
+    # plt.title(f"{ticker} - News Articles per Day")
+    # plt.xlabel("Day")
+    # plt.ylabel("Number of News Articles")
+    # plt.xticks(rotation=45)
+    # plt.grid(True)
+    # return fig
+
+    fig = plt.figure(figsize=(12, 2))
+    plt.title(f'{ticker} News Chart')
+    plt.plot(data['Date'], label='News Articles', color='orange')
     return fig
 
 def plot_vroc(ticker, data):

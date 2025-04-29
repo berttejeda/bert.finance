@@ -55,6 +55,7 @@
       .lightbox-caption {
         color: #fff;
         margin-top: 1rem;
+        style: overflow: auto;
       }
 
       #loading-indicator {
@@ -105,6 +106,7 @@
             font-size: 1.5rem;
         }
         input { margin-bottom: 10px; padding: 6px; width: 200px; }
+
     </style>
 </head>
 <body>
@@ -173,11 +175,14 @@
             <td class="Price">{{ stock_data[0]['Price'] }}</td>
             <td class="50-MA">{{ stock_data[0]['50-MA'] }}</td>
             <td class="100-MA">{{ stock_data[0]['100-MA'] }}</td>
+            <td class="150-MA">{{ stock_data[0]['150-MA'] }}</td>
             <td class="200-MA">{{ stock_data[0]['200-MA'] }}</td>
             <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div></td>
             <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div></td>
             <td class="VROC Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div></td>
-            <td class="StockSignal">{{ stock_data[0]['StockSignal'] }}</td>
+            <td class="News Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['News Chart'] }}" class="img-fluid"></div></td>
+            <td class="Σ-BOLL">{{ stock_data[0]['Σ-BOLL'] }}</td>
+            <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
             <td class="P/E Ratio">{{ stock_data[0]['P/E Ratio'] }}</td>
             <td class="Next Earnings Date">{{ stock_data[0]['Next Earnings Date'] }}</td>
         </tr>
@@ -215,8 +220,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
-        valueNames: ['Ticker', 'Price', '50-MA', '100-MA', '200-MA',
-        'RSI Chart', 'MACD Chart', 'VROC Chart', 'StockSignal', 'P/E Ratio', 'Next Earnings Date']
+        valueNames: ['Ticker', 'Price', '50-MA', '100-MA', '150-MA', '200-MA',
+        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Σ-BOLL', 'Σ-MA', 'P/E Ratio', 'Next Earnings Date']
         };
         var stock_list = new List(document.body, options);
 
@@ -235,10 +240,15 @@
 
         let scale = 1;
 
+        document.querySelectorAll('.lightbox-caption').forEach((el) => {
+          el.style.overflow = "auto";
+        });
+
         document.querySelectorAll('div > img').forEach(img => {
           img.addEventListener('click', () => {
             const markdown = img.getAttribute('data-caption') || '';
-            const htmlCaption = marked.parse(markdown);
+            const htmlCaption = marked.parse(markdown).replace('<table','<table class="table table-striped table-bordered table-hover table-sm table-responsive"')
+            console.log(htmlCaption)
             lightbox.classList.add('active');
             lightboxImg.src = img.src;
             lightboxCaption.innerHTML = htmlCaption;
