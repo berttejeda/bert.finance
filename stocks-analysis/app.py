@@ -191,7 +191,14 @@ Example:
     return data
 
 def create_news_markdown(ticker, data):
-    markdown_content = f'# {ticker} News\n{data.to_markdown()}'
+    markdown_content = f'''
+<h1 style="text-align:center;">{ticker} News</h1>
+<script language="javascript">
+alert("ok")
+</script>
+
+{data.to_markdown()}
+'''
     return markdown_content
 
 def fetch_ticker_news_data(ticker, period=7):
@@ -200,13 +207,27 @@ def fetch_ticker_news_data(ticker, period=7):
     # Get today's date and filter news from the last NN days
     today = datetime.now()
     time_delta = today - timedelta(days=period)
+    cutoff_date = pd.to_datetime(time_delta)
     # Convert Date column to date and filter news items
     news['Date'] = pd.to_datetime(news['Date'], unit='s', errors='coerce')
-    news = stock.ticker_news()
-    news.loc[news['Date'] > time_delta, 'Date'] = pd.to_datetime(news.loc[news['Date'] > time_delta, 'Date'])
-    return news
+    filtered_news = news[news['Date'] > cutoff_date].reset_index(drop=True)
+    return filtered_news
 
-def calculate_rsi(data, period=14):
+def plot_stock_news_data(ticker, data):
+    # Group by formatted timestamp and count occurrences
+    data['Date'] = pd.to_datetime(data['Date'], unit='s', errors='coerce', format='%d/%m/%Y').dt.strftime('%Y-%m-%d')
+    counts = data.groupby('Date').size()
+    fig = plt.figure(figsize=(12, 2))  # Adjust figure size as needed
+    plt.plot(counts.index, counts.values)  # Line plot
+    plt.fill_between(counts.index, counts.values, alpha=0.5)
+    plt.xlabel('Time')
+    plt.ylabel('Count')
+    plt.title(f'{ticker} News Articles Over Time')
+    plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
+    plt.tight_layout()  # Adjust layout to prevent labels from overlapping
+    return fig
+
+def calculate_rsi(data, period=7):
     delta = data['Close'].diff()
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
@@ -216,7 +237,7 @@ def calculate_rsi(data, period=14):
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-def calculate_vroc_signals(data, rsi, period=14, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
+def calculate_vroc_signals(data, rsi, period=7, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
     # Function to calculate VROC
     data['VROC'] = data['Volume'].pct_change(periods=period) * 100
     # Signal generation
@@ -224,6 +245,12 @@ def calculate_vroc_signals(data, rsi, period=14, vroc_buy_threshold=20, vroc_sel
     data.loc[(data['VROC'] > vroc_buy_threshold) & (rsi < rsi_buy_threshold), 'Signal'] = 1
     data.loc[(data['VROC'] < vroc_sell_threshold) & (rsi > rsi_sell_threshold), 'Signal'] = -1
     return data
+
+def plot_vroc(ticker, data):
+    fig = plt.figure(figsize=(12, 2))
+    plt.title(f'{ticker} VROC Chart')
+    plt.plot(data['VROC'], label='VROC', color='orange')
+    return fig
 
 def get_ma_stock_signal(current_price, ma_50, ma_150):
 
@@ -239,7 +266,7 @@ def get_ma_stock_signal(current_price, ma_50, ma_150):
     }
 
 
-def get_bollinger_stock_signal(ticker, period=25, std_dev=2):
+def get_bollinger_stock_signal(ticker, period=7, std_dev=2):
     """
     Returns trading signals based on various factors, e.g. Bollinger Bands:
     - MovingAverageSignal:
@@ -286,7 +313,7 @@ def get_bollinger_stock_signal(ticker, period=25, std_dev=2):
         "Lower Band": round(lower, 2)
     }
 
-def predict_bollinger_movement(ticker, period=20, std_dev=2):
+def predict_bollinger_movement(ticker, period=7, std_dev=2):
     """
     Predicts price movement direction based on Bollinger Bands.
 
@@ -366,28 +393,6 @@ def plot_price_chart(data):
     ax.plot(data.index, data['MA50'], label='MA50')
     ax.set_title("Price and Moving Averages")
     ax.legend()
-    return fig
-
-def plot_stock_news_data(ticker, data):
-    # article_count = data.groupby('Date').size().reset_index(name='ArticleCount')
-    # fig = plt.figure(figsize=(12, 2))
-    # plt.plot(article_count['Date'], article_count['ArticleCount'])
-    # plt.title(f"{ticker} - News Articles per Day")
-    # plt.xlabel("Day")
-    # plt.ylabel("Number of News Articles")
-    # plt.xticks(rotation=45)
-    # plt.grid(True)
-    # return fig
-
-    fig = plt.figure(figsize=(12, 2))
-    plt.title(f'{ticker} News Chart')
-    plt.plot(data['Date'], label='News Articles', color='orange')
-    return fig
-
-def plot_vroc(ticker, data):
-    fig = plt.figure(figsize=(12, 2))
-    plt.title(f'{ticker} VROC Chart')
-    plt.plot(data['VROC'], label='VROC', color='orange')
     return fig
 
 def plot_rsi(ticker, data):
