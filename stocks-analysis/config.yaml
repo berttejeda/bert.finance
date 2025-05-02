@@ -15,12 +15,19 @@ data:
     - "VROC Chart Description"
     - "News Chart"
     - "News Chart Description"
+    - "Sentiment"
     - "Σ-BOLL"
     - "Σ-MA"
     - "P/E Ratio"
     - "Next Earnings Date"
 tickers:
   - name: "GME"
+    type: stock
+  - name: "SOFI"
+    type: stock
+  - name: "MELI"
+    type: stock
+  - name: "ETSY"
     type: stock
   - name: "VOO"
     type: index
@@ -115,5 +122,4 @@ tickers:
   - name: "TSM"
     type: stock
   - name: "REGN"
-    type: stock    
-
+    type: stock

@@ -181,6 +181,7 @@
             <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div></td>
             <td class="VROC Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div></td>
             <td class="News Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['News Chart'] }}" class="img-fluid"></div></td>
+            <td class="Sentiment">{{ stock_data[0]['Sentiment'] }}</td>
             <td class="Σ-BOLL">{{ stock_data[0]['Σ-BOLL'] }}</td>
             <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
             <td class="P/E Ratio">{{ stock_data[0]['P/E Ratio'] }}</td>
@@ -221,7 +222,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
         valueNames: ['Ticker', 'Price', '50-MA', '100-MA', '150-MA', '200-MA',
-        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Σ-BOLL', 'Σ-MA', 'P/E Ratio', 'Next Earnings Date']
+        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E Ratio', 'Next Earnings Date']
         };
         var stock_list = new List(document.body, options);
 

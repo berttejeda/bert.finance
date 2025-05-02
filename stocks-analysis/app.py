@@ -5,9 +5,11 @@ from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
 from werkzeug.exceptions import InternalServerError
 from finvizfinance.quote import finvizfinance
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 import matplotlib
 import matplotlib.pyplot as plt
+import nltk
 import io
 import base64
 import argparse
@@ -18,6 +20,11 @@ import yfinance as yf
 import pandas as pd
 import tzlocal
 import uuid
+
+# Ensure necessary NLTK data is downloaded
+nltk.download('vader_lexicon')
+# Initialize sentiment analyzer
+analyzer = SentimentIntensityAnalyzer()
 
 # Configure the logging system
 logging.basicConfig(level=logging.INFO,
@@ -69,7 +76,7 @@ def fetch_stock_data(current_process_name, ticker):
     ticker_name = ticker['name']
     ticker_type = ticker['type']
     logger.info(f'{current_process_name} - Retrieving news data for {ticker_name}')
-    stock_news_data = fetch_ticker_news_data(ticker_name)
+    stock_news_data, stock_sentiment = fetch_ticker_news_data(ticker_name)
     stock_news_chart = fig_to_base64(plot_stock_news_data(ticker_name, stock_news_data))
     stock_news_chart_description = create_news_markdown(ticker_name, stock_news_data)
     logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
@@ -183,6 +190,7 @@ Example:
         vroc_signal_chart_description,
         stock_news_chart,
         stock_news_chart_description,
+        stock_sentiment,
         bollinger_stock_signal,
         ma_stock_signal,
         pe_ratio,
@@ -211,15 +219,22 @@ def fetch_ticker_news_data(ticker, period=7):
     # Convert Date column to date and filter news items
     news['Date'] = pd.to_datetime(news['Date'], unit='s', errors='coerce')
     filtered_news = news[news['Date'] > cutoff_date].reset_index(drop=True)
-    return filtered_news
+
+    filtered_news['sentiment_scores'] = filtered_news['Title'].apply(lambda content: analyzer.polarity_scores(content))
+    filtered_news['compound'] = filtered_news['sentiment_scores'].apply(lambda score_dict: score_dict['compound'])
+    filtered_news['Title Sentiment'] = filtered_news['compound'].apply(
+        lambda c: 'positive' if c >= 0.05 else ('negative' if c <= -0.05 else 'neutral'))
+    news_sentiment = filtered_news['Title Sentiment'].mode().iloc[0]
+    filtered_news = filtered_news.drop(columns=['compound', 'sentiment_scores'])
+    return filtered_news, news_sentiment
 
 def plot_stock_news_data(ticker, data):
     # Group by formatted timestamp and count occurrences
     data['Date'] = pd.to_datetime(data['Date'], unit='s', errors='coerce', format='%d/%m/%Y').dt.strftime('%Y-%m-%d')
     counts = data.groupby('Date').size()
     fig = plt.figure(figsize=(12, 2))  # Adjust figure size as needed
-    plt.plot(counts.index, counts.values)  # Line plot
-    plt.fill_between(counts.index, counts.values, alpha=0.5)
+    plt.plot(counts.index, counts.values, marker='o', linestyle='-')  # Line plot
+    # plt.fill_between(counts.index, counts.values, alpha=0.5)
     plt.xlabel('Time')
     plt.ylabel('Count')
     plt.title(f'{ticker} News Articles Over Time')
