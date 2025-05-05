@@ -61,6 +61,8 @@ historical_period = args.historical_period
 cache_file_obj = Path(args.cache_file_path).resolve()
 host_address = args.host_address
 host_port = args.host_port
+today = datetime.now()
+
 try:
     num_threads = int(args.threads)
 except Exception as e:
@@ -75,105 +77,34 @@ def fetch_stock_data(current_process_name, ticker):
     data = []
     ticker_name = ticker['name']
     ticker_type = ticker['type']
-    logger.info(f'{current_process_name} - Retrieving news data for {ticker_name}')
-    stock_news_data, stock_sentiment = fetch_ticker_news_data(ticker_name)
-    stock_news_chart = fig_to_base64(plot_stock_news_data(ticker_name, stock_news_data))
-    stock_news_chart_description = create_news_markdown(ticker_name, stock_news_data)
-    logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
     stock = yf.Ticker(ticker_name)
-    stock_downloaded_data = yf.download(ticker_name, period="5d", interval="1h")
+    # Fetch Historical Data
+    stock_history = stock.history(period=historical_period)  # Fetch historical data
+    # Fetch News Headlines
+    stock_news_data = fetch_ticker_news_data(ticker_name, current_process_name)
+    # Fetch Additional Data
+    logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
+    stock_downloaded_data = yf.download(ticker_name, period=historical_period, interval="1h")
     pe_ratio = stock.info.get('trailingPE', None)
-    hist = stock.history(period=historical_period)  # Fetch historical data
-
-    if not hist.empty:
-        current_price = round(hist["Close"].iloc[-1], 2)
-        ma_50 = round(hist["Close"].rolling(window=50).mean().iloc[-1], 2)
-        ma_100 = round(hist["Close"].rolling(window=100).mean().iloc[-1], 2)
-        ma_150 = round(hist["Close"].rolling(window=150).mean().iloc[-1], 2)
-        ma_200 = round(hist["Close"].rolling(window=200).mean().iloc[-1], 2)
-
+    if not stock_history.empty:
+        current_price = round(stock_history["Close"].iloc[-1], 2)
+        ma_50 = round(stock_history["Close"].rolling(window=50).mean().iloc[-1], 2)
+        ma_100 = round(stock_history["Close"].rolling(window=100).mean().iloc[-1], 2)
+        ma_150 = round(stock_history["Close"].rolling(window=150).mean().iloc[-1], 2)
+        ma_200 = round(stock_history["Close"].rolling(window=200).mean().iloc[-1], 2)
         # Add technical indicators
-        rsi = calculate_rsi(hist)
-        vroc_signal = calculate_vroc_signals(stock_downloaded_data, rsi)
-        vroc_signal_chart = fig_to_base64(plot_vroc(ticker_name, vroc_signal))
-        vroc_signal_chart_description = """
-VROC - Volume Rate of Change
-
-This indicator measures the percentage change in trading volume over a specific period. 
-
-A rising VROC could signal increasing interest in a stock.
-"""
-        rsi_chart = fig_to_base64(plot_rsi(ticker_name, rsi))
-        rsi_chart_description = """
-RSI – Relative Strength Index
-
-This is a technical indicator in stock and crypto trading.
-
-What it measures:
-- RSI measures the speed and change of price movements, showing whether a stock is overbought or oversold.
-- Scale: 0 to 100
-- Above 70 = Overbought (might be due for a pullback)
-- Below 30 = Oversold (might be due for a rebound)
-
-How it's used:
-- Traders use RSI to spot potential reversal points.
-  For example, if a stock’s RSI crosses below 30 and starts to climb back up, it might be a buy signal.
-  Conversely, if RSI goes above 70 and starts to dip, that could be a sell signal.
-- Example:
-  A stock’s RSI is 25 → this could signal it's oversold → potential buying opportunity (after confirming with other data).
-"""
-        exp1 = hist['Close'].ewm(span=12, adjust=False).mean()
-        exp2 = hist['Close'].ewm(span=26, adjust=False).mean()
-        macd = exp1 - exp2
-        macd_chart = fig_to_base64(plot_macd(ticker_name, macd))
-        macd_chart_description = """
-MACD – Moving Average Convergence Divergence
-
-This is a technical indicator in stock and crypto trading.
-
-What it measures:
-- MACD tracks the relationship between two moving averages of a stock's price:
-- 12-day EMA (fast)
-- 26-day EMA (slow)
-
-The MACD line is calculated as:
-- MACD = 12-day EMA – 26-day EMA
-- A signal line (usually a 9-day EMA of the MACD) is also plotted.
-- Key elements:
-  - MACD Line
-  - Signal Line
-
-Histogram – shows the difference between MACD and the Signal Line
-
-How it’s used:
-  - Bullish crossover: MACD crosses above the signal line → potential buy signal
-  - Bearish crossover: MACD crosses below the signal line → potential sell signal
-
-When the histogram bars grow/shrink, it shows increasing/decreasing momentum.
-
-Example:
-  - MACD crosses above the signal line and the histogram turns positive = bullish signal.
-"""
-        if ticker_type == 'stock':
-            if len(stock.calendar) > 0:
-                earnings_dates = stock.calendar.get('Earnings Date', ["N/A"])
-            else:
-                earnings_dates = ["N/A"]
-        else:
-            earnings_dates = ["N/A"]
+        rsi_data = calculate_rsi(ticker_name, stock_history)
+        vroc_data = calculate_vroc_signals(ticker_name, stock_downloaded_data, rsi_data['RSI'])
+        macd_data = calculate_macd_signals(ticker_name, stock_history)
+        earnings_dates = fetch_ticker_earnings_data(ticker_type, stock)
     else:
-        current_price = ma_50 = ma_100 = ma_200 = earnings_date = "N/A"
+        current_price = ma_50 = ma_100 = ma_200 = "N/A"
+        earnings_dates = ["N/A"]
     next_earnings_date = earnings_dates[0]
     # predicted_price_movement = predict_bollinger_movement(ticker_name)
     ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
     bollinger_stock_signal = get_bollinger_stock_signal(ticker_name)['Signal']
-    company_info = f"""
-### Company Info
-- **Summary**: {stock.info.get('longBusinessSummary', 'No summary available.')}
-- **Industry**: {stock.info.get('industry', 'n/a')}
-- **Sector**: {stock.info.get('sector', 'n/a')}
-- **Website**: [{stock.info.get('website', '#')}]({stock.info.get('website', '#')})
-"""
+    company_info = fetch_company_info(stock)
     data.append([
         ticker_name,
         company_info,
@@ -182,15 +113,15 @@ Example:
         ma_100,
         ma_150,
         ma_200,
-        rsi_chart,
-        rsi_chart_description,
-        macd_chart,
-        macd_chart_description,
-        vroc_signal_chart,
-        vroc_signal_chart_description,
-        stock_news_chart,
-        stock_news_chart_description,
-        stock_sentiment,
+        rsi_data['Chart'],
+        rsi_data['Chart_Description'],
+        macd_data['Chart'],
+        macd_data['Chart_Description'],
+        vroc_data['Chart'],
+        vroc_data['Chart_Description'],
+        stock_news_data['chart'],
+        stock_news_data['chart_description'],
+        stock_news_data['sentiment'],
         bollinger_stock_signal,
         ma_stock_signal,
         pe_ratio,
@@ -209,11 +140,31 @@ alert("ok")
 '''
     return markdown_content
 
-def fetch_ticker_news_data(ticker, period=7):
+def fetch_company_info(stock_data):
+    company_info = f"""
+### Company Info
+- **Summary**: {stock_data.info.get('longBusinessSummary', 'No summary available.')}
+- **Industry**: {stock_data.info.get('industry', 'n/a')}
+- **Sector**: {stock_data.info.get('sector', 'n/a')}
+- **Website**: [{stock_data.info.get('website', '#')}]({stock_data.info.get('website', '#')})
+"""
+    return company_info
+
+def fetch_ticker_earnings_data(ticker_type, stock):
+    if ticker_type == 'stock':
+        if len(stock.calendar) > 0:
+            earnings_dates = stock.calendar.get('Earnings Date', ["N/A"])
+        else:
+            earnings_dates = ["N/A"]
+    else:
+        earnings_dates = ["N/A"]
+    return earnings_dates
+
+def fetch_ticker_news_data(ticker, current_process_name, period=7):
+
+    logger.info(f'{current_process_name} - Retrieving news data for {ticker}')
     stock = finvizfinance(ticker)
     news = stock.ticker_news()
-    # Get today's date and filter news from the last NN days
-    today = datetime.now()
     time_delta = today - timedelta(days=period)
     cutoff_date = pd.to_datetime(time_delta)
     # Convert Date column to date and filter news items
@@ -226,7 +177,15 @@ def fetch_ticker_news_data(ticker, period=7):
         lambda c: 'positive' if c >= 0.05 else ('negative' if c <= -0.05 else 'neutral'))
     news_sentiment = filtered_news['Title Sentiment'].mode().iloc[0]
     filtered_news = filtered_news.drop(columns=['compound', 'sentiment_scores'])
-    return filtered_news, news_sentiment
+
+    chart = fig_to_base64(plot_stock_news_data(ticker, filtered_news))
+    chart_description = create_news_markdown(ticker, filtered_news)
+    data_obj = {
+        'chart': chart,
+        'chart_description': chart_description,
+        'sentiment': news_sentiment
+    }
+    return data_obj
 
 def plot_stock_news_data(ticker, data):
     # Group by formatted timestamp and count occurrences
@@ -242,7 +201,7 @@ def plot_stock_news_data(ticker, data):
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
     return fig
 
-def calculate_rsi(data, period=7):
+def calculate_rsi(ticker, data, period=7):
     delta = data['Close'].diff()
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
@@ -250,20 +209,57 @@ def calculate_rsi(data, period=7):
     avg_loss = loss.rolling(window=period).mean()
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-    return rsi
 
-def calculate_vroc_signals(data, rsi, period=7, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
+    rsi_chart = fig_to_base64(plot_rsi(ticker, rsi))
+    rsi_chart_description = """
+RSI – Relative Strength Index
+
+This is a technical indicator in stock and crypto trading.
+
+What it measures:
+- RSI measures the speed and change of price movements, showing whether a stock is overbought or oversold.
+- Scale: 0 to 100
+- Above 70 = Overbought (might be due for a pullback)
+- Below 30 = Oversold (might be due for a rebound)
+
+How it's used:
+- Traders use RSI to spot potential reversal points.
+  For example, if a stock’s RSI crosses below 30 and starts to climb back up, it might be a buy signal.
+  Conversely, if RSI goes above 70 and starts to dip, that could be a sell signal.
+- Example:
+  A stock’s RSI is 25 → this could signal it's oversold → potential buying opportunity (after confirming with other data).
+    """
+
+    data_obj = {
+        'Chart': rsi_chart,
+        'Chart_Description': rsi_chart_description,
+        'RSI': rsi
+    }
+
+    return data_obj
+
+def calculate_vroc_signals(ticker, data, rsi, period=7, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
     # Function to calculate VROC
     data['VROC'] = data['Volume'].pct_change(periods=period) * 100
     # Signal generation
     data['Signal'] = 0
     data.loc[(data['VROC'] > vroc_buy_threshold) & (rsi < rsi_buy_threshold), 'Signal'] = 1
     data.loc[(data['VROC'] < vroc_sell_threshold) & (rsi > rsi_sell_threshold), 'Signal'] = -1
-    return data
+    vroc_signal_chart_description = """
+VROC - Volume Rate of Change
+
+This indicator measures the percentage change in trading volume over a specific period. 
+A rising VROC could signal increasing interest in a stock.
+"""
+    data_obj = {
+        'Chart': fig_to_base64(plot_vroc(ticker, data)),
+        'Chart_Description': vroc_signal_chart_description
+    }
+    return data_obj
 
 def plot_vroc(ticker, data):
     fig = plt.figure(figsize=(12, 2))
-    plt.title(f'{ticker} VROC Chart')
+    plt.title(f'{ticker} Volume Rate of Change (VROC) Chart')
     plt.plot(data['VROC'], label='VROC', color='orange')
     return fig
 
@@ -275,13 +271,13 @@ def get_ma_stock_signal(current_price, ma_50, ma_150):
         ma_signal = "Sell"
     else:
         ma_signal = "Hold"
-
-    return {
+    data_obj = {
         "Signal": ma_signal,
     }
+    return data_obj
 
 
-def get_bollinger_stock_signal(ticker, period=7, std_dev=2):
+def get_bollinger_stock_signal(ticker, period=20, std_dev=2):
     """
     Returns trading signals based on various factors, e.g. Bollinger Bands:
     - MovingAverageSignal:
@@ -328,7 +324,7 @@ def get_bollinger_stock_signal(ticker, period=7, std_dev=2):
         "Lower Band": round(lower, 2)
     }
 
-def predict_bollinger_movement(ticker, period=7, std_dev=2):
+def predict_bollinger_movement(ticker, period=20, std_dev=2):
     """
     Predicts price movement direction based on Bollinger Bands.
 
@@ -418,6 +414,45 @@ def plot_rsi(ticker, data):
     ax.set_title(f'{ticker} RSI Chart')
     ax.legend()
     return fig
+
+def calculate_macd_signals(ticker, data):
+    exp1 = data['Close'].ewm(span=12, adjust=False).mean()
+    exp2 = data['Close'].ewm(span=26, adjust=False).mean()
+    macd = exp1 - exp2
+    macd_chart = fig_to_base64(plot_macd(ticker, macd))
+    macd_chart_description = """
+MACD – Moving Average Convergence Divergence
+
+This is a technical indicator in stock and crypto trading.
+
+What it measures:
+- MACD tracks the relationship between two moving averages of a stock's price:
+- 12-day EMA (fast)
+- 26-day EMA (slow)
+
+The MACD line is calculated as:
+- MACD = 12-day EMA – 26-day EMA
+- A signal line (usually a 9-day EMA of the MACD) is also plotted.
+- Key elements:
+  - MACD Line
+  - Signal Line
+
+Histogram – shows the difference between MACD and the Signal Line
+
+How it’s used:
+  - Bullish crossover: MACD crosses above the signal line → potential buy signal
+  - Bearish crossover: MACD crosses below the signal line → potential sell signal
+
+When the histogram bars grow/shrink, it shows increasing/decreasing momentum.
+
+Example:
+  - MACD crosses above the signal line and the histogram turns positive = bullish signal.
+    """
+    data_obj = {
+        'Chart': macd_chart,
+        'Chart_Description': macd_chart_description
+    }
+    return data_obj
 
 def plot_macd(ticker, data):
     signal = data.ewm(span=9, adjust=False).mean()
