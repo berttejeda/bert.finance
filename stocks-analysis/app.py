@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from btconfig import Config
+from fake_useragent import UserAgent
 from flask import Flask, render_template, request, session
 from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
@@ -15,16 +16,14 @@ import base64
 import argparse
 import pickle
 import logging
+import numpy as np
+import requests
+
 import time
 import yfinance as yf
 import pandas as pd
 import tzlocal
 import uuid
-
-# Ensure necessary NLTK data is downloaded
-nltk.download('vader_lexicon')
-# Initialize sentiment analyzer
-analyzer = SentimentIntensityAnalyzer()
 
 # Configure the logging system
 logging.basicConfig(level=logging.INFO,
@@ -33,6 +32,12 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('stock-analyzer.main')
 # Get the local timezone
 local_tz = tzlocal.get_localzone()
+
+logger.info("Initializing NLTK Sentiment Analyzer")
+# Ensure necessary NLTK data is downloaded
+nltk.download('vader_lexicon')
+# Initialize sentiment analyzer
+analyzer = SentimentIntensityAnalyzer()
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Stock Analysis Script")
@@ -72,6 +77,13 @@ num_cpus = cpu_count()
 if num_threads > num_cpus:
     num_threads = num_cpus
 
+def refresh_yf_user_agent():
+    """Refresh yfinance request session with a random User-Agent."""
+    ua = UserAgent()
+    session = requests.Session()
+    session.headers.update({'User-Agent': ua.random})
+    yf.shared._requests = session
+
 # Fetch stock data
 def fetch_stock_data(current_process_name, ticker):
     data = []
@@ -84,7 +96,7 @@ def fetch_stock_data(current_process_name, ticker):
     stock_news_data = fetch_ticker_news_data(ticker_name, current_process_name)
     # Fetch Additional Data
     logger.info(f'{current_process_name} - Retrieving price data for {ticker_name}')
-    stock_downloaded_data = yf.download(ticker_name, period=historical_period, interval="1h")
+    stock_downloaded_data = yf.download(ticker_name, period=historical_period, interval='1h', progress=False, auto_adjust=True)
     pe_ratio = stock.info.get('trailingPE', None)
     if not stock_history.empty:
         current_price = round(stock_history["Close"].iloc[-1], 2)
@@ -101,14 +113,16 @@ def fetch_stock_data(current_process_name, ticker):
         current_price = ma_50 = ma_100 = ma_200 = "N/A"
         earnings_dates = ["N/A"]
     next_earnings_date = earnings_dates[0]
-    # predicted_price_movement = predict_bollinger_movement(ticker_name)
     ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
-    bollinger_stock_signal = get_bollinger_stock_signal(ticker_name)['Signal']
-    company_info = fetch_company_info(stock)
+    bollinger_stock_data = get_bollinger_stock_data(stock_downloaded_data)
+    bollinger_stock_signal = bollinger_stock_data['Signal']
+    piotroski_data = calculate_piotroski_score(ticker_name, stock)
+    company_data = fetch_company_info(stock)
     data.append([
         ticker_name,
-        company_info,
+        company_data['info'],
         current_price,
+        company_data['industry'],
         ma_50,
         ma_100,
         ma_150,
@@ -125,6 +139,7 @@ def fetch_stock_data(current_process_name, ticker):
         bollinger_stock_signal,
         ma_stock_signal,
         pe_ratio,
+        piotroski_data['Score'],
         next_earnings_date
     ])
     return data
@@ -141,14 +156,23 @@ alert("ok")
     return markdown_content
 
 def fetch_company_info(stock_data):
-    company_info = f"""
+    industry = stock_data.info.get('industry', 'n/a')
+    sector = stock_data.info.get('sector', 'n/a')
+    website_url = stock_data.info.get('website', '#')
+    website_display = website_url if website_url != '#' else 'N/A'
+    company_info_markdown = f"""
 ### Company Info
 - **Summary**: {stock_data.info.get('longBusinessSummary', 'No summary available.')}
-- **Industry**: {stock_data.info.get('industry', 'n/a')}
-- **Sector**: {stock_data.info.get('sector', 'n/a')}
-- **Website**: [{stock_data.info.get('website', '#')}]({stock_data.info.get('website', '#')})
+- **Industry**: {industry}
+- **Sector**: {sector}
+- **Website**: [{website_display}]({website_url})
 """
-    return company_info
+    data_obj = {
+        "info": company_info_markdown,
+        "industry": industry,
+        "sector": sector
+    }
+    return data_obj
 
 def fetch_ticker_earnings_data(ticker_type, stock):
     if ticker_type == 'stock':
@@ -200,6 +224,133 @@ def plot_stock_news_data(ticker, data):
     plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent labels from overlapping
     return fig
+
+def net_income(ticker):
+    df = ticker.income_stmt
+    return df.loc['Net Income'].iloc[0]
+
+def roa(ticker):
+    df = ticker.balance_sheet
+    avg_assets = (df.loc['Total Assets'].iloc[0] + df.loc['Total Assets'].iloc[1]) / 2
+    return round(net_income(ticker) / avg_assets, 2)
+
+def ocf(ticker):
+    df = ticker.cash_flow
+    if 'Operating Cash Flow' in df.index:
+        return df.loc['Operating Cash Flow'].iloc[0]
+    else:
+        # Calculate Operating Cash Flow using Free Cash Flow and Captial Expenditure
+        # Take the absolute value for Captial Expenditure as yf returns as a negative number
+        return df.loc['Free Cash Flow'].iloc[0] + abs(df.loc['Capital Expenditure']).iloc[0]
+
+def ltdebt(ticker):
+    df = ticker.balance_sheet
+    return (df.loc['Long Term Debt'].iloc[1] - df.loc['Long Term Debt'].iloc[0])
+
+def current_ratio(ticker):
+    df = ticker.balance_sheet
+    current_ratio_current = df.loc['Total Assets'].iloc[0] / df.loc['Total Liabilities Net Minority Interest'].iloc[0]
+    current_ratio_prev = df.loc['Total Assets'].iloc[1] / df.loc['Total Liabilities Net Minority Interest'].iloc[1]
+    return round((current_ratio_current - current_ratio_prev), 2)
+
+def new_shares(ticker):
+    df = ticker.balance_sheet
+    return (df.loc['Common Stock'].iloc[1] - df.loc['Common Stock'].iloc[0])
+
+def gross_margin(ticker):
+    df = ticker.income_stmt
+    gross_margin_current = df.loc['Gross Profit'].iloc[0] / df.loc['Total Revenue'].iloc[0]
+    gross_margin_prev = df.loc['Gross Profit'].iloc[1] / df.loc['Total Revenue'].iloc[1]
+    return (gross_margin_current - gross_margin_prev)
+
+def asset_turnover_ratio(ticker):
+    df_bs = ticker.balance_sheet
+    y0, y1, y2 = df_bs.loc['Total Assets'].iloc[0], df_bs.loc['Total Assets'].iloc[1], df_bs.loc['Total Assets'].iloc[2]
+    avg_asset_y0 = (y0 + y1) / 2
+    avg_asset_y1 = (y1 + y2) / 2
+
+    df_is = ticker.income_stmt
+    tot_rvn_y0 = df_is.loc['Total Revenue'].iloc[0] / avg_asset_y0
+    tot_rvn_y1 = df_is.loc['Total Revenue'].iloc[1] / avg_asset_y1
+
+    return round((tot_rvn_y0 - tot_rvn_y1), 2)
+
+# Criteria name -> method
+criteria_dict = {
+    'CR1': net_income,
+    'CR2': roa,
+    'CR3': ocf,
+    'CR5': ltdebt,
+    'CR6': current_ratio,
+    'CR7': new_shares,
+    'CR8': gross_margin,
+    'CR9': asset_turnover_ratio
+}
+CRITERIA = 'CR1,CR2,CR3,CR4,CR5,CR6,CR7,CR8,CR9,Score'.split(',')
+
+def calculate_piotroski_score(ticker_name, stock):
+    description = """
+The Piotroski score is a discrete score between zero and nine that reflects 
+nine criteria used to determine the strength of a firm's financial position. 
+The Piotroski score is used to determine the best value stocks, 
+with nine being the best and zero being the worst.    
+"""
+
+    # Dictionary to collect 9 criteria
+    ps_criteria = {
+        'Symbol': [], 'Name': [], 'CR1': [], 'CR2': [], 'CR3': [], 'CR4': [], 'CR5': [],
+        'CR6': [], 'CR7': [], 'CR8': [], 'CR9': []
+    }
+
+    # Dictionary to collect raw data
+    ps_criteria_data = {
+        'Symbol': [], 'Name': [], 'CR1': [], 'CR2': [], 'CR3': [], 'CR4': [], 'CR5': [],
+        'CR6': [], 'CR7': [], 'CR8': [], 'CR9': []
+    }
+
+    # Set symbol and name
+    ps_criteria['Symbol'].append(stock.info['symbol'])
+    ps_criteria['Name'].append(stock.info['longName'])
+
+    ps_criteria_data['Symbol'].append(stock.info['symbol'])
+    ps_criteria_data['Name'].append(stock.info['longName'])
+
+    # 2 - Set criteria
+    for key, value in criteria_dict.items():
+        try:
+            # 3 Uses the command pattern to call the appropriate method
+            result = value(stock)
+            ps_criteria_data[key].append(result)
+            # 4 Special adjustment for CR7 - if there are no new shares, i.e, difference between current and previous is 0 then add 1 as well
+            if key == 'CR7':
+                ps_criteria[key].append(1 if result >= 0 else 0)
+            else:
+                # Process with other CRs
+                ps_criteria[key].append(1 if result > 0 else 0)
+        except (KeyError, IndexError) as err:
+            # 5 Error encountered, due to missing data"
+            logger.debug(f'Missing piotroski criteria for {ticker_name} - {err}')
+            ps_criteria[key].append(0)
+            ps_criteria_data[key].append(np.nan)
+
+    # 6 CR4 - handle it differently as it doesn't invoke a method
+    # CR4 - Cash flow from operations being greater than net income (quality of earnings)
+    if ps_criteria_data['CR3'][-1] > ps_criteria_data['CR1'][-1]:
+        ps_criteria['CR4'].append(1)
+        ps_criteria_data['CR4'].append(1)
+    else:
+        # Set criteria and raw data to false (0)
+        ps_criteria['CR4'].append(0)
+        ps_criteria_data['CR4'].append(0)
+
+    ps_criteria_df = pd.DataFrame(ps_criteria)
+    # Add ranking scores to get the total score
+    ps_criteria_df['Score'] = ps_criteria_df[CRITERIA[:-1]].sum(axis=1).iloc[-1]
+    data_obj = {
+        "Description": description,
+        "Score": ps_criteria_df['Score'][0]
+    }
+    return data_obj
 
 def calculate_rsi(ticker, data, period=7):
     delta = data['Close'].diff()
@@ -277,7 +428,7 @@ def get_ma_stock_signal(current_price, ma_50, ma_150):
     return data_obj
 
 
-def get_bollinger_stock_signal(ticker, period=20, std_dev=2):
+def get_bollinger_stock_data(data, period=20, std_dev=2):
     """
     Returns trading signals based on various factors, e.g. Bollinger Bands:
     - MovingAverageSignal:
@@ -289,23 +440,21 @@ def get_bollinger_stock_signal(ticker, period=20, std_dev=2):
         - 'Sell' if price > upper band
         - 'Hold' if in between
     """
-    df = yf.download(ticker, period='3mo', interval='1d', progress=False, auto_adjust=True)
-
-    if df.empty or 'Close' not in df.columns:
+    if data.empty or 'Close' not in data.columns:
         return {"Signal": "no data"}
 
+    time_delta = today - timedelta(days=period)
+    cutoff_date = pd.to_datetime(time_delta)
+    # Convert Date column to date and filter news items
+    filtered_data = data[data.index < str(cutoff_date)]
+    data.update(filtered_data)
     # Calculate Bollinger Bands
-    df['MA'] = df['Close'].rolling(window=period).mean()
-    df['STD'] = df['Close'].rolling(window=period).std()
-    df['Upper'] = df['MA'] + (std_dev * df['STD'])
-    df['Lower'] = df['MA'] - (std_dev * df['STD'])
-    df.dropna(inplace=True)
-
-    if df.empty:
-        return {"Signal": "no signal"}
-
-    latest = df.iloc[-1]
-
+    data['MA'] = data['Close'].rolling(window=period).mean()
+    data['STD'] = data['Close'].rolling(window=period).std()
+    data['Upper'] = data['MA'] + (std_dev * data['STD'])
+    data['Lower'] = data['MA'] - (std_dev * data['STD'])
+    data.dropna(inplace=True)
+    latest = data.iloc[-1]
     close = latest['Close'].item()
     upper = latest['Upper'].item()
     lower = latest['Lower'].item()
@@ -317,58 +466,14 @@ def get_bollinger_stock_signal(ticker, period=20, std_dev=2):
     else:
         bollinger_signal = "Hold"
 
-    return {
+    data_obj = {
         "Signal": bollinger_signal,
         "Close": round(close, 2),
         "Upper Band": round(upper, 2),
         "Lower Band": round(lower, 2)
     }
 
-def predict_bollinger_movement(ticker, period=20, std_dev=2):
-    """
-    Predicts price movement direction based on Bollinger Bands.
-
-    Args:
-        ticker (str): The stock ticker symbol.
-        period (int): The moving average period.
-        std_dev (int or float): Number of standard deviations for bands.
-
-    Returns:
-        str: Prediction - 'up', 'down', or 'neutral'
-    """
-    # Download historical data
-    df = yf.download(ticker, period=historical_period, interval='1d')
-
-    if df.empty or 'Close' not in df.columns:
-        return "No data available or invalid ticker."
-
-    # Calculate moving average and standard deviation
-    df['MA'] = df['Close'].rolling(window=period).mean()
-    df['STD'] = df['Close'].rolling(window=period).std()
-    df['Upper'] = df['MA'] + (std_dev * df['STD'])
-    df['Lower'] = df['MA'] - (std_dev * df['STD'])
-
-    # Drop rows with NaN values
-    df = df.dropna()
-
-    # Get the last row safely
-    latest_row = df.iloc[-1]
-
-    close_price = latest_row['Close'].item()
-    upper_band = latest_row['Upper'].item()
-    lower_band = latest_row['Lower'].item()
-
-    # Optional: Debug print
-    print(f"Ticker: {ticker}")
-    print(f"Close: {close_price}, Upper: {upper_band}, Lower: {lower_band}")
-
-    # Decision logic
-    if close_price > upper_band:
-        return "down"
-    elif close_price < lower_band:
-        return "up"
-    else:
-        return "neutral"
+    return data_obj
 
 def check_if_expired(num_minutes: int, file_path: Path) -> [datetime, bool]:
     """Checks if a file is older than num_minutes.
@@ -477,6 +582,7 @@ matplotlib.use('Agg')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    refresh_yf_user_agent()
     context = {}
     if request.method == 'POST':
         logger.info("Main process - Starting stock data fetch")

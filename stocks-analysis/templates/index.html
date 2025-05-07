@@ -13,7 +13,11 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <style>
-      
+
+      #table-content > tr > td {
+        text-align: center
+      }
+
       th button {
         border: none;
         cursor: pointer;
@@ -153,9 +157,9 @@
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
             <tr>
-                {% for key,_ in stock_data_analysis[0][0].items() %}
-                {% if 'Description' not in key and key != 'INFO' %}
-                <th><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
+                {% for key,value in stock_data_analysis[0][0].items() %}
+                {% if 'Description' not in key and key != 'Info' %}
+                <th title="{{ stock_data_analysis[0][0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -168,11 +172,12 @@
                data-bs-toggle="modal"
                data-bs-target="#stockModal"
                data-symbol="{{ stock_data[0]['Ticker'] }}"
-               data-info="{{ stock_data[0]['INFO'] }}">
+               data-info="{{ stock_data[0]['Info'] }}">
               {{ stock_data[0]['Ticker'] }}
             </a>
             </td>
             <td class="Price">{{ stock_data[0]['Price'] }}</td>
+            <td class="Industry">{{ stock_data[0]['Industry'] }}</td>
             <td class="50-MA">{{ stock_data[0]['50-MA'] }}</td>
             <td class="100-MA">{{ stock_data[0]['100-MA'] }}</td>
             <td class="150-MA">{{ stock_data[0]['150-MA'] }}</td>
@@ -184,8 +189,9 @@
             <td class="Sentiment">{{ stock_data[0]['Sentiment'] }}</td>
             <td class="Σ-BOLL">{{ stock_data[0]['Σ-BOLL'] }}</td>
             <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
-            <td class="P/E Ratio">{{ stock_data[0]['P/E Ratio'] }}</td>
-            <td class="Next Earnings Date">{{ stock_data[0]['Next Earnings Date'] }}</td>
+            <td class="P/E">{{ stock_data[0]['P/E'] }}</td>
+            <td class="Score">{{ stock_data[0]['Score'] }}</td>
+            <td class="Next Earnings Date">{{ stock_data[0]['➡️Earnings'] }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -221,8 +227,9 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
-        valueNames: ['Ticker', 'Price', '50-MA', '100-MA', '150-MA', '200-MA',
-        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E Ratio', 'Next Earnings Date']
+        valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
+        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
+        'Score', '➡️Earnings']
         };
         var stock_list = new List(document.body, options);
 

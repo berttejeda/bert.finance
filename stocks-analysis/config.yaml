@@ -1,7 +1,8 @@
 data:
   schema:
     - "Ticker"
-    - "INFO"
+    - "Info"
+    - "Industry"
     - "Price"
     - "50-MA"
     - "100-MA"
@@ -18,108 +19,123 @@ data:
     - "Sentiment"
     - "Σ-BOLL"
     - "Σ-MA"
-    - "P/E Ratio"
-    - "Next Earnings Date"
+    - "P/E"
+    - "Score"
+    - "➡️Earnings"
 tickers:
-  - name: "GME"
+  - name: GME
     type: stock
-  - name: "SOFI"
+  - name: HIMS
     type: stock
-  - name: "MELI"
+  - name: DOCN
     type: stock
-  - name: "ETSY"
+  - name: CVNA
     type: stock
-  - name: "VOO"
+  - name: DIS
+    type: stock
+  - name: SHOP
+    type: stock
+  - name: COIN
+    type: stock
+  - name: NET
+    type: stock
+  - name: SOFI
+    type: stock
+  - name: MELI
+    type: stock
+  - name: ETSY
+    type: stock
+  - name: VOO
     type: index
-  - name: "SCHD"
+  - name: SCHD
     type: index
-  - name: "QQQM"
+  - name: QQQM
     type: index
-  - name: "VUG"
+  - name: VUG
     type: index
-  - name: "XLV"
+  - name: XLV
     type: index
-  - name: "QQQ"
+  - name: QQQ
     type: index
-  - name: "AMZN"
+  - name: AMZN
     type: stock
-  - name: "MSFT"
+  - name: MSFT
     type: stock
-  - name: "AAPL"
+  - name: AAPL
     type: stock
-  - name: "LLY"
+  - name: LLY
     type: stock
-  - name: "TSLA"
+  - name: TSLA
     type: stock
-  - name: "NVDA"
+  - name: NVDA
     type: stock
-  - name: "QCOM"
+  - name: QCOM
     type: stock
-  - name: "AMD"
+  - name: AMD
     type: stock
-  - name: "AMGN"
+  - name: AMGN
     type: stock
-  - name: "XOM"
+  - name: XOM
     type: stock
-  - name: "DFS"
+  - name: DFS
     type: stock
-  - name: "ULTA"
+  - name: ULTA
     type: stock
-  - name: "AXP"
+  - name: AXP
     type: stock
-  - name: "PHM"
+  - name: PHM
     type: stock
-  - name: "META"
+  - name: META
     type: stock
-  - name: "PFE"
+  - name: PFE
     type: stock
-  - name: "NVO"
+  - name: NVO
     type: stock
-  - name: "ASML"
+  - name: ASML
     type: stock
-  - name: "TMUS"
+  - name: TMUS
     type: stock
-  - name: "SNY"
+  - name: SNY
     type: stock
-  - name: "PLTR"
+  - name: PLTR
     type: stock
-  - name: "HD"
+  - name: HD
     type: stock
-  - name: "OC"
+  - name: OC
     type: stock
-  - name: "PANW"
+  - name: PANW
     type: stock
-  - name: "DG"
+  - name: DG
     type: stock
-  - name: "WMT"
+  - name: WMT
     type: stock
-  - name: "COST"
+  - name: COST
     type: stock
-  - name: "MCD"
+  - name: MCD
     type: stock
-  - name: "AVGO"
+  - name: AVGO
     type: stock
-  - name: "SBUX"
+  - name: SBUX
     type: stock
-  - name: "CMG"
+  - name: CMG
     type: stock
-  - name: "SYK"
+  - name: SYK
     type: stock
-  - name: "V"
+  - name: V
     type: stock
-  - name: "ECL"
+  - name: ECL
     type: stock
-  - name: "CAT"
+  - name: CAT
     type: stock
-  - name: "UBER"
+  - name: UBER
     type: stock
-  - name: "GOOGL"
+  - name: GOOGL
     type: stock
-  - name: "LMT"
+  - name: LMT
     type: stock
-  - name: "NFLX"
+  - name: NFLX
     type: stock
-  - name: "TSM"
+  - name: TSM
     type: stock
-  - name: "REGN"
+  - name: REGN
     type: stock
