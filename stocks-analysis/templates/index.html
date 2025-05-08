@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -83,13 +84,13 @@
           z-index: 2;
           box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
       }
-        .timestamp-text {
-            position: absolute;
-            top: 1.5rem;
-            right: 2rem;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
+<!--        .timestamp-text {-->
+<!--            position: absolute;-->
+<!--            top: 1.5rem;-->
+<!--            right: 2rem;-->
+<!--            font-size: 0.9rem;-->
+<!--            color: #6c757d;-->
+<!--        }-->
         .search-bar {
             position: absolute;
             top: 3.5rem;
@@ -114,33 +115,48 @@
     </style>
 </head>
 <body>
-    <div class="header-bar">
-        <h1>📊 Stock Analysis Dashboard</h1>
-        <div class="timestamp-text">
-            {% if timestamp %}Date of Last Analysis: {{ timestamp }}{% endif %}
-        </div>
-    </div>
-    <form method="POST" onsubmit="showLoading()" action="/">
-        <div class="row mb-3">
-<!--            <div class="col">-->
-<!--                <input type="text" name="ticker" class="form-control" placeholder="Enter Ticker (e.g., NVDA)" required>-->
-<!--            </div>-->
-<!--            <div class="col">-->
-<!--                <select name="target_day" class="form-select" required>-->
-<!--                    <option value="0">Monday</option>-->
-<!--                    <option value="1">Tuesday</option>-->
-<!--                    <option value="2">Wednesday</option>-->
-<!--                    <option value="3">Thursday</option>-->
-<!--                    <option value="4">Friday</option>-->
-<!--                    <option value="next_friday">Next Friday</option>-->
-<!--                </select>-->
-<!--            </div>-->
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Run Analysis</button>
 
-            </div>
+      <header class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+
+        <!-- Left Side: Logo + Nav -->
+        <div class="flex items-center space-x-6">
+          <!-- Logo/Brand -->
+          <div class="text-2xl font-bold text-blue-600">
+            📊 Stock Analysis Dashboard
+          </div>
+          <!-- Navigation Buttons -->
+          <nav class="flex space-x-4">
+          <form method="POST" onsubmit="showLoading()" action="/">
+                      <button type="submit" class="btn btn-primary">Run Analysis</button>
+          </form>
+            <button class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
+              Features
+            </button>
+            <button class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
+              About
+            </button>
+          {% if stock_data_analysis %}
+          <div class="table-search">
+          <input
+            type="text"
+            placeholder="Filter by ticker ..."
+            class="fuzzy-search w-full pl-10 pr-4 py-2 rounded-xl bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          </div>
+          {% endif %}
+
+          </nav>
         </div>
-    </form>
+
+        <!-- Right Side: Search -->
+        <div class="relative w-full max-w-xs">
+            {% if timestamp %}Date of Last Cache Refresh:<br />
+            {{ timestamp }}
+            {% endif %}
+        </div>
+      </header>
+
+
 
     <div id="loading-indicator">
         <div class="spinner-border text-primary" role="status">
@@ -150,9 +166,6 @@
     </div>
 
     {% if stock_data_analysis %}
-    <td class="table-search">
-        <input class="fuzzy-search" placeholder="Filter">
-    </td>
     <div id="stock-data" class="sticky-table-wrapper">
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
@@ -191,7 +204,7 @@
             <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
             <td class="P/E">{{ stock_data[0]['P/E'] }}</td>
             <td class="Score">{{ stock_data[0]['Score'] }}</td>
-            <td class="Next Earnings Date">{{ stock_data[0]['➡️Earnings'] }}</td>
+            <td class="Earnings">{{ stock_data[0]['️Earnings'] }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -229,7 +242,7 @@
         var options = {
         valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
         'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
-        'Score', '➡️Earnings']
+        'Score', 'Earnings']
         };
         var stock_list = new List(document.body, options);
 

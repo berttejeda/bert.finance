@@ -21,13 +21,15 @@ data:
     - "Σ-MA"
     - "P/E"
     - "Score"
-    - "➡️Earnings"
+    - "️Earnings"
 tickers:
   - name: GME
     type: stock
   - name: HIMS
     type: stock
   - name: DOCN
+    type: stock
+  - name: OKLO
     type: stock
   - name: CVNA
     type: stock
