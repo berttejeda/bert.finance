@@ -21,7 +21,7 @@ data:
     - "Σ-MA"
     - "P/E"
     - "Score"
-    - "️Earnings"
+    - "Earnings"
 tickers:
   - name: GME
     type: stock
