@@ -17,6 +17,7 @@ import argparse
 import pickle
 import logging
 import numpy as np
+import re
 import requests
 
 import time
@@ -127,6 +128,7 @@ def fetch_stock_data(current_process_name, ticker):
         ma_100,
         ma_150,
         ma_200,
+        {}, # empty dict playholder for 'Charts' column
         rsi_data['Chart'],
         rsi_data['Chart_Description'],
         macd_data['Chart'],
@@ -576,8 +578,14 @@ def fig_to_base64(fig):
     img.seek(0)
     return base64.b64encode(img.read()).decode('utf8')
 
+# Custom jinja regex filter
+def regex_search(value, pattern):
+    match = re.search(pattern, value)
+    return match.group(0) if match else ''
+
 app = Flask(__name__)
 app.secret_key = '123rioriu*()d-_d9432oijdcmnmcs2D'
+app.jinja_env.filters['regex_search'] = regex_search
 matplotlib.use('Agg')
 
 @app.route('/', methods=['GET', 'POST'])

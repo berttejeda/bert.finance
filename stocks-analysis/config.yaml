@@ -8,6 +8,7 @@ data:
     - "100-MA"
     - "150-MA"
     - "200-MA"
+    - "Charts"
     - "RSI Chart"
     - "RSI Chart Description"
     - "MACD Chart"
@@ -140,4 +141,6 @@ tickers:
   - name: TSM
     type: stock
   - name: REGN
+    type: stock
+  - name: UI
     type: stock

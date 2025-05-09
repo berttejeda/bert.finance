@@ -171,7 +171,7 @@
         <thead>
             <tr>
                 {% for key,value in stock_data_analysis[0][0].items() %}
-                {% if 'Description' not in key and key != 'Info' %}
+                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News')) %}
                 <th title="{{ stock_data_analysis[0][0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
@@ -195,10 +195,12 @@
             <td class="100-MA">{{ stock_data[0]['100-MA'] }}</td>
             <td class="150-MA">{{ stock_data[0]['150-MA'] }}</td>
             <td class="200-MA">{{ stock_data[0]['200-MA'] }}</td>
-            <td class="RSI Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div></td>
-            <td class="MACD Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div></td>
-            <td class="VROC Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div></td>
-            <td class="News Chart"><div class="image-wrapper"><img data-caption="{{ stock_data[0]['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['News Chart'] }}" class="img-fluid"></div></td>
+            <td class="Charts">
+                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['News Chart'] }}" class="img-fluid"></div>
+            </td>
             <td class="Sentiment">{{ stock_data[0]['Sentiment'] }}</td>
             <td class="Σ-BOLL">{{ stock_data[0]['Σ-BOLL'] }}</td>
             <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
@@ -241,7 +243,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         var options = {
         valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
-        'RSI Chart', 'MACD Chart', 'VROC Chart', 'News Chart', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
+        'Charts', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
         'Score', 'Earnings']
         };
         var stock_list = new List(document.body, options);
