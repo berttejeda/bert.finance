@@ -16,11 +16,19 @@
 
     <style>
 
-      #table-content > tr > td {
+
+      table > thead > tr th {
         text-align: center
       }
 
-      #table-content > tr > th > button {
+      table > th > td {
+        text-align: center
+      }
+      table > tbody > tr > td {
+        text-align: center
+      }
+
+      > table > tbody > tr > th > button {
         border: none;
         cursor: pointer;
         display: block;
@@ -111,7 +119,7 @@
         display: flex;
         cursor: pointer;
         margin-bottom: 10px;
-        flex-wrap: wrap;
+        width: 100%;
       }
       .tab {
         padding: 10px 20px;
@@ -119,6 +127,7 @@
         margin-right: 5px;
         border: 1px solid #ccc;
         border-bottom: none;
+        width: 100%;
       }
       .tab.active {
         background: #ffffff;
@@ -156,14 +165,14 @@
           <form method="POST" onsubmit="showStocks()" action="/">
               <button type="submit" class="btn btn-primary">Show Stocks</button>
           </form>
-            <button onclick="showSection('earnings')" class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
+            <button onclick="showEarnings()" class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
               Show This Week's Earnings Calendar
             </button>
             <button class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
               About
             </button>
           {% if stock_data_analysis %}
-          <div class="table-search">
+          <div id="table-search">
           <input
             type="text"
             placeholder="Filter by ticker ..."
@@ -192,7 +201,7 @@
     </div>
 
     {% if stock_data_analysis %}
-    <div id="stock-data" class="sticky-table-wrapper">
+    <div id="stock_data" class="sticky-table-wrapper">
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
             <tr>
@@ -203,7 +212,7 @@
                 {% endfor %}
             </tr>
         </thead>
-        <tbody class="list" id="table-content">
+        <tbody class="list">
         {% for stock_data in stock_data_analysis %}
         <tr>
             <td>
@@ -263,13 +272,12 @@
     </div>
 
     <div id="earnings" class="content-section hidden">
-    <h1>Earnings Announcements: This Week</h1>
     <div class="tabs">
       {% for date, rows in earnings_by_day.items() %}
         <div class="tab" id="tab-{{ loop.index0 }}" onclick="showTab({{ loop.index0 }})">{{ date }}</div>
       {% endfor %}
     </div>
-
+    <div id="earnings_data">
     {% for date, rows in earnings_by_day.items() %}
       <div class="tab-content" id="content-{{ loop.index0 }}">
         {% if rows %}
@@ -277,25 +285,25 @@
             <table class="table table-striped table-bordered table-hover table-sm table-responsive">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Market Cap</th>
-                  <th>Fiscal Quarter Ending</th>
-                  <th>EPS</th>
-                  <th>EPS Forecast</th>
-                  <th>Surprise</th>
-                  <th>No. of Estimates</th>
+                  <th title="Name"><button id="Name" class="sort" data-sort="Name" class="btn btn-primary">Name</button></th>
+                  <th title="Market Cap"><button id="Market Cap" class="sort" data-sort="Name" class="btn btn-primary">Market Cap</button></th>
+                  <th title="Fiscal Quarter Ending"><button id="Fiscal Quarter Ending" class="sort" data-sort="Fiscal Quarter Ending" class="btn btn-primary">Fiscal Quarter Ending</button></th>
+                  <th title="EPS"><button id="EPS" class="sort" data-sort="EPS" class="btn btn-primary">EPS</button></th>
+                  <th title="EPS Forecast"><button id="EPS Forecast" class="sort" data-sort="EPS Forecast" class="btn btn-primary">EPS Forecast</button></th>
+                  <th title="Surprise"><button id="Surprise" class="sort" data-sort="Surprise" class="btn btn-primary">Surprise</button></th>
+                  <th title="No. of Estimates"><button id="No. of Estimates" class="sort" data-sort="No. of Estimates" class="btn btn-primary">No. of Estimates</button></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="list">
                 {% for row in rows %}
                   <tr>
-                    <td>{{ row['name'] }}</td>
-                    <td>{{ row['marketCap'] }}</td>
-                    <td>{{ row['fiscalQuarterEnding'] }}</td>
-                    <td>{{ row['eps'] }}</td>
-                    <td>{{ row['epsForecast'] }}</td>
-                    <td>{{ row['surprise'] }}</td>
-                    <td>{{ row['noOfEsts'] }}</td>
+                    <td class="Name">{{ row['name'] }}</td>
+                    <td class="Market Cap">{{ row['marketCap'] }}</td>
+                    <td class="Fiscal Quarter Ending">{{ row['fiscalQuarterEnding'] }}</td>
+                    <td class="EPS">{{ row['eps'] }}</td>
+                    <td class="EPS Forecast">{{ row['epsForecast'] }}</td>
+                    <td class="Surprise">{{ row['surprise'] }}</td>
+                    <td class="No. of Estimates">{{ row['noOfEsts'] }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -307,12 +315,19 @@
       </div>
     {% endfor %}
     </div>
+    </div>
 
     <script>
 
     function showStocks() {
         showLoading();
         showSection('stocks');
+    }
+
+    function showEarnings() {
+        showLoading();
+        showSection('earnings');
+        document.getElementById('table-search').classList.add('hidden');
     }
 
     function showSection(id) {
@@ -336,12 +351,24 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        var options = {
-        valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
-        'Charts', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
-        'Score', 'Earnings']
-        };
-        var stock_list = new List(document.body, options);
+
+        const stock_list = new List('stock_data', {
+            valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
+                        'Charts', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
+                        'Score', 'Earnings']
+        });
+
+        const earnings_list = new List('earnings_data', {
+            valueNames: [
+              'Name',
+              'Market Cap',
+              'Fiscal Quarter Ending',
+              'EPS',
+              'EPS Forecast',
+              'Surprise',
+              'No. of Estimates',
+            ]
+        });
 
         const loader = document.getElementById('loading-indicator');
         if (loader && loader.style.display === 'block') {
