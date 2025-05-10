@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from btconfig import Config
 from fake_useragent import UserAgent
+from finance_calendars import finance_calendars as fc
 from flask import Flask, render_template, request, session
 from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
@@ -145,6 +146,25 @@ def fetch_stock_data(current_process_name, ticker):
         next_earnings_date
     ])
     return data
+
+def earnings_calendar():
+
+    monday = today - timedelta(days=today.weekday())
+    weekdays = [monday + timedelta(days=i) for i in range(5)]
+
+    earnings_by_day = {}
+    for day in weekdays:
+        try:
+            df = fc.get_earnings_by_date(day)
+            if not df.empty:
+                rows = df.to_dict(orient='records')
+            else:
+                rows = []
+        except Exception as ex:
+            rows = []
+        earnings_by_day[day.strftime('%A, %Y-%m-%d')] = rows
+
+    return earnings_by_day
 
 def create_news_markdown(ticker, data):
     markdown_content = f'''
@@ -591,7 +611,10 @@ matplotlib.use('Agg')
 @app.route('/', methods=['GET', 'POST'])
 def index():
     refresh_yf_user_agent()
-    context = {}
+    earnings_by_day = earnings_calendar()
+    context = {
+        'earnings_by_day': earnings_by_day
+    }
     if request.method == 'POST':
         logger.info("Main process - Starting stock data fetch")
         if 'session_id' not in session:
