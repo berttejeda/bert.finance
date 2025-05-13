@@ -148,9 +148,10 @@ def fetch_stock_data(current_process_name, ticker):
     return data
 
 def earnings_calendar():
-
     monday = today - timedelta(days=today.weekday())
     weekdays = [monday + timedelta(days=i) for i in range(5)]
+
+    logger.info('Fetching earnlings calendar for the week')
 
     earnings_by_day = {}
     for day in weekdays:
