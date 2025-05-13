@@ -173,11 +173,7 @@
             </button>
           {% if stock_data_analysis %}
           <div id="table-search">
-          <input
-            type="text"
-            placeholder="Filter by ticker ..."
-            class="fuzzy-search w-full pl-10 pr-4 py-2 rounded-xl bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+
           </div>
           {% endif %}
 
@@ -202,6 +198,11 @@
 
     {% if stock_data_analysis %}
     <div id="stock_data" class="sticky-table-wrapper">
+    <input
+      type="text"
+      placeholder="Filter by ticker ..."
+      class="fuzzy-search w-full pl-10 pr-4 py-2 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
             <tr>
@@ -277,33 +278,34 @@
         <div class="tab" id="tab-{{ loop.index0 }}" onclick="showTab({{ loop.index0 }})">{{ date }}</div>
       {% endfor %}
     </div>
-    <div id="earnings_data">
     {% for date, rows in earnings_by_day.items() %}
+      <div id="earnings_data-{{ loop.index0 }}">
       <div class="tab-content" id="content-{{ loop.index0 }}">
         {% if rows %}
+          {% set tab_index = loop.index0 %}
           <div class="sticky-table-wrapper">
             <table class="table table-striped table-bordered table-hover table-sm table-responsive">
               <thead>
                 <tr>
-                  <th title="Name"><button id="Name" class="sort" data-sort="Name" class="btn btn-primary">Name</button></th>
-                  <th title="Market Cap"><button id="Market Cap" class="sort" data-sort="Name" class="btn btn-primary">Market Cap</button></th>
-                  <th title="Fiscal Quarter Ending"><button id="Fiscal Quarter Ending" class="sort" data-sort="Fiscal Quarter Ending" class="btn btn-primary">Fiscal Quarter Ending</button></th>
-                  <th title="EPS"><button id="EPS" class="sort" data-sort="EPS" class="btn btn-primary">EPS</button></th>
-                  <th title="EPS Forecast"><button id="EPS Forecast" class="sort" data-sort="EPS Forecast" class="btn btn-primary">EPS Forecast</button></th>
-                  <th title="Surprise"><button id="Surprise" class="sort" data-sort="Surprise" class="btn btn-primary">Surprise</button></th>
-                  <th title="No. of Estimates"><button id="No. of Estimates" class="sort" data-sort="No. of Estimates" class="btn btn-primary">No. of Estimates</button></th>
+                  <th title="Name-{{ tab_index }}"><button id="Name-{{ tab_index }}" class="sort" data-sort="Name-{{ tab_index }}">Name</button></th>
+                  <th title="Market Cap-{{ tab_index }}"><button id="Market Cap-{{ tab_index }}" class="sort" data-sort="Market Cap-{{ tab_index }}">Market Cap</button></th>
+                  <th title="Fiscal Quarter Ending-{{ tab_index }}"><button id="Fiscal Quarter Ending-{{ tab_index }}" class="sort" data-sort="Fiscal Quarter Ending-{{ tab_index }}">Fiscal Quarter Ending</button></th>
+                  <th title="EPS-{{ tab_index }}"><button id="EPS-{{ tab_index }}" class="sort" data-sort="EPS-{{ tab_index }}">EPS</button></th>
+                  <th title="EPS Forecast-{{ tab_index }}"><button id="EPS Forecast-{{ tab_index }}" class="sort" data-sort="EPS Forecast-{{ tab_index }}">EPS Forecast</button></th>
+                  <th title="Surprise-{{ tab_index }}"><button id="Surprise-{{ tab_index }}" class="sort" data-sort="Surprise-{{ tab_index }}">Surprise</button></th>
+                  <th title="No. of Estimates-{{ tab_index }}"><button id="No. of Estimates-{{ tab_index }}" class="sort" data-sort="No. of Estimates-{{ tab_index }}">No. of Estimates</button></th>
                 </tr>
               </thead>
               <tbody class="list">
                 {% for row in rows %}
                   <tr>
-                    <td class="Name">{{ row['name'] }}</td>
-                    <td class="Market Cap">{{ row['marketCap'] }}</td>
-                    <td class="Fiscal Quarter Ending">{{ row['fiscalQuarterEnding'] }}</td>
-                    <td class="EPS">{{ row['eps'] }}</td>
-                    <td class="EPS Forecast">{{ row['epsForecast'] }}</td>
-                    <td class="Surprise">{{ row['surprise'] }}</td>
-                    <td class="No. of Estimates">{{ row['noOfEsts'] }}</td>
+                    <td class="Name-{{ tab_index }}">{{ row['name'] }}</td>
+                    <td class="Market Cap-{{ tab_index }}">{{ row['marketCap'] }}</td>
+                    <td class="Fiscal Quarter Ending-{{ tab_index }}">{{ row['fiscalQuarterEnding'] }}</td>
+                    <td class="EPS-{{ tab_index }}">{{ row['eps'] }}</td>
+                    <td class="EPS Forecast-{{ tab_index }}">{{ row['epsForecast'] }}</td>
+                    <td class="Surprise-{{ tab_index }}">{{ row['surprise'] }}</td>
+                    <td class="No. of Estimates-{{ tab_index }}">{{ row['noOfEsts'] }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -313,8 +315,9 @@
           <p>No earnings reported.</p>
         {% endif %}
       </div>
+      </div>
+
     {% endfor %}
-    </div>
     </div>
 
     <script>
@@ -358,16 +361,31 @@
                         'Score', 'Earnings']
         });
 
-        const earnings_list = new List('earnings_data', {
-            valueNames: [
-              'Name',
-              'Market Cap',
-              'Fiscal Quarter Ending',
-              'EPS',
-              'EPS Forecast',
-              'Surprise',
-              'No. of Estimates',
-            ]
+<!--        const numTabs = [0, 1, 2, 3, 4];-->
+<!--        const headers = ["Name", "Market-Cap", "Fiscal Quarter Ending", "EPS", "EPS Forecast", "Surprise", "No. of Estimates"];-->
+<!--        const valueNames = numTabs.flatMap(a => headers.map(b => `${b}-${a}`));-->
+
+        const numTabs = [0, 1, 2, 3, 4];
+        const headers = ["Name", "Market Cap", "Fiscal Quarter Ending", "EPS", "EPS Forecast", "Surprise", "No. of Estimates"];
+        const valueNamesMapping = {};
+        numTabs.forEach(a => {
+          valueNamesMapping[`values${a}`] = headers.map(b => `${b}-${a}`);
+        });
+
+        const earnings_list_0 = new List('earnings_data-0', {
+            valueNames: valueNamesMapping.values0
+        });
+        const earnings_list_1 = new List('earnings_data-1', {
+            valueNames: valueNamesMapping.values1
+        });
+        const earnings_list_2 = new List('earnings_data-2', {
+            valueNames: valueNamesMapping.values2
+        });
+        const earnings_list_3 = new List('earnings_data-3', {
+            valueNames: valueNamesMapping.values3
+        });
+        const earnings_list_4 = new List('earnings_data-4', {
+            valueNames: valueNamesMapping.values4
         });
 
         const loader = document.getElementById('loading-indicator');
