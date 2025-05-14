@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from btconfig import Config
 from fake_useragent import UserAgent
 from finance_calendars import finance_calendars as fc
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, jsonify
 from multiprocessing import cpu_count, current_process, Pool
 from pathlib import Path
 from werkzeug.exceptions import InternalServerError
@@ -157,6 +157,15 @@ def earnings_calendar():
     for day in weekdays:
         try:
             df = fc.get_earnings_by_date(day)
+            if 'eps' in df.keys():
+                df['eps'] = df['eps'].str.replace('$', '')
+            if 'noOfEsts' in df.keys():
+                df['noOfEsts'] = df['noOfEsts'].str.replace('N/A', '')
+            if 'lastYearEPS' in df.keys():
+                df['lastYearEPS'] = df['lastYearEPS'].str.replace('$', '').str.replace('(', '-').str.replace(')', '')
+                df['lastYearEPS'] = df['lastYearEPS'].str.replace('N/A', '')
+            if 'epsForecast' in df.keys():
+                df['epsForecast'] = df['epsForecast'].str.replace('$', '').str.replace('(','-').str.replace(')','')
             if not df.empty:
                 rows = df.to_dict(orient='records')
             else:

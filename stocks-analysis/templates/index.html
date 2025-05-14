@@ -291,6 +291,7 @@
                   <th title="Market Cap-{{ tab_index }}"><button id="Market Cap-{{ tab_index }}" class="sort" data-sort="Market Cap-{{ tab_index }}">Market Cap</button></th>
                   <th title="Fiscal Quarter Ending-{{ tab_index }}"><button id="Fiscal Quarter Ending-{{ tab_index }}" class="sort" data-sort="Fiscal Quarter Ending-{{ tab_index }}">Fiscal Quarter Ending</button></th>
                   <th title="EPS-{{ tab_index }}"><button id="EPS-{{ tab_index }}" class="sort" data-sort="EPS-{{ tab_index }}">EPS</button></th>
+                  <th title="Last Year's EPS-{{ tab_index }}"><button id="Last Year's EPS-{{ tab_index }}" class="sort" data-sort="Last Year's EPS-{{ tab_index }}">Last Year's EPS</button></th>
                   <th title="EPS Forecast-{{ tab_index }}"><button id="EPS Forecast-{{ tab_index }}" class="sort" data-sort="EPS Forecast-{{ tab_index }}">EPS Forecast</button></th>
                   <th title="Surprise-{{ tab_index }}"><button id="Surprise-{{ tab_index }}" class="sort" data-sort="Surprise-{{ tab_index }}">Surprise</button></th>
                   <th title="No. of Estimates-{{ tab_index }}"><button id="No. of Estimates-{{ tab_index }}" class="sort" data-sort="No. of Estimates-{{ tab_index }}">No. of Estimates</button></th>
@@ -302,10 +303,27 @@
                     <td class="Name-{{ tab_index }}">{{ row['name'] }}</td>
                     <td class="Market Cap-{{ tab_index }}">{{ row['marketCap'] }}</td>
                     <td class="Fiscal Quarter Ending-{{ tab_index }}">{{ row['fiscalQuarterEnding'] }}</td>
+                    {% if row.get('eps') %}
                     <td class="EPS-{{ tab_index }}">{{ row['eps'] }}</td>
-                    <td class="EPS Forecast-{{ tab_index }}">{{ row['epsForecast'] }}</td>
+                    {% else %}
+                    <td class="EPS-{{ tab_index }}"></td>
+                    {% endif %}
+                    {% if row.get('lastYearEPS') %}
+                    <td class="Last Year's EPS-{{ tab_index }}">{{ row.get('lastYearEPS','') }}</td>
+                    {% else %}
+                    <td class="Last Year's EPS-{{ tab_index }}"></td>
+                    {% endif %}
+                    {% if row.get('epsForecast') %}
+                    <td class="EPS Forecast-{{ tab_index }}">{{ row.get('epsForecast','') }}</td>
+                    {% else %}
+                    <td class="EPS Forecast-{{ tab_index }}"></td>
+                    {% endif %}
+                    {% if row.get('surprise') %}
                     <td class="Surprise-{{ tab_index }}">{{ row['surprise'] }}</td>
-                    <td class="No. of Estimates-{{ tab_index }}">{{ row['noOfEsts'] }}</td>
+                    {% else %}
+                    <td class="Surprise-{{ tab_index }}"></td>
+                    {% endif %}
+                    <td class="No. of Estimates-{{ tab_index }}">{{ row.get('noOfEsts',0) }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -362,11 +380,11 @@
         });
 
 <!--        const numTabs = [0, 1, 2, 3, 4];-->
-<!--        const headers = ["Name", "Market-Cap", "Fiscal Quarter Ending", "EPS", "EPS Forecast", "Surprise", "No. of Estimates"];-->
+<!--        const headers = ["Name", "Market-Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS", "EPS Forecast", "Surprise", "No. of Estimates"];-->
 <!--        const valueNames = numTabs.flatMap(a => headers.map(b => `${b}-${a}`));-->
 
         const numTabs = [0, 1, 2, 3, 4];
-        const headers = ["Name", "Market Cap", "Fiscal Quarter Ending", "EPS", "EPS Forecast", "Surprise", "No. of Estimates"];
+        const headers = ["Name", "Market Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS","EPS Forecast", "Surprise", "No. of Estimates"];
         const valueNamesMapping = {};
         numTabs.forEach(a => {
           valueNamesMapping[`values${a}`] = headers.map(b => `${b}-${a}`);
