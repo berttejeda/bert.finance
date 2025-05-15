@@ -15,6 +15,9 @@ import nltk
 import io
 import base64
 import argparse
+import os
+import glob
+import json
 import pickle
 import logging
 import numpy as np
@@ -49,6 +52,7 @@ def parse_args():
     parser.add_argument('--host-address', '-l', default="0.0.0.0", help='Specify host listening address')
     parser.add_argument('--threads', '-t', default=1, help='Specify max number of CPU threads for parallel processing')
     parser.add_argument('--host-port', '-p', default=5000, help='Specify host listening port')
+    parser.add_argument('--finnhub-api-key', '-fhk', default=os.environ.get('FINNHUB_API_KEY'), help='Specify Finnhub API Key')
     parser.add_argument('--historical-period', '-P', default="1y", help='Historical period')
     parser.add_argument('--debug', '-D', action='store_true', required=False, default=False)
     parser.add_argument('--verbose', '-v', action='store_true', required=False, default=False)
@@ -69,6 +73,7 @@ cache_file_obj = Path(args.cache_file_path).resolve()
 host_address = args.host_address
 host_port = args.host_port
 today = datetime.now()
+finnhub_api_key = args.finnhub_api_key or quit('You must specify your Finnhub API Key!')
 
 try:
     num_threads = int(args.threads)
@@ -91,7 +96,10 @@ def fetch_stock_data(current_process_name, ticker):
     data = []
     ticker_name = ticker['name']
     ticker_type = ticker['type']
-    stock = yf.Ticker(ticker_name)
+    try:
+        stock = yf.Ticker(ticker_name)
+    except Exception as e:
+        return data
     # Fetch Historical Data
     stock_history = stock.history(period=historical_period)  # Fetch historical data
     # Fetch News Headlines
@@ -114,11 +122,18 @@ def fetch_stock_data(current_process_name, ticker):
     else:
         current_price = ma_50 = ma_100 = ma_200 = "N/A"
         earnings_dates = ["N/A"]
-    next_earnings_date = earnings_dates[0]
+    try:
+        next_earnings_date = earnings_dates[0]
+    except Exception as e:
+        next_earnings_date = "N/A"
     ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
     bollinger_stock_data = get_bollinger_stock_data(stock_downloaded_data)
     bollinger_stock_signal = bollinger_stock_data['Signal']
-    piotroski_data = calculate_piotroski_score(ticker_name, stock)
+    try:
+        piotroski_data = calculate_piotroski_score(ticker_name, stock)
+    except Exception as e:
+        logger.warn(f'Could not determine Piotroski Score for {ticker_name}, error was {e}')
+        piotroski_data = {'Score': ''}
     company_data = fetch_company_info(stock)
     data.append([
         ticker_name,
@@ -147,16 +162,45 @@ def fetch_stock_data(current_process_name, ticker):
     ])
     return data
 
-def earnings_calendar():
+def build_ticker_db():
+    # List to hold combined ticker data
+    ticker_data = []
+    # Iterate over all JSON files
+    for file in glob.glob("etc/*.json"):
+        with open(file, 'r') as f:
+            data = json.load(f)  # Assuming each file contains a list of dicts
+            ticker_data.extend(data)
+    return ticker_data
+
+def get_ticker_finnhub(company_name):
+    url = f"https://finnhub.io/api/v1/search?q={company_name}&token={finnhub_api_key}"
+    res = requests.get(url)
+    data = res.json()
+    if data.get("count", 0) > 0:
+        return data["result"][0]["symbol"]
+    return None
+
+def get_ticker_from_db(data, search_key):
+    for item in data:
+        company_name = item.get('name', '')
+        matches_name_bare = search_key in company_name
+        matches_name_adjusted = search_key.replace(',','').replace('.','') in company_name
+        if matches_name_bare or matches_name_adjusted:
+            return item['symbol']
+    return None
+
+def earnings_calendar(ticker_db):
     monday = today - timedelta(days=today.weekday())
     weekdays = [monday + timedelta(days=i) for i in range(5)]
 
     logger.info('Fetching earnlings calendar for the week')
-
     earnings_by_day = {}
+    ticker_list = []
+    seen = set()
     for day in weekdays:
         try:
             df = fc.get_earnings_by_date(day)
+            df['ticker'] = df['name'].apply(lambda x: get_ticker_from_db(ticker_db, x))
             if 'eps' in df.keys():
                 df['eps'] = df['eps'].str.replace('$', '')
             if 'noOfEsts' in df.keys():
@@ -167,6 +211,7 @@ def earnings_calendar():
             if 'epsForecast' in df.keys():
                 df['epsForecast'] = df['epsForecast'].str.replace('$', '').str.replace('(','-').str.replace(')','')
             if not df.empty:
+                ticker_list =  ticker_list + [{'name': t, 'type': 'stock'} for t in df['ticker']]
                 rows = df.to_dict(orient='records')
             else:
                 rows = []
@@ -174,7 +219,7 @@ def earnings_calendar():
             rows = []
         earnings_by_day[day.strftime('%A, %Y-%m-%d')] = rows
 
-    return earnings_by_day
+    return ticker_list, earnings_by_day
 
 def create_news_markdown(ticker, data):
     markdown_content = f'''
@@ -216,32 +261,59 @@ def fetch_ticker_earnings_data(ticker_type, stock):
         earnings_dates = ["N/A"]
     return earnings_dates
 
-def fetch_ticker_news_data(ticker, current_process_name, period=7):
+def fetch_ticker_news_data(ticker, current_process_name, period=7, retries=3):
 
     logger.info(f'{current_process_name} - Retrieving news data for {ticker}')
-    stock = finvizfinance(ticker)
-    news = stock.ticker_news()
-    time_delta = today - timedelta(days=period)
-    cutoff_date = pd.to_datetime(time_delta)
-    # Convert Date column to date and filter news items
-    news['Date'] = pd.to_datetime(news['Date'], unit='s', errors='coerce')
-    filtered_news = news[news['Date'] > cutoff_date].reset_index(drop=True)
+    is_error = False
+    for i in range(retries):
+        try:
+            stock = finvizfinance(ticker)
+            news = stock.ticker_news()
+            time_delta = today - timedelta(days=period)
+            cutoff_date = pd.to_datetime(time_delta)
+            # Convert Date column to date and filter news items
+            news['Date'] = pd.to_datetime(news['Date'], unit='s', errors='coerce')
+            filtered_news = news[news['Date'] > cutoff_date].reset_index(drop=True)
 
-    filtered_news['sentiment_scores'] = filtered_news['Title'].apply(lambda content: analyzer.polarity_scores(content))
-    filtered_news['compound'] = filtered_news['sentiment_scores'].apply(lambda score_dict: score_dict['compound'])
-    filtered_news['Title Sentiment'] = filtered_news['compound'].apply(
-        lambda c: 'positive' if c >= 0.05 else ('negative' if c <= -0.05 else 'neutral'))
-    news_sentiment = filtered_news['Title Sentiment'].mode().iloc[0]
-    filtered_news = filtered_news.drop(columns=['compound', 'sentiment_scores'])
+            filtered_news['sentiment_scores'] = filtered_news['Title'].apply(
+                lambda content: analyzer.polarity_scores(content))
+            filtered_news['compound'] = filtered_news['sentiment_scores'].apply(lambda score_dict: score_dict['compound'])
+            filtered_news['Title Sentiment'] = filtered_news['compound'].apply(
+                lambda c: 'positive' if c >= 0.05 else ('negative' if c <= -0.05 else 'neutral'))
+            news_sentiment = filtered_news['Title Sentiment'].mode().iloc[0]
+            filtered_news = filtered_news.drop(columns=['compound', 'sentiment_scores'])
 
-    chart = fig_to_base64(plot_stock_news_data(ticker, filtered_news))
-    chart_description = create_news_markdown(ticker, filtered_news)
-    data_obj = {
-        'chart': chart,
-        'chart_description': chart_description,
-        'sentiment': news_sentiment
-    }
-    return data_obj
+            chart = fig_to_base64(plot_stock_news_data(ticker, filtered_news))
+            chart_description = create_news_markdown(ticker, filtered_news)
+            data_obj = {
+                'chart': chart,
+                'chart_description': chart_description,
+                'sentiment': news_sentiment
+            }
+            return data_obj
+        except Exception as e:
+            logger.error(f'{current_process_name} - Failed to retrieve news data for {ticker} (error was {e}, retrying ...')
+            is_error = True
+            time.sleep(5 * (i + 1)) # Exponential backoff
+    if is_error:
+        logger.error(f'Reached max number of retries {retries} when fetching news data for ticker {ticker}')
+        data_obj = {
+            'chart': fig_to_base64(plot_empty_data(ticker)),
+            'chart_description': '',
+            'sentiment': ''
+        }
+        return data_obj
+
+def plot_empty_data(ticker):
+    # Create an empty plot
+    fig = plt.figure(figsize=(12, 2))
+    plt.plot([], [])
+    # Set labels and title
+    plt.title(f"No data available for {ticker}")
+    plt.xlabel("X-axis")
+    plt.ylabel("Y-axis")
+    # Show the plot
+    return fig
 
 def plot_stock_news_data(ticker, data):
     # Group by formatted timestamp and count occurrences
@@ -532,7 +604,11 @@ def compute_analysis(ticker):
     stock_data = fetch_stock_data(current_process_name, ticker)
     # Create DataFrame
     df = pd.DataFrame(stock_data, columns=schema)
-    return df.to_dict(orient='records')
+    try:
+        analysis = df.to_dict(orient='records')
+    except Exception as e:
+        logger.error(e)
+    return analysis
 
 def plot_price_chart(data):
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -620,8 +696,9 @@ matplotlib.use('Agg')
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    ticker_db = build_ticker_db()
     refresh_yf_user_agent()
-    earnings_by_day = earnings_calendar()
+    ticker_list_from_earnings, earnings_by_day = earnings_calendar(ticker_db)
     context = {
         'earnings_by_day': earnings_by_day
     }
@@ -635,10 +712,17 @@ def index():
         session_cache_file_path = session_cache_file_obj.as_posix()
         session_cache_file_exists = session_cache_file_obj.exists()
         date_of_analysis, cache_has_expired = check_if_expired(cache_expiry_in_minutes, session_cache_file_obj)
+        combined_ticker_list = ticker_list_from_earnings + tickers
+        # List to store processed ticker objects
+        sanitized_tickers = []
+        # Loop through each ticker object in the list
+        for t in combined_ticker_list:
+            if t['name'] != 'None' and t not in sanitized_tickers:
+                sanitized_tickers.append(t)
         if no_use_cache_first or cache_has_expired:
             logger.info(f'Refreshing data cache')
             with Pool(processes=num_threads) as pool:
-                stock_data_analysis = pool.map(compute_analysis, tickers)
+                stock_data_analysis = pool.map(compute_analysis, sanitized_tickers)
                 with open(session_cache_file_path, 'wb') as f:
                     pickle.dump(stock_data_analysis, f)
         elif session_cache_file_exists:
@@ -649,7 +733,7 @@ def index():
             raise InternalServerError('Instructed to use cache first, but no cache file found')
         context.update({
             'timestamp': date_of_analysis,
-            'stock_data_analysis': stock_data_analysis
+            'stock_data_analysis': [a for a in stock_data_analysis if a]
         })
         duration = time.time() - start_time
         logger.info(f"Main process - Completed stock data fetch in {duration:.2f} seconds")

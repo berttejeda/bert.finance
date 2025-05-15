@@ -288,6 +288,7 @@
               <thead>
                 <tr>
                   <th title="Name-{{ tab_index }}"><button id="Name-{{ tab_index }}" class="sort" data-sort="Name-{{ tab_index }}">Name</button></th>
+                  <th title="Ticker-{{ tab_index }}"><button id="Ticker-{{ tab_index }}" class="sort" data-sort="Ticker-{{ tab_index }}">Ticker</button></th>
                   <th title="Market Cap-{{ tab_index }}"><button id="Market Cap-{{ tab_index }}" class="sort" data-sort="Market Cap-{{ tab_index }}">Market Cap</button></th>
                   <th title="Fiscal Quarter Ending-{{ tab_index }}"><button id="Fiscal Quarter Ending-{{ tab_index }}" class="sort" data-sort="Fiscal Quarter Ending-{{ tab_index }}">Fiscal Quarter Ending</button></th>
                   <th title="EPS-{{ tab_index }}"><button id="EPS-{{ tab_index }}" class="sort" data-sort="EPS-{{ tab_index }}">EPS</button></th>
@@ -301,6 +302,7 @@
                 {% for row in rows %}
                   <tr>
                     <td class="Name-{{ tab_index }}">{{ row['name'] }}</td>
+                    <td class="Ticker-{{ tab_index }}">{{ row['ticker'] }}</td>
                     <td class="Market Cap-{{ tab_index }}">{{ row['marketCap'] }}</td>
                     <td class="Fiscal Quarter Ending-{{ tab_index }}">{{ row['fiscalQuarterEnding'] }}</td>
                     {% if row.get('eps') %}
@@ -380,11 +382,11 @@
         });
 
 <!--        const numTabs = [0, 1, 2, 3, 4];-->
-<!--        const headers = ["Name", "Market-Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS", "EPS Forecast", "Surprise", "No. of Estimates"];-->
+<!--        const headers = ["Name","Ticker","Market-Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS", "EPS Forecast", "Surprise", "No. of Estimates"];-->
 <!--        const valueNames = numTabs.flatMap(a => headers.map(b => `${b}-${a}`));-->
 
         const numTabs = [0, 1, 2, 3, 4];
-        const headers = ["Name", "Market Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS","EPS Forecast", "Surprise", "No. of Estimates"];
+        const headers = ["Name","Ticker","Market Cap", "Fiscal Quarter Ending", "EPS", "Last Year's EPS","EPS Forecast", "Surprise", "No. of Estimates"];
         const valueNamesMapping = {};
         numTabs.forEach(a => {
           valueNamesMapping[`values${a}`] = headers.map(b => `${b}-${a}`);
