@@ -42,6 +42,8 @@ nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
 today = datetime.now()
 matplotlib.use('Agg')
+mlogger = logging.getLogger('matplotlib')
+mlogger.setLevel(logging.WARNING)
 historical_period = '1y'
 
 def get_cache_key(tickers):
@@ -141,11 +143,11 @@ def fetch_stock_data_parallel(tickers):
     cached = cache.get(key)
     if cached:
         return cached.decode('utf-8')
-
-    # Return full AsyncResult
-    return chord(
-        [fetch_stock_data.s(ticker) for ticker in tickers]
-    )(collect_results.s())
+    else:
+        # Return full AsyncResult
+        return chord(
+            [fetch_stock_data.s(ticker) for ticker in tickers]
+        )(collect_results.s())
 
 def create_news_markdown(ticker, data):
     markdown_content = f'''
@@ -205,7 +207,7 @@ def fetch_ticker_news_data(ticker, period=7, retries=3):
                 'chart_description': chart_description,
                 'sentiment': news_sentiment
             }
-            return data_obj
+            is_error = False
         except Exception as e:
             logger.error(f'Failed to retrieve news data for {ticker} (error was {e}, retrying ...')
             is_error = True
@@ -217,7 +219,7 @@ def fetch_ticker_news_data(ticker, period=7, retries=3):
             'chart_description': '',
             'sentiment': ''
         }
-        return data_obj
+    return data_obj
 
 def plot_empty_data(ticker):
     # Create an empty plot
