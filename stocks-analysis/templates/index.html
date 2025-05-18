@@ -171,7 +171,7 @@
             <button class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
               About
             </button>
-          {% if stock_data_analysis %}
+          {% if stock_data_is_ready %}
           <div id="table-search">
 
           </div>
@@ -196,7 +196,7 @@
         <p>Analyzing data, please wait...</p>
     </div>
 
-    {% if stock_data_analysis %}
+    {% if stock_data_is_ready %}
     <div id="stock_data" class="sticky-table-wrapper">
     <input
       type="text"
@@ -206,9 +206,9 @@
     <table class="table table-striped table-bordered table-hover table-sm table-responsive">
         <thead>
             <tr>
-                {% for key,value in stock_data_analysis[0][0].items() %}
+                {% for key in stock_data_analysis[0].keys() %}
                 {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News')) %}
-                <th title="{{ stock_data_analysis[0][0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
+                <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -220,29 +220,32 @@
             <a href="#" class="stock-link Ticker"
                data-bs-toggle="modal"
                data-bs-target="#stockModal"
-               data-symbol="{{ stock_data[0]['Ticker'] }}"
-               data-info="{{ stock_data[0]['Info'] }}">
-              {{ stock_data[0]['Ticker'] }}
+               data-symbol="{{ stock_data['Ticker'] }}"
+               data-info="{{ stock_data['Info'] }}">
+              {{ stock_data['Ticker'] }}
             </a>
             </td>
-            <td class="Price">{{ stock_data[0]['Price'] }}</td>
-            <td class="Industry">{{ stock_data[0]['Industry'] }}</td>
-            <td class="50-MA">{{ stock_data[0]['50-MA'] }}</td>
-            <td class="100-MA">{{ stock_data[0]['100-MA'] }}</td>
-            <td class="150-MA">{{ stock_data[0]['150-MA'] }}</td>
-            <td class="200-MA">{{ stock_data[0]['200-MA'] }}</td>
+            <td class="Price">{{ stock_data['Price'] }}</td>
+            <td class="Market Cap">{{ stock_data['Market Cap'] }}</td>
+            <td class="Industry">{{ stock_data['Industry'] }}</td>
+            <td class="50-MA">{{ stock_data['50-MA'] }}</td>
+            <td class="100-MA">{{ stock_data['100-MA'] }}</td>
+            <td class="150-MA">{{ stock_data['150-MA'] }}</td>
+            <td class="200-MA">{{ stock_data['200-MA'] }}</td>
+            <td class="52w High">{{ stock_data['52w High'] }}</td>
+            <td class="52w Low">{{ stock_data['52w Low'] }}</td>
             <td class="Charts">
-                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['RSI Chart'] }}" class="img-fluid"></div>
-                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['MACD Chart'] }}" class="img-fluid"></div>
-                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['VROC Chart'] }}" class="img-fluid"></div>
-                <div class="image-wrapper"><img data-caption="{{ stock_data[0]['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data[0]['News Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data['RSI Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data['MACD Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data['VROC Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data['News Chart'] }}" class="img-fluid"></div>
             </td>
-            <td class="Sentiment">{{ stock_data[0]['Sentiment'] }}</td>
-            <td class="Σ-BOLL">{{ stock_data[0]['Σ-BOLL'] }}</td>
-            <td class="Σ-MA">{{ stock_data[0]['Σ-MA'] }}</td>
-            <td class="P/E">{{ stock_data[0]['P/E'] }}</td>
-            <td class="Score">{{ stock_data[0]['Score'] }}</td>
-            <td class="Earnings">{{ stock_data[0]['Earnings'] }}</td>
+            <td class="Sentiment">{{ stock_data['Sentiment'] }}</td>
+            <td class="Σ-BOLL">{{ stock_data['Σ-BOLL'] }}</td>
+            <td class="Σ-MA">{{ stock_data['Σ-MA'] }}</td>
+            <td class="P/E">{{ stock_data['P/E'] }}</td>
+            <td class="Score">{{ stock_data['Score'] }}</td>
+            <td class="Earnings">{{ stock_data['Earnings'] }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -376,7 +379,8 @@
     window.addEventListener('DOMContentLoaded', () => {
 
         const stock_list = new List('stock_data', {
-            valueNames: ['Ticker', 'Price', 'Industry','50-MA', '100-MA', '150-MA', '200-MA',
+            valueNames: ['Ticker', 'Price', 'Market Cap','Industry','50-MA', '100-MA', '150-MA', '200-MA',
+                        '52w High','52w Low',
                         'Charts', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
                         'Score', 'Earnings']
         });

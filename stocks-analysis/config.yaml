@@ -1,28 +1,3 @@
-data:
-  schema:
-    - "Ticker"
-    - "Info"
-    - "Industry"
-    - "Price"
-    - "50-MA"
-    - "100-MA"
-    - "150-MA"
-    - "200-MA"
-    - "Charts"
-    - "RSI Chart"
-    - "RSI Chart Description"
-    - "MACD Chart"
-    - "MACD Chart Description"
-    - "VROC Chart"
-    - "VROC Chart Description"
-    - "News Chart"
-    - "News Chart Description"
-    - "Sentiment"
-    - "Σ-BOLL"
-    - "Σ-MA"
-    - "P/E"
-    - "Score"
-    - "Earnings"
 tickers:
   - name: GME
     type: stock
