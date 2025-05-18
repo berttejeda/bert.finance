@@ -1,6 +1,6 @@
 import redis
 import hashlib
-from celery import Celery
+from celery import Celery, chord
 from datetime import datetime, timedelta
 from finvizfinance.quote import finvizfinance
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -24,6 +24,10 @@ celery = Celery('tasks',
     broker='redis://localhost:6379/0',
     backend='redis://localhost:6379/1'  # NEW: result backend
 )
+celery.conf.event_serializer = 'pickle'
+celery.conf.task_serializer = 'pickle'
+celery.conf.result_serializer = 'pickle'
+celery.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 # Configure the logging system
 logging.basicConfig(level=logging.INFO,
@@ -45,95 +49,103 @@ def get_cache_key(tickers):
     return f"stock:{hashlib.md5(joined.encode()).hexdigest()}"
 
 @celery.task
-def fetch_stock_data(tickers):
+def fetch_stock_data(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        # Fetch Historical Data
+        stock_history = stock.history(period=historical_period)  # Fetch historical data
+        # Fetch News Headlines
+        stock_news_data = fetch_ticker_news_data(ticker)
+        # Fetch Additional Data
+        logger.info(f'Retrieving price data for {ticker}')
+        stock_downloaded_data = yf.download(ticker, period=historical_period, interval='1h', progress=False,
+                                            auto_adjust=True)
+        if not stock_history.empty:
+            # current_price = round(stock_history["Close"].iloc[-1], 2)
+            current_price = stock.info.get('regularMarketPrice')
+            ma_50 = round(stock_history["Close"].rolling(window=50).mean().iloc[-1], 2)
+            ma_100 = round(stock_history["Close"].rolling(window=100).mean().iloc[-1], 2)
+            ma_150 = round(stock_history["Close"].rolling(window=150).mean().iloc[-1], 2)
+            ma_200 = round(stock_history["Close"].rolling(window=200).mean().iloc[-1], 2)
+            # Add technical indicators
+            rsi_data = calculate_rsi(ticker, stock_history)
+            vroc_data = calculate_vroc_signals(ticker, stock_downloaded_data, rsi_data['RSI'])
+            macd_data = calculate_macd_signals(ticker, stock_history)
+        else:
+            current_price = ma_50 = ma_100 = ma_200 = "N/A"
+            earnings_dates = ["N/A"]
+        ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
+        bollinger_stock_data = get_bollinger_stock_data(stock_downloaded_data)
+        bollinger_stock_signal = bollinger_stock_data['Signal']
+        try:
+            piotroski_data = calculate_piotroski_score(ticker, stock)
+        except Exception as e:
+            logger.warn(f'Could not determine Piotroski Score for {ticker}, error was {e}')
+            piotroski_data = {'Score': ''}
+        company_data = fetch_company_info(stock)
+        try:
+            earnings_date_timestamps = stock.calendar.get('Earnings Date')
+            first_earnings_date_timestamp = earnings_date_timestamps[0]
+            if first_earnings_date_timestamp < today.date():
+                next_earnings_date_timestamp = earnings_date_timestamps[-1]
+            else:
+                next_earnings_date_timestamp = first_earnings_date_timestamp
+            logger.info(f'Next earnings date for {ticker} is {next_earnings_date_timestamp}')
+            next_earnings_date = next_earnings_date_timestamp.strftime("%Y-%m-%d")
+        except Exception as e:
+            logger.error(f'Failed to retrieve next earnings date for {ticker}, error was {e}')
+            next_earnings_date = 'N/A'
+        data_obj = {
+            'Ticker': ticker,
+            'Info': company_data['info'],
+            'Price': current_price,
+            'Market Cap': stock.info.get('marketCap'),
+            'Industry': company_data['industry'],
+            '50-MA': ma_50,
+            '100-MA': ma_100,
+            '100-MA': ma_100,
+            '150-MA': ma_150,
+            '200-MA': ma_200,
+            '52w High': stock.info.get('fiftyTwoWeekHigh'),
+            '52w Low': stock.info.get('fiftyTwoWeekLow'),
+            'Charts': {}, # empty dict playholder for 'Charts' column
+            'RSI Chart': rsi_data['Chart'],
+            'RSI Chart Description': rsi_data['Chart_Description'],
+            'MACD Chart': macd_data['Chart'],
+            'MACD Chart Description': macd_data['Chart_Description'],
+            'VROC Chart': vroc_data['Chart'],
+            'VROC Chart Description': vroc_data['Chart_Description'],
+            'News Chart': stock_news_data['chart'],
+            'News Chart Description': stock_news_data['chart_description'],
+            'Sentiment': stock_news_data['sentiment'],
+            'Σ-BOLL': bollinger_stock_signal,
+            'Σ-MA': ma_stock_signal,
+            'P/E': stock.info.get('trailingPE'),
+            'Score': piotroski_data['Score'],
+            'Earnings': next_earnings_date,
+        }
+    except Exception as e:
+        data_obj = {'Ticker': ticker, 'Error': str(e)}
+    return data_obj
+
+@celery.task
+def collect_results(results):
+    df = pd.DataFrame(results)
+    json_data = df.to_json()
+    key = get_cache_key([row['Ticker'] for row in results if 'Ticker' in row])
+    cache.setex(key, CACHE_TTL, json_data)
+    return json_data
+
+def fetch_stock_data_parallel(tickers):
     key = get_cache_key(tickers)
     cached = cache.get(key)
     if cached:
         return cached.decode('utf-8')
 
-    results = []
-    for ticker in tickers:
-        try:
-            stock = yf.Ticker(ticker)
-            # Fetch Historical Data
-            stock_history = stock.history(period=historical_period)  # Fetch historical data
-            # Fetch News Headlines
-            stock_news_data = fetch_ticker_news_data(ticker)
-            # Fetch Additional Data
-            logger.info(f'Retrieving price data for {ticker}')
-            stock_downloaded_data = yf.download(ticker, period=historical_period, interval='1h', progress=False,
-                                                auto_adjust=True)
-            if not stock_history.empty:
-                # current_price = round(stock_history["Close"].iloc[-1], 2)
-                current_price = stock.info.get('regularMarketPrice')
-                ma_50 = round(stock_history["Close"].rolling(window=50).mean().iloc[-1], 2)
-                ma_100 = round(stock_history["Close"].rolling(window=100).mean().iloc[-1], 2)
-                ma_150 = round(stock_history["Close"].rolling(window=150).mean().iloc[-1], 2)
-                ma_200 = round(stock_history["Close"].rolling(window=200).mean().iloc[-1], 2)
-                # Add technical indicators
-                rsi_data = calculate_rsi(ticker, stock_history)
-                vroc_data = calculate_vroc_signals(ticker, stock_downloaded_data, rsi_data['RSI'])
-                macd_data = calculate_macd_signals(ticker, stock_history)
-            else:
-                current_price = ma_50 = ma_100 = ma_200 = "N/A"
-                earnings_dates = ["N/A"]
-            ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
-            bollinger_stock_data = get_bollinger_stock_data(stock_downloaded_data)
-            bollinger_stock_signal = bollinger_stock_data['Signal']
-            try:
-                piotroski_data = calculate_piotroski_score(ticker, stock)
-            except Exception as e:
-                logger.warn(f'Could not determine Piotroski Score for {ticker}, error was {e}')
-                piotroski_data = {'Score': ''}
-            company_data = fetch_company_info(stock)
-            try:
-                earnings_date_timestamps = stock.calendar.get('Earnings Date')
-                first_earnings_date_timestamp = earnings_date_timestamps[0]
-                if first_earnings_date_timestamp < today.date():
-                    next_earnings_date_timestamp = earnings_date_timestamps[-1]
-                else:
-                    next_earnings_date_timestamp = first_earnings_date_timestamp
-                logger.info(f'Next earnings date for {ticker} is {next_earnings_date_timestamp}')
-                next_earnings_date = next_earnings_date_timestamp.strftime("%Y-%m-%d")
-            except Exception as e:
-                logger.error(f'Failed to retrieve next earnings date for {ticker}, error was {e}')
-                next_earnings_date = 'N/A'
-            results.append({
-                'Ticker': ticker,
-                'Info': company_data['info'],
-                'Price': current_price,
-                'Market Cap': stock.info.get('marketCap'),
-                'Industry': company_data['industry'],
-                '50-MA': ma_50,
-                '100-MA': ma_100,
-                '100-MA': ma_100,
-                '150-MA': ma_150,
-                '200-MA': ma_200,
-                '52w High': stock.info.get('fiftyTwoWeekHigh'),
-                '52w Low': stock.info.get('fiftyTwoWeekLow'),
-                'Charts': {}, # empty dict playholder for 'Charts' column
-                'RSI Chart': rsi_data['Chart'],
-                'RSI Chart Description': rsi_data['Chart_Description'],
-                'MACD Chart': macd_data['Chart'],
-                'MACD Chart Description': macd_data['Chart_Description'],
-                'VROC Chart': vroc_data['Chart'],
-                'VROC Chart Description': vroc_data['Chart_Description'],
-                'News Chart': stock_news_data['chart'],
-                'News Chart Description': stock_news_data['chart_description'],
-                'Sentiment': stock_news_data['sentiment'],
-                'Σ-BOLL': bollinger_stock_signal,
-                'Σ-MA': ma_stock_signal,
-                'P/E': stock.info.get('trailingPE'),
-                'Score': piotroski_data['Score'],
-                'Earnings': next_earnings_date,
-            })
-        except Exception as e:
-            results.append({'Ticker': ticker, 'Error': str(e)})
-
-    df = pd.DataFrame(results)
-    json_data = df.to_json(orient='records')
-    cache.setex(key, CACHE_TTL, json_data)
-    return json_data
+    # Return full AsyncResult
+    return chord(
+        [fetch_stock_data.s(ticker) for ticker in tickers]
+    )(collect_results.s())
 
 def create_news_markdown(ticker, data):
     markdown_content = f'''
