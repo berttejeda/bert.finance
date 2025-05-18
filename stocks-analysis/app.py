@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from finance_calendars import finance_calendars as fc
 from flask import Flask, render_template
 from tasks import fetch_stock_data_parallel, get_cache_key, cache
+from io import StringIO
 
 import argparse
 import glob
@@ -132,7 +133,7 @@ def home():
     cached = cache.get(key)
     if cached:
         logger.info('Loading cached data')
-        stock_data_analysis = pd.read_json(cached.decode('utf-8'))
+        stock_data_analysis = pd.read_json(StringIO(cached.decode('utf-8')))
     else:
         start_time = time.time()
         chord_result = fetch_stock_data_parallel(sanitized_tickers)  # returns AsyncResult
@@ -140,7 +141,7 @@ def home():
             stock_data_analysis = chord_result
         else:
             chord_result.wait()
-            stock_data_analysis = pd.read_json(chord_result.get())
+            stock_data_analysis = pd.read_json(StringIO(chord_result.get()))
             duration = time.time() - start_time
             logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
             date_of_analysis = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
