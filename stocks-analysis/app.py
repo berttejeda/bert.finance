@@ -110,7 +110,6 @@ sanitized_tickers = []
 for t in combined_ticker_list:
     if t != None and t not in sanitized_tickers:
         sanitized_tickers.append(t)
-sanitized_tickers = tickers
 # Initialize the stock data cache
 logger.info('Initializing the stock data cache ...')
 start_time = time.time()
