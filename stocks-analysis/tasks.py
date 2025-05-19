@@ -1,11 +1,13 @@
-import redis
-import hashlib
 from celery import Celery, chord
+from celery.bin.worker import worker as celery_worker
 from datetime import datetime, timedelta
+from fake_useragent import UserAgent
 from finvizfinance.quote import finvizfinance
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from requests import Session
 
 import base64
+import hashlib
 import io
 import logging
 import matplotlib
@@ -13,12 +15,22 @@ import matplotlib.pyplot as plt
 import nltk
 import numpy as np
 import pandas as pd
+import redis
+import sys
 import time
 import yfinance as yf
 
-cache = redis.Redis(host='localhost', port=6379, db=1)
+redis_host = 'localhost'
+redis_port = 6379
+redis_db = 1
 
-CACHE_TTL = 300
+try:
+    cache = redis.Redis(host=redis_host, port=redis_port, db=redis_db)
+    cache.ping()
+except redis.exceptions.ConnectionError:
+    quit(f'Could not connect to redis at {redis_host}:{redis_port}')
+
+CACHE_TTL = 86400
 
 celery = Celery('tasks',
     broker='redis://localhost:6379/0',
@@ -45,6 +57,15 @@ matplotlib.use('Agg')
 mlogger = logging.getLogger('matplotlib')
 mlogger.setLevel(logging.WARNING)
 historical_period = '1y'
+
+def refresh_yf_user_agent():
+    """Refresh yfinance request session with a random User-Agent."""
+    ua = UserAgent()
+    session = Session()
+    session.headers.update({'User-Agent': ua.random})
+    yf.shared._requests = session
+
+refresh_yf_user_agent()
 
 def get_cache_key(tickers):
     joined = ",".join(sorted(tickers))
@@ -381,7 +402,6 @@ def calculate_rsi(ticker, data, period=7):
     avg_loss = loss.rolling(window=period).mean()
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-
     rsi_chart = fig_to_base64(plot_rsi(ticker, rsi))
     rsi_chart_description = """
 RSI – Relative Strength Index
@@ -401,13 +421,11 @@ How it's used:
 - Example:
   A stock’s RSI is 25 → this could signal it's oversold → potential buying opportunity (after confirming with other data).
     """
-
     data_obj = {
         'Chart': rsi_chart,
         'Chart_Description': rsi_chart_description,
         'RSI': rsi
     }
-
     return data_obj
 
 def calculate_vroc_signals(ticker, data, rsi, period=7, vroc_buy_threshold=20, vroc_sell_threshold=-20, rsi_buy_threshold=30, rsi_sell_threshold=70):
@@ -569,3 +587,15 @@ def fig_to_base64(fig):
     plt.close(fig)
     img.seek(0)
     return base64.b64encode(img.read()).decode('utf8')
+
+def start_worker():
+
+    sys.argv = [
+        'worker',
+        '--loglevel=INFO',
+        '-c 10'
+    ]
+    celery.worker_main(argv=sys.argv)
+
+if __name__ == '__main__':
+    start_worker()
