@@ -162,9 +162,9 @@
 
           <!-- Navigation Buttons -->
           <nav class="flex space-x-4">
-          <form method="POST" onsubmit="showStocks()" action="/">
-              <button type="submit" class="btn btn-primary">Show Stocks</button>
-          </form>
+            <button onclick="showStocks()" class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
+              Show Stocks
+            </button>
             <button onclick="showEarnings()" class="px-4 py-2 rounded-xl hover:bg-blue-50 text-gray-700 font-medium transition">
               Show This Week's Earnings Calendar
             </button>
@@ -207,7 +207,7 @@
         <thead>
             <tr>
                 {% for key in stock_data_analysis[0].keys() %}
-                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News')) %}
+                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate')) %}
                 <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
@@ -239,6 +239,7 @@
                 <div class="image-wrapper"><img data-caption="{{ stock_data['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data['MACD Chart'] }}" class="img-fluid"></div>
                 <div class="image-wrapper"><img data-caption="{{ stock_data['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data['VROC Chart'] }}" class="img-fluid"></div>
                 <div class="image-wrapper"><img data-caption="{{ stock_data['News Chart Description'] }}" src="data:image/png;base64,{{ stock_data['News Chart'] }}" class="img-fluid"></div>
+                <div class="image-wrapper"><img data-caption="{{ stock_data['Senate Trades Chart Description'] }}" src="data:image/png;base64,{{ stock_data['Senate Trades Chart'] }}" class="img-fluid"></div>
             </td>
             <td class="Sentiment">{{ stock_data['Sentiment'] }}</td>
             <td class="Σ-BOLL">{{ stock_data['Σ-BOLL'] }}</td>
@@ -376,7 +377,24 @@
       document.getElementById('content-' + tabId).classList.add('active');
     }
 
+    function checkDataReady() {
+        fetch('/data-status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.ready) {
+                    location.reload();
+                } else {
+                    setTimeout(checkDataReady, 5000); // retry in 5s
+                }
+            });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+
+        {% if not stock_data_is_ready %}
+            setTimeout(checkDataReady, 1000);
+        {% endif %}
+
 
         const stock_list = new List('stock_data', {
             valueNames: ['Ticker', 'Price', 'Market Cap','Industry','50-MA', '100-MA', '150-MA', '200-MA',

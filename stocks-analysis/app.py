@@ -1,17 +1,12 @@
-from btconfig import Config
 from datetime import datetime, timedelta
-from finance_calendars import finance_calendars as fc
-from flask import Flask, render_template
-from tasks import fetch_stock_data_parallel, get_cache_key, cache
+from flask import Flask, render_template, jsonify
+from tasks import get_cache_key, cache, tickers, earnings_by_day
 from io import StringIO
 
 import argparse
-import glob
-import json
 import logging
 import pandas as pd
 import re
-import time
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Stock Analysis Script")
@@ -33,10 +28,6 @@ host_address = args.host_address
 host_port = args.host_port
 today = datetime.now()
 # finnhub_api_key = args.finnhub_api_key or quit('You must specify your Finnhub API Key!')
-# Initialize App Config
-config = Config(config_file_uri='config.yaml').read()
-tickers = [t['name'] for t in config.get('tickers') if t['type'] == 'stock']
-schema = config.get('data.schema')
 # Configure the logging system
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -50,109 +41,31 @@ def regex_search(value, pattern):
     return match.group(0) if match else ''
 app.jinja_env.filters['regex_search'] = regex_search
 
-# Build dictionary of existing US stocks
-def build_ticker_db():
-    # List to hold combined ticker data
-    ticker_data = []
-    # Iterate over all JSON files
-    for file in glob.glob("etc/*.json"):
-        with open(file, 'r') as f:
-            data = json.load(f)  # Assuming each file contains a list of dicts
-            ticker_data.extend(data)
-    return ticker_data
-
-def get_ticker_from_db(data, search_key):
-    for item in data:
-        company_name = item.get('name', '')
-        matches_name_bare = search_key in company_name
-        matches_name_adjusted = search_key.replace(',','').replace('.','') in company_name
-        if matches_name_bare or matches_name_adjusted:
-            return item['symbol']
-    return None
-
-def earnings_calendar(ticker_db):
-    monday = today - timedelta(days=today.weekday())
-    weekdays = [monday + timedelta(days=i) for i in range(5)]
-
-    logger.info('Fetching earnings calendar for the week')
-    earnings_by_day = {}
-    ticker_list = []
-    for day in weekdays:
-        try:
-            df = fc.get_earnings_by_date(day)
-            df['ticker'] = df['name'].apply(lambda x: get_ticker_from_db(ticker_db, x))
-            if 'eps' in df.keys():
-                df['eps'] = df['eps'].str.replace('$', '')
-            if 'noOfEsts' in df.keys():
-                df['noOfEsts'] = df['noOfEsts'].str.replace('N/A', '')
-            if 'lastYearEPS' in df.keys():
-                df['lastYearEPS'] = df['lastYearEPS'].str.replace('$', '').str.replace('(', '-').str.replace(')', '')
-                df['lastYearEPS'] = df['lastYearEPS'].str.replace('N/A', '')
-            if 'epsForecast' in df.keys():
-                df['epsForecast'] = df['epsForecast'].str.replace('$', '').str.replace('(','-').str.replace(')','')
-            if not df.empty:
-                ticker_list =  ticker_list + [t for t in df['ticker']]
-                rows = df.to_dict(orient='records')
-            else:
-                rows = []
-        except Exception:
-            rows = []
-        earnings_by_day[day.strftime('%A, %Y-%m-%d')] = rows
-
-    return ticker_list, earnings_by_day
-ticker_db = build_ticker_db()
-
-# Gather earnings data for the week
-ticker_list_from_earnings, earnings_by_day = earnings_calendar(ticker_db)
-combined_ticker_list = ticker_list_from_earnings + tickers
-# List to store processed ticker objects
-sanitized_tickers = []
-for t in combined_ticker_list:
-    if t != None and t not in sanitized_tickers:
-        sanitized_tickers.append(t)
-# Initialize the stock data cache
-logger.info('Initializing the stock data cache ...')
-start_time = time.time()
-chord_result = fetch_stock_data_parallel(sanitized_tickers)  # returns AsyncResult
-if type(chord_result) != str:
-    chord_result.wait()
-duration = time.time() - start_time
-logger.info(f"Completed initial stock data fetch in {duration:.2f} seconds")
-initial_refresh_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 @app.route('/')
 def home():
-    date_of_analysis = initial_refresh_date
     context = {
         'stock_data_is_ready': False,
-        'earnings_by_day': earnings_by_day,
-        'date_of_analysis':  date_of_analysis
+        'earnings_by_day': earnings_by_day
     }
     key = get_cache_key(tickers)
     cached = cache.get(key)
     if cached:
-        logger.info('Loading cached data')
         stock_data_analysis = pd.read_json(StringIO(cached.decode('utf-8')))
+        context.update(
+          {
+          'stock_data_is_ready': True,
+          'stock_data_analysis': stock_data_analysis.to_dict(orient='records')
+          }
+        )         
+        return render_template('index.html', **context)
     else:
-        start_time = time.time()
-        chord_result = fetch_stock_data_parallel(sanitized_tickers)  # returns AsyncResult
-        if type(chord_result) == str:
-            stock_data_analysis = chord_result
-        else:
-            chord_result.wait()
-            stock_data_analysis = pd.read_json(StringIO(chord_result.get()))
-            duration = time.time() - start_time
-            logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
-            date_of_analysis = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return render_template('index.html', **context)
 
-    context.update(
-      {
-      'timestamp': date_of_analysis,
-      'stock_data_is_ready': True,
-      'stock_data_analysis': stock_data_analysis.to_dict(orient='records')
-      }
-    )    
-    return render_template('index.html', **context)
+@app.route('/data-status')
+def data_status():
+    key = get_cache_key(tickers)
+    is_ready = {'ready': bool(cache.exists(key))}
+    return jsonify(is_ready)
 
 if __name__ == '__main__':
     app.run(host=host_address, port=host_port, debug=debug)
