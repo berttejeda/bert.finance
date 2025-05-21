@@ -1,6 +1,8 @@
 tickers:
   - name: GME
     type: stock
+  - name: RYAAY
+    type: stock
   - name: NOW
     type: stock
   - name: HIMS

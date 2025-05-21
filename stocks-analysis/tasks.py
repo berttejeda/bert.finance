@@ -24,6 +24,7 @@ import redis
 import requests
 import sys
 import time
+import traceback
 import yfinance as yf
 
 # Initialize App Config
@@ -77,7 +78,7 @@ try:
 except redis.exceptions.ConnectionError:
     quit(f'Could not connect to redis at {redis_host}:{redis_port}')
 
-CACHE_TTL = 300
+CACHE_TTL = 28800 # cache for 8 hours
 QUIVER_API_KEY = os.environ.get('QUIVER_API_KEY')  # Replace with actual key
 
 def refresh_yf_user_agent():
@@ -176,27 +177,25 @@ tickers = []
 for t in combined_ticker_list:
     if t != None and t not in tickers:
         tickers.append(t)
-
 def get_cache_key(tickers):
     joined = ",".join(sorted(tickers))
     return f"stock:{hashlib.md5(joined.encode()).hexdigest()}"
 
-tickers = tickers_from_config
-
 @celery.task
-def collect_results(results):
+def collect_results(results, fetch_stock_data_parallel=False):
     df = pd.DataFrame(results)
     json_data = df.to_json()
-    key = get_cache_key([r['Ticker'] for r in results if 'Ticker' in r])
+    list_of_tickers = [r['Ticker'] for r in results if 'Ticker' in r]
+    key = get_cache_key(list_of_tickers)
     cache.setex(key, CACHE_TTL, json_data)
     return json_data
 
-def fetch_stock_data_parallel(tickers):
+def fetch_stock_data_parallel(tickers, fetch_stock_data_parallel=False):
 
     start_time = time.time()
     output = chord(
         [fetch_one_ticker.s(ticker) for ticker in tickers]
-    )(collect_results.s())
+    )(collect_results.s(fetch_stock_data_parallel))
     duration = time.time() - start_time
     logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
     return output
@@ -215,18 +214,17 @@ def fetch_one_ticker(ticker):
                                             auto_adjust=True)
         if not stock_history.empty:
             # current_price = round(stock_history["Close"].iloc[-1], 2)
-            current_price = stock.info.get('regularMarketPrice')
-            ma_50 = round(stock_history["Close"].rolling(window=50).mean().iloc[-1], 2)
-            ma_100 = round(stock_history["Close"].rolling(window=100).mean().iloc[-1], 2)
-            ma_150 = round(stock_history["Close"].rolling(window=150).mean().iloc[-1], 2)
-            ma_200 = round(stock_history["Close"].rolling(window=200).mean().iloc[-1], 2)
+            current_price = round(stock.info.get('regularMarketPrice'),2)
+            ma_50 = int(stock_history["Close"].rolling(window=50).mean().iloc[-1])
+            ma_100 = int(stock_history["Close"].rolling(window=100).mean().iloc[-1])
+            ma_150 = int(stock_history["Close"].rolling(window=150).mean().iloc[-1])
+            ma_200 = int(stock_history["Close"].rolling(window=200).mean().iloc[-1])
             # Add technical indicators
             rsi_data = calculate_rsi(ticker, stock_history)
             vroc_data = calculate_vroc_signals(ticker, stock_downloaded_data, rsi_data['RSI'])
             macd_data = calculate_macd_signals(ticker, stock_history)
         else:
             current_price = ma_50 = ma_100 = ma_200 = "N/A"
-            earnings_dates = ["N/A"]
         ma_stock_signal = get_ma_stock_signal(current_price, ma_50, ma_150)['Signal']
         bollinger_stock_data = get_bollinger_stock_data(stock_downloaded_data)
         bollinger_stock_signal = bollinger_stock_data['Signal']
@@ -253,15 +251,15 @@ def fetch_one_ticker(ticker):
             'Ticker': ticker,
             'Info': company_data['info'],
             'Price': current_price,
-            'Market Cap': stock.info.get('marketCap'),
+            'Market Cap': f"{stock.info.get('marketCap')/1e9:.2f}B",
             'Industry': company_data['industry'],
             '50-MA': ma_50,
             '100-MA': ma_100,
             '100-MA': ma_100,
             '150-MA': ma_150,
             '200-MA': ma_200,
-            '52w High': stock.info.get('fiftyTwoWeekHigh'),
-            '52w Low': stock.info.get('fiftyTwoWeekLow'),
+            '52w High': int(stock.info.get('fiftyTwoWeekHigh')),
+            '52w Low': int(stock.info.get('fiftyTwoWeekLow')),
             'Charts': {}, # empty dict playholder for 'Charts' column
             'RSI Chart': rsi_data['Chart'],
             'RSI Chart Description': rsi_data['Chart Description'],
@@ -281,7 +279,10 @@ def fetch_one_ticker(ticker):
             'Earnings': next_earnings_date,
         }
     except Exception as e:
-        data_obj = {'Ticker': ticker, 'Error': str(e)}
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        # Extract the line number from the traceback
+        line_number = traceback.extract_tb(exc_traceback)[-1][1]
+        data_obj = {'Ticker': ticker, 'Error': str(e), 'ErrorLineNumber': line_number}
     return data_obj
 
 @celery.task(name='tasks.fetch_and_cache_all_tickers')
@@ -315,7 +316,7 @@ Senate Trades for {ticker}
                     })
 
             data = pd.DataFrame(rows) if rows else pd.DataFrame(columns=["name", "action", "date"])
-            time_delta = today - timedelta(weeks=52)
+            time_delta = today - timedelta(weeks=4)
             cutoff_date = pd.to_datetime(time_delta)
             data['date'] = pd.to_datetime(data['date'], format="%Y/%m/%d")
             if not data['date'].empty:
@@ -329,7 +330,7 @@ Senate Trades for {ticker}
     except Exception as e:
         logger.error(f'Failed to fetch senate trade data for {ticker}, error was {e}')
     data_obj = {
-        'Chart': fig_to_base64(plot_empty_data(ticker, f'No senate trade data available for {ticker} for the last 2 months')),
+        'Chart': fig_to_base64(plot_empty_data(ticker, f'No senate trade data available for {ticker} in the last month')),
         'Chart Description': chart_description
     }
     return data_obj
@@ -341,8 +342,8 @@ def plot_senator_trades(ticker, data):
     # Generate plot
     fig, ax = plt.subplots(figsize=(12, 6))
     stacked_counts.plot(kind='bar', stacked=True, ax=ax)
-    ax.set_title('Trade Actions by Senator - last 2 months')
-    ax.set_xlabel('Person')
+    ax.set_title('Trade Actions by Senator - last month')
+    ax.set_xlabel('Senator')
     ax.set_ylabel('Number of Trades')
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
@@ -641,12 +642,14 @@ def plot_vroc(ticker, data):
 
 def get_ma_stock_signal(current_price, ma_50, ma_150):
 
-    if current_price > ma_50 and current_price > ma_150:
-        ma_signal = "Buy"
-    elif current_price < ma_50 and current_price < ma_150:
-        ma_signal = "Sell"
-    else:
-        ma_signal = "Hold"
+    ma_signal = "N/A"
+    if not isinstance(current_price, str):
+        if current_price > ma_50 and current_price > ma_150:
+            ma_signal = "Buy"
+        elif current_price < ma_50 and current_price < ma_150:
+            ma_signal = "Sell"
+        else:
+            ma_signal = "Hold"
     data_obj = {
         "Signal": ma_signal,
     }
@@ -779,7 +782,7 @@ def start_worker():
     sys.argv = [
         'worker',
         '--loglevel=INFO',
-        '-c 1',
+        '-c 10',
     ]
     celery.worker_main(argv=sys.argv)
 

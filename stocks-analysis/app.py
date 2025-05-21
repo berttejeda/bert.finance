@@ -51,6 +51,7 @@ def home():
     cached = cache.get(key)
     if cached:
         stock_data_analysis = pd.read_json(StringIO(cached.decode('utf-8')))
+        stock_data_analysis = stock_data_analysis.dropna(subset=['Price'])
         context.update(
           {
           'stock_data_is_ready': True,

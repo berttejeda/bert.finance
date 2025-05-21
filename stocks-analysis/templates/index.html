@@ -207,7 +207,7 @@
         <thead>
             <tr>
                 {% for key in stock_data_analysis[0].keys() %}
-                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate')) %}
+                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error')) %}
                 <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
@@ -347,12 +347,10 @@
     <script>
 
     function showStocks() {
-        showLoading();
         showSection('stocks');
     }
 
     function showEarnings() {
-        showLoading();
         showSection('earnings');
         document.getElementById('table-search').classList.add('hidden');
     }
