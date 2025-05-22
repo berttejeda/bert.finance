@@ -38,6 +38,7 @@ celery.conf.beat_schedule = {
     'fetch-stock-every-30-min': {
         'task': 'tasks.fetch_and_cache_all_tickers',
         'schedule': crontab(minute='*/30'),
+        'args': (1,),
     }
 }
 
@@ -78,8 +79,20 @@ try:
 except redis.exceptions.ConnectionError:
     quit(f'Could not connect to redis at {redis_host}:{redis_port}')
 
-CACHE_TTL = 28800 # cache for 8 hours
+CACHE_TTL_STOCKS = 432000 # cache stock data for 5 hours
+CACHE_TTL_EARNINGS = 432000 # cache earnings data for 5 days
 QUIVER_API_KEY = os.environ.get('QUIVER_API_KEY')  # Replace with actual key
+
+def get_current_vix():
+    '''
+    Function to return the current value of VIX, the Yahoo Finance ticker for the CBOE Volatility Index
+    '''
+    vix = yf.Ticker("^VIX")
+    vix_data = vix.history(period="1d", interval="1m")  # get today's minute-level data
+    latest_price = None
+    if not vix_data.empty:
+        latest_price = int(vix_data['Close'].iloc[-1])
+    return latest_price
 
 def refresh_yf_user_agent():
     """Refresh yfinance request session with a random User-Agent."""
@@ -163,8 +176,7 @@ def earnings_calendar(ticker_db):
             except Exception:
                 rows = []
             earnings_by_day[day.strftime('%A, %Y-%m-%d')] = rows
-        # Cache the result for 5 days (432000 seconds)
-        cache.setex(cache_key, 432000, json.dumps(earnings_by_day))
+        cache.setex(cache_key, CACHE_TTL_EARNINGS, json.dumps(earnings_by_day))
         return ticker_list, earnings_by_day
     
 tickers_from_config = [t['name'] for t in config.get('tickers') if t['type'] == 'stock']
@@ -177,6 +189,7 @@ tickers = []
 for t in combined_ticker_list:
     if t != None and t not in tickers:
         tickers.append(t)
+
 def get_cache_key(tickers):
     joined = ",".join(sorted(tickers))
     return f"stock:{hashlib.md5(joined.encode()).hexdigest()}"
@@ -187,21 +200,20 @@ def collect_results(results, fetch_stock_data_parallel=False):
     json_data = df.to_json()
     list_of_tickers = [r['Ticker'] for r in results if 'Ticker' in r]
     key = get_cache_key(list_of_tickers)
-    cache.setex(key, CACHE_TTL, json_data)
+    cache.setex(key, CACHE_TTL_STOCKS, json_data)
     return json_data
 
 def fetch_stock_data_parallel(tickers, fetch_stock_data_parallel=False):
 
-    start_time = time.time()
+
     output = chord(
         [fetch_one_ticker.s(ticker) for ticker in tickers]
     )(collect_results.s(fetch_stock_data_parallel))
-    duration = time.time() - start_time
-    logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
     return output
 
 @celery.task
 def fetch_one_ticker(ticker):
+    start_time = time.time()
     try:
         stock = yf.Ticker(ticker)
         # Fetch Historical Data
@@ -247,6 +259,9 @@ def fetch_one_ticker(ticker):
             logger.error(f'Failed to retrieve next earnings date for {ticker}, error was {e}')
             next_earnings_date = 'N/A'
         senator_trades_data = get_senator_trades(ticker)
+        duration = time.time() - start_time
+        completed_at = datetime.utcnow().isoformat()
+        logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
         data_obj = {
             'Ticker': ticker,
             'Info': company_data['info'],
@@ -277,6 +292,8 @@ def fetch_one_ticker(ticker):
             'P/E': stock.info.get('trailingPE'),
             'Score': piotroski_data['Score'],
             'Earnings': next_earnings_date,
+            'Duration': duration,
+            'CompletedAt': completed_at,
         }
     except Exception as e:
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -286,7 +303,9 @@ def fetch_one_ticker(ticker):
     return data_obj
 
 @celery.task(name='tasks.fetch_and_cache_all_tickers')
-def fetch_and_cache_all_tickers():
+def fetch_and_cache_all_tickers(force_cache_update=0):
+    if force_cache_update:
+        logger.info('Got signal to force cache update')
     fetch_stock_data_parallel(tickers)
 
 def get_senator_trades(ticker):
@@ -330,7 +349,7 @@ Senate Trades for {ticker}
     except Exception as e:
         logger.error(f'Failed to fetch senate trade data for {ticker}, error was {e}')
     data_obj = {
-        'Chart': fig_to_base64(plot_empty_data(ticker, f'No senate trade data available for {ticker} in the last month')),
+        'Chart': fig_to_base64(plot_empty_data(ticker, f'No senate trade data available for {ticker} in the last 4 weeks')),
         'Chart Description': chart_description
     }
     return data_obj
@@ -422,7 +441,7 @@ def fetch_ticker_news_data(ticker, period=7, retries=3):
     if is_error:
         logger.error(f'Reached max number of retries {retries} when fetching news data for ticker {ticker}')
         data_obj = {
-            'Chart': fig_to_base64(plot_empty_data(ticker)),
+            'Chart': fig_to_base64(plot_empty_data(ticker, f'No news data found for {ticker}')),
             'Chart Description': '',
             'sentiment': ''
         }

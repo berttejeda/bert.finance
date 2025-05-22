@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify
-from tasks import get_cache_key, cache, tickers, earnings_by_day
+from tasks import get_cache_key, cache, tickers, earnings_by_day, get_current_vix
 from io import StringIO
 
 import argparse
@@ -45,6 +45,7 @@ app.jinja_env.filters['regex_search'] = regex_search
 def home():
     context = {
         'stock_data_is_ready': False,
+        'current_vix': get_current_vix(),
         'earnings_by_day': earnings_by_day
     }
     key = get_cache_key(tickers)
@@ -52,8 +53,16 @@ def home():
     if cached:
         stock_data_analysis = pd.read_json(StringIO(cached.decode('utf-8')))
         stock_data_analysis = stock_data_analysis.dropna(subset=['Price'])
+        stock_data_analysis = stock_data_analysis.dropna(subset=['CompletedAt'])
+        task_duration = stock_data_analysis.dropna(subset=['Duration'])
+        task_duration_in_minutes = task_duration['Duration'].sum() / 60
+        last_cache_refresh = pd.to_datetime(stock_data_analysis['CompletedAt']).max().strftime("%Y-%m-%d %H:%M:%S")
+        logger.info(f'Task duration was {round(task_duration_in_minutes,2)}')
         context.update(
           {
+          'last_cache_refresh': last_cache_refresh,
+          'current_vix': get_current_vix(),
+          'task_duration_in_minutes': task_duration_in_minutes,
           'stock_data_is_ready': True,
           'stock_data_analysis': stock_data_analysis.to_dict(orient='records')
           }

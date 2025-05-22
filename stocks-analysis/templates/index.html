@@ -181,10 +181,10 @@
         </div>
 
         <!-- Right Side: Search -->
-        <div class="relative w-full max-w-xs">
-            {% if timestamp %}Date of Last Cache Refresh:<br />
-            {{ timestamp }}
-            {% endif %}
+        <div style="font-size:.7em" class="relative w-full max-w-xs">
+            {% if current_vix %}CBOE Volatility Index (VIX): <bold>{{ current_vix }}{% endif %}</bold><br />
+            {% if last_cache_refresh %}Date of Last Cache Refresh: {{ last_cache_refresh }}{% endif %}<br />
+            {% if task_duration_in_minutes %}Cache refresh took {{ task_duration_in_minutes | round(2) }} minutes to complete{% endif %}
         </div>
       </header>
 
@@ -196,7 +196,9 @@
         <p>Analyzing data, please wait...</p>
     </div>
 
-    {% if stock_data_is_ready %}
+    {% if not stock_data_is_ready %}
+    Stock Data is not yet ready ...
+    {% else %}
     <div id="stock_data" class="sticky-table-wrapper">
     <input
       type="text"
@@ -207,8 +209,8 @@
         <thead>
             <tr>
                 {% for key in stock_data_analysis[0].keys() %}
-                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error')) %}
-                <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
+                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error|^Duration|^CompletedAt')) %}
+                <th><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -272,7 +274,6 @@
           </div>
         </div>
       </div>
-
     {% endif %}
     </div>
 
@@ -346,6 +347,15 @@
 
     <script>
 
+    function hoursDifferenceFromNow(date) {
+      const now = new Date();
+      const timeDifferenceMs = date.getTime() - now.getTime();
+      const hoursDifference = timeDifferenceMs / (1000 * 60 * 60);
+      return hoursDifference;
+    }
+
+    const diffHours = hoursDifferenceFromNow(futureDate);
+
     function showStocks() {
         showSection('stocks');
     }
@@ -380,9 +390,10 @@
             .then(res => res.json())
             .then(data => {
                 if (data.ready) {
+                    console.log('Cache is ready. Refreshing page.')
                     location.reload();
                 } else {
-                    setTimeout(checkDataReady, 5000); // retry in 5s
+                    setTimeout(checkDataReady, 60000); // retry in 1 minute
                 }
             });
     }
