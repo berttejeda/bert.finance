@@ -209,8 +209,8 @@
         <thead>
             <tr>
                 {% for key in stock_data_analysis[0].keys() %}
-                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error|^Duration|^CompletedAt')) %}
-                <th><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
+                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error|^Duration|^CompletedAt|^Price Chart')) %}
+                <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
             </tr>
@@ -237,6 +237,7 @@
             <td class="52w High">{{ stock_data['52w High'] }}</td>
             <td class="52w Low">{{ stock_data['52w Low'] }}</td>
             <td class="Charts">
+                <div class="image-wrapper"><img data-caption="{{ stock_data['Price Chart Description'] }}" src="data:image/png;base64,{{ stock_data['Price Chart'] }}" class="img-fluid"></div>
                 <div class="image-wrapper"><img data-caption="{{ stock_data['RSI Chart Description'] }}" src="data:image/png;base64,{{ stock_data['RSI Chart'] }}" class="img-fluid"></div>
                 <div class="image-wrapper"><img data-caption="{{ stock_data['MACD Chart Description'] }}" src="data:image/png;base64,{{ stock_data['MACD Chart'] }}" class="img-fluid"></div>
                 <div class="image-wrapper"><img data-caption="{{ stock_data['VROC Chart Description'] }}" src="data:image/png;base64,{{ stock_data['VROC Chart'] }}" class="img-fluid"></div>
@@ -274,6 +275,7 @@
           </div>
         </div>
       </div>
+
     {% endif %}
     </div>
 
@@ -347,15 +349,6 @@
 
     <script>
 
-    function hoursDifferenceFromNow(date) {
-      const now = new Date();
-      const timeDifferenceMs = date.getTime() - now.getTime();
-      const hoursDifference = timeDifferenceMs / (1000 * 60 * 60);
-      return hoursDifference;
-    }
-
-    const diffHours = hoursDifferenceFromNow(futureDate);
-
     function showStocks() {
         showSection('stocks');
     }
@@ -390,10 +383,9 @@
             .then(res => res.json())
             .then(data => {
                 if (data.ready) {
-                    console.log('Cache is ready. Refreshing page.')
                     location.reload();
                 } else {
-                    setTimeout(checkDataReady, 60000); // retry in 1 minute
+                    setTimeout(checkDataReady, 5000); // retry in 5s
                 }
             });
     }

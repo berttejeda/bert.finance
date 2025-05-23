@@ -231,6 +231,7 @@ def fetch_one_ticker(ticker):
             ma_100 = int(stock_history["Close"].rolling(window=100).mean().iloc[-1])
             ma_150 = int(stock_history["Close"].rolling(window=150).mean().iloc[-1])
             ma_200 = int(stock_history["Close"].rolling(window=200).mean().iloc[-1])
+            price_last_1_month_data = calculate_price_last_trading_month(ticker, stock_history)
             # Add technical indicators
             rsi_data = calculate_rsi(ticker, stock_history)
             vroc_data = calculate_vroc_signals(ticker, stock_downloaded_data, rsi_data['RSI'])
@@ -276,6 +277,8 @@ def fetch_one_ticker(ticker):
             '52w High': int(stock.info.get('fiftyTwoWeekHigh')),
             '52w Low': int(stock.info.get('fiftyTwoWeekLow')),
             'Charts': {}, # empty dict playholder for 'Charts' column
+            'Price Chart': price_last_1_month_data['Chart'],
+            'Price Chart Description': price_last_1_month_data['Chart Description'],
             'RSI Chart': rsi_data['Chart'],
             'RSI Chart Description': rsi_data['Chart Description'],
             'MACD Chart': macd_data['Chart'],
@@ -353,6 +356,34 @@ Senate Trades for {ticker}
         'Chart Description': chart_description
     }
     return data_obj
+
+def calculate_price_last_trading_month(ticker, hist):
+    """
+    Plots the closing prices for the last 37 trading days of the given stock ticker.
+    """
+    # Only keep the last 37 trading days, to account for weekends
+    last_37 = hist.tail(37)
+    chart = fig_to_base64(plot_price_last_trading_month(ticker, last_37))
+    chart_description = f"""
+     {ticker} - Price over the last trading month
+    """
+    data_obj = {
+        'Chart': chart,
+        'Chart Description': chart_description,
+    }
+    return data_obj
+
+def plot_price_last_trading_month(ticker, data):
+    # Plot the data
+    fig = plt.figure(figsize=(12, 2))
+    plt.plot(data.index, data['Close'], marker='o', linestyle='-')
+    plt.title(f"{ticker.upper()} - Price over the last trading month")
+    plt.xlabel("Date")
+    plt.ylabel("Close Price (USD)")
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    return fig
 
 def plot_senator_trades(ticker, data):
     # Parse dates and extract relevant info
