@@ -1,0 +1,1333 @@
+codes:
+    "100":
+      AD_office: '5'
+      industry_title: AGRICULTURAL PRODUCTION-CROPS
+    "200":
+      AD_office: '5'
+      industry_title: AGRICULTURAL PROD-LIVESTOCK & ANIMAL SPECIALTIES
+    "700":
+      AD_office: '5'
+      industry_title: AGRICULTURAL SERVICES
+    "800":
+      AD_office: '5'
+      industry_title: FORESTRY
+    "900":
+      AD_office: '5'
+      industry_title: FISHING, HUNTING AND TRAPPING
+    "1000":
+      AD_office: '9'
+      industry_title: METAL MINING
+    "1040":
+      AD_office: '9'
+      industry_title: GOLD AND SILVER ORES
+    "1090":
+      AD_office: '9'
+      industry_title: MISCELLANEOUS METAL ORES
+    "1220":
+      AD_office: '9'
+      industry_title: BITUMINOUS COAL & LIGNITE MINING
+    "1221":
+      AD_office: '9'
+      industry_title: BITUMINOUS COAL & LIGNITE SURFACE MINING
+    "1311":
+      AD_office: '4'
+      industry_title: CRUDE PETROLEUM & NATURAL GAS
+    "1381":
+      AD_office: '4'
+      industry_title: DRILLING OIL & GAS WELLS
+    "1382":
+      AD_office: '4'
+      industry_title: OIL & GAS FIELD EXPLORATION SERVICES
+    "1389":
+      AD_office: '4'
+      industry_title: OIL & GAS FIELD SERVICES, NEC
+    "1400":
+      AD_office: '9'
+      industry_title: MINING & QUARRYING OF NONMETALLIC MINERALS (NO FUELS)
+    "1520":
+      AD_office: '6'
+      industry_title: GENERAL BLDG CONTRACTORS - RESIDENTIAL BLDGS
+    "1531":
+      AD_office: '6'
+      industry_title: OPERATIVE BUILDERS
+    "1540":
+      AD_office: '6'
+      industry_title: GENERAL BLDG CONTRACTORS - NONRESIDENTIAL BLDGS
+    "1600":
+      AD_office: '6'
+      industry_title: HEAVY CONSTRUCTION OTHER THAN BLDG CONST - CONTRACTORS
+    "1623":
+      AD_office: '6'
+      industry_title: WATER, SEWER, PIPELINE, COMM & POWER LINE CONSTRUCTION
+    "1700":
+      AD_office: '6'
+      industry_title: CONSTRUCTION - SPECIAL TRADE CONTRACTORS
+    "1731":
+      AD_office: '6'
+      industry_title: ELECTRICAL WORK
+    "2000":
+      AD_office: '4'
+      industry_title: FOOD AND KINDRED PRODUCTS
+    "2011":
+      AD_office: '5'
+      industry_title: MEAT PACKING PLANTS
+    "2013":
+      AD_office: '5'
+      industry_title: SAUSAGES & OTHER PREPARED MEAT PRODUCTS
+    "2015":
+      AD_office: '5'
+      industry_title: POULTRY SLAUGHTERING AND PROCESSING
+    "2020":
+      AD_office: '4'
+      industry_title: DAIRY PRODUCTS
+    "2024":
+      AD_office: '4'
+      industry_title: ICE CREAM & FROZEN DESSERTS
+    "2030":
+      AD_office: '4'
+      industry_title: CANNED, FROZEN & PRESERVD FRUIT, VEG & FOOD SPECIALTIES
+    "2033":
+      AD_office: '4'
+      industry_title: CANNED, FRUITS, VEG, PRESERVES, JAMS & JELLIES
+    "2040":
+      AD_office: '4'
+      industry_title: GRAIN MILL PRODUCTS
+    "2050":
+      AD_office: '4'
+      industry_title: BAKERY PRODUCTS
+    "2052":
+      AD_office: '4'
+      industry_title: COOKIES & CRACKERS
+    "2060":
+      AD_office: '4'
+      industry_title: SUGAR & CONFECTIONERY PRODUCTS
+    "2070":
+      AD_office: '4'
+      industry_title: FATS & OILS
+    "2080":
+      AD_office: '9'
+      industry_title: BEVERAGES
+    "2082":
+      AD_office: '9'
+      industry_title: MALT BEVERAGES
+    "2086":
+      AD_office: '9'
+      industry_title: BOTTLED & CANNED SOFT DRINKS & CARBONATED WATERS
+    "2090":
+      AD_office: '4'
+      industry_title: MISCELLANEOUS FOOD PREPARATIONS & KINDRED PRODUCTS
+    "2092":
+      AD_office: '4'
+      industry_title: PREPARED FRESH OR FROZEN FISH & SEAFOODS
+    "2100":
+      AD_office: '5'
+      industry_title: TOBACCO PRODUCTS
+    "2111":
+      AD_office: '5'
+      industry_title: CIGARETTES
+    "2200":
+      AD_office: '2'
+      industry_title: TEXTILE MILL PRODUCTS
+    "2211":
+      AD_office: '2'
+      industry_title: BROADWOVEN FABRIC MILLS, COTTON
+    "2221":
+      AD_office: '2'
+      industry_title: BROADWOVEN FABRIC MILLS, MAN MADE FIBER & SILK
+    "2250":
+      AD_office: '2'
+      industry_title: KNITTING MILLS
+    "2253":
+      AD_office: '9'
+      industry_title: KNIT OUTERWEAR MILLS
+    "2273":
+      AD_office: '2'
+      industry_title: CARPETS & RUGS
+    "2300":
+      AD_office: '9'
+      industry_title: APPAREL & OTHER FINISHD PRODS OF FABRICS & SIMILAR MATL
+    "2320":
+      AD_office: '9'
+      industry_title: MEN'S & BOYS' FURNISHGS, WORK CLOTHG, & ALLIED GARMENTS
+    "2330":
+      AD_office: '9'
+      industry_title: WOMEN'S, MISSES', AND JUNIORS OUTERWEAR
+    "2340":
+      AD_office: '9'
+      industry_title: WOMEN'S, MISSES', CHILDREN'S & INFANTS' UNDERGARMENTS
+    "2390":
+      AD_office: '9'
+      industry_title: MISCELLANEOUS FABRICATED TEXTILE PRODUCTS
+    "2400":
+      AD_office: '6'
+      industry_title: LUMBER & WOOD PRODUCTS (NO FURNITURE)
+    "2421":
+      AD_office: '6'
+      industry_title: SAWMILLS & PLANTING MILLS, GENERAL
+    "2430":
+      AD_office: '6'
+      industry_title: MILLWOOD, VENEER, PLYWOOD, & STRUCTURAL WOOD MEMBERS
+    "2451":
+      AD_office: '6'
+      industry_title: MOBILE HOMES
+    "2452":
+      AD_office: '6'
+      industry_title: PREFABRICATED WOOD BLDGS & COMPONENTS
+    "2510":
+      AD_office: '6'
+      industry_title: HOUSEHOLD FURNITURE
+    "2511":
+      AD_office: '6'
+      industry_title: WOOD HOUSEHOLD FURNITURE, (NO UPHOLSTERED)
+    "2520":
+      AD_office: '6'
+      industry_title: OFFICE FURNITURE
+    "2522":
+      AD_office: '6'
+      industry_title: OFFICE FURNITURE (NO WOOD)
+    "2531":
+      AD_office: '6'
+      industry_title: PUBLIC BLDG & RELATED FURNITURE
+    "2540":
+      AD_office: '6'
+      industry_title: PARTITIONS, SHELVG, LOCKERS, & OFFICE & STORE FIXTURES
+    "2590":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS FURNITURE & FIXTURES
+    "2600":
+      AD_office: '4'
+      industry_title: PAPERS & ALLIED PRODUCTS
+    "2611":
+      AD_office: '4'
+      industry_title: PULP MILLS
+    "2621":
+      AD_office: '4'
+      industry_title: PAPER MILLS
+    "2631":
+      AD_office: '4'
+      industry_title: PAPERBOARD MILLS
+    "2650":
+      AD_office: '4'
+      industry_title: PAPERBOARD CONTAINERS & BOXES
+    "2670":
+      AD_office: '4'
+      industry_title: CONVERTED PAPER & PAPERBOARD PRODS (NO CONTANERS/BOXES)
+    "2673":
+      AD_office: '6'
+      industry_title: PLASTICS, FOIL & COATED PAPER BAGS
+    "2711":
+      AD_office: '5'
+      industry_title: 'NEWSPAPERS: PUBLISHING OR PUBLISHING & PRINTING'
+    "2721":
+      AD_office: '5'
+      industry_title: 'PERIODICALS: PUBLISHING OR PUBLISHING & PRINTING'
+    "2731":
+      AD_office: '5'
+      industry_title: 'BOOKS: PUBLISHING OR PUBLISHING & PRINTING'
+    "2732":
+      AD_office: '5'
+      industry_title: BOOK PRINTING
+    "2741":
+      AD_office: '5'
+      industry_title: MISCELLANEOUS PUBLISHING
+    "2750":
+      AD_office: '5'
+      industry_title: COMMERCIAL PRINTING
+    "2761":
+      AD_office: '5'
+      industry_title: MANIFOLD BUSINESS FORMS
+    "2771":
+      AD_office: '5'
+      industry_title: GREETING CARDS
+    "2780":
+      AD_office: '5'
+      industry_title: BLANKBOOKS, LOOSELEAF BINDERS & BOOKBINDG & RELATD WORK
+    "2790":
+      AD_office: '5'
+      industry_title: SERVICE INDUSTRIES FOR THE PRINTING TRADE
+    "2800":
+      AD_office: '6'
+      industry_title: CHEMICALS & ALLIED PRODUCTS
+    "2810":
+      AD_office: '6'
+      industry_title: INDUSTRIAL INORGANIC CHEMICALS
+    "2820":
+      AD_office: '6'
+      industry_title: PLASTIC MATERIAL, SYNTH RESIN/RUBBER, CELLULOS (NO GLASS)
+    "2821":
+      AD_office: '6'
+      industry_title: PLASTIC MATERIALS, SYNTH RESINS & NONVULCAN ELASTOMERS
+    "2833":
+      AD_office: '1'
+      industry_title: MEDICINAL CHEMICALS & BOTANICAL PRODUCTS
+    "2834":
+      AD_office: '1'
+      industry_title: PHARMACEUTICAL PREPARATIONS
+    "2835":
+      AD_office: '1'
+      industry_title: IN VITRO & IN VIVO DIAGNOSTIC SUBSTANCES
+    "2836":
+      AD_office: '1'
+      industry_title: BIOLOGICAL PRODUCTS, (NO DISGNOSTIC SUBSTANCES)
+    "2840":
+      AD_office: '6'
+      industry_title: SOAP, DETERGENTS, CLEANG PREPARATIONS, PERFUMES, COSMETICS
+    "2842":
+      AD_office: '6'
+      industry_title: SPECIALTY CLEANING, POLISHING AND SANITATION PREPARATIONS
+    "2844":
+      AD_office: '6'
+      industry_title: PERFUMES, COSMETICS & OTHER TOILET PREPARATIONS
+    "2851":
+      AD_office: '6'
+      industry_title: PAINTS, VARNISHES, LACQUERS, ENAMELS & ALLIED PRODS
+    "2860":
+      AD_office: '6'
+      industry_title: INDUSTRIAL ORGANIC CHEMICALS
+    "2870":
+      AD_office: '5'
+      industry_title: AGRICULTURAL CHEMICALS
+    "2890":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS CHEMICAL PRODUCTS
+    "2891":
+      AD_office: '6'
+      industry_title: ADHESIVES & SEALANTS
+    "2911":
+      AD_office: '4'
+      industry_title: PETROLEUM REFINING
+    "2950":
+      AD_office: '6'
+      industry_title: ASPHALT PAVING & ROOFING MATERIALS
+    "2990":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS PRODUCTS OF PETROLEUM & COAL
+    "3011":
+      AD_office: '6'
+      industry_title: TIRES & INNER TUBES
+    "3021":
+      AD_office: '6'
+      industry_title: RUBBER & PLASTICS FOOTWEAR
+    "3050":
+      AD_office: '6'
+      industry_title: GASKETS, PACKG & SEALG DEVICES & RUBBER & PLASTICS HOSE
+    "3060":
+      AD_office: '6'
+      industry_title: FABRICATED RUBBER PRODUCTS, NEC
+    "3080":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS PLASTICS PRODUCTS
+    "3081":
+      AD_office: '6'
+      industry_title: UNSUPPORTED PLASTICS FILM & SHEET
+    "3086":
+      AD_office: '6'
+      industry_title: PLASTICS FOAM PRODUCTS
+    "3089":
+      AD_office: '6'
+      industry_title: PLASTICS PRODUCTS, NEC
+    "3100":
+      AD_office: '9'
+      industry_title: LEATHER & LEATHER PRODUCTS
+    "3140":
+      AD_office: '9'
+      industry_title: FOOTWEAR, (NO RUBBER)
+    "3211":
+      AD_office: '6'
+      industry_title: FLAT GLASS
+    "3220":
+      AD_office: '6'
+      industry_title: GLASS & GLASSWARE, PRESSED OR BLOWN
+    "3221":
+      AD_office: '6'
+      industry_title: GLASS CONTAINERS
+    "3231":
+      AD_office: '6'
+      industry_title: GLASS PRODUCTS, MADE OF PURCHASED GLASS
+    "3241":
+      AD_office: '6'
+      industry_title: CEMENT, HYDRAULIC
+    "3250":
+      AD_office: '6'
+      industry_title: STRUCTURAL CLAY PRODUCTS
+    "3260":
+      AD_office: '6'
+      industry_title: POTTERY & RELATED PRODUCTS
+    "3270":
+      AD_office: '6'
+      industry_title: CONCRETE, GYPSUM & PLASTER PRODUCTS
+    "3272":
+      AD_office: '6'
+      industry_title: CONCRETE PRODUCTS, EXCEPT BLOCK & BRICK
+    "3281":
+      AD_office: '6'
+      industry_title: CUT STONE & STONE PRODUCTS
+    "3290":
+      AD_office: '6'
+      industry_title: ABRASIVE, ASBESTOS & MISC NONMETALLIC MINERAL PRODS
+    "3310":
+      AD_office: '6'
+      industry_title: STEEL WORKS, BLAST FURNACES & ROLLING & FINISHING MILLS
+    "3312":
+      AD_office: '6'
+      industry_title: STEEL WORKS, BLAST FURNACES & ROLLING MILLS (COKE OVENS)
+    "3317":
+      AD_office: '6'
+      industry_title: STEEL PIPE & TUBES
+    "3320":
+      AD_office: '6'
+      industry_title: IRON & STEEL FOUNDRIES
+    "3330":
+      AD_office: '9'
+      industry_title: PRIMARY SMELTING & REFINING OF NONFERROUS METALS
+    "3334":
+      AD_office: '9'
+      industry_title: PRIMARY PRODUCTION OF ALUMINUM
+    "3341":
+      AD_office: '6'
+      industry_title: SECONDARY SMELTING & REFINING OF NONFERROUS METALS
+    "3350":
+      AD_office: '6'
+      industry_title: ROLLING DRAWING & EXTRUDING OF NONFERROUS METALS
+    "3357":
+      AD_office: '6'
+      industry_title: DRAWING & INSULATING OF NONFERROUS WIRE
+    "3360":
+      AD_office: '6'
+      industry_title: NONFERROUS FOUNDRIES (CASTINGS)
+    "3390":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS PRIMARY METAL PRODUCTS
+    "3411":
+      AD_office: '6'
+      industry_title: METAL CANS
+    "3412":
+      AD_office: '6'
+      industry_title: METAL SHIPPING BARRELS, DRUMS, KEGS & PAILS
+    "3420":
+      AD_office: '6'
+      industry_title: CUTLERY, HANDTOOLS & GENERAL HARDWARE
+    "3430":
+      AD_office: '6'
+      industry_title: HEATING EQUIP, EXCEPT ELEC & WARM AIR; & PLUMBING FIXTURES
+    "3433":
+      AD_office: '6'
+      industry_title: HEATING EQUIPMENT, EXCEPT ELECTRIC & WARM AIR FURNACES
+    "3440":
+      AD_office: '6'
+      industry_title: FABRICATED STRUCTURAL METAL PRODUCTS
+    "3442":
+      AD_office: '6'
+      industry_title: METAL DOORS, SASH, FRAMES, MOLDINGS & TRIM
+    "3443":
+      AD_office: '6'
+      industry_title: FABRICATED PLATE WORK (BOILER SHOPS)
+    "3444":
+      AD_office: '6'
+      industry_title: SHEET METAL WORK
+    "3448":
+      AD_office: '6'
+      industry_title: PREFABRICATED METAL BUILDINGS & COMPONENTS
+    "3451":
+      AD_office: '6'
+      industry_title: SCREW MACHINE PRODUCTS
+    "3452":
+      AD_office: '6'
+      industry_title: BOLTS, NUTS, SCREWS, RIVETS & WASHERS
+    "3460":
+      AD_office: '6'
+      industry_title: METAL FORGINGS & STAMPINGS
+    "3470":
+      AD_office: '6'
+      industry_title: COATING, ENGRAVING & ALLIED SERVICES
+    "3480":
+      AD_office: '6'
+      industry_title: ORDNANCE & ACCESSORIES, (NO VEHICLES/GUIDED MISSILES)
+    "3490":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS FABRICATED METAL PRODUCTS
+    "3510":
+      AD_office: '10'
+      industry_title: ENGINES & TURBINES
+    "3523":
+      AD_office: '10'
+      industry_title: FARM MACHINERY & EQUIPMENT
+    "3524":
+      AD_office: '10'
+      industry_title: LAWN & GARDEN TRACTORS & HOME LAWN & GARDENS EQUIP
+    "3530":
+      AD_office: '10'
+      industry_title: CONSTRUCTION, MINING & MATERIALS HANDLING MACHINERY & EQUIP
+    "3531":
+      AD_office: '10'
+      industry_title: CONSTRUCTION MACHINERY & EQUIP
+    "3532":
+      AD_office: '10'
+      industry_title: MINING MACHINERY & EQUIP (NO OIL & GAS FIELD MACH & EQUIP)
+    "3533":
+      AD_office: '4'
+      industry_title: OIL & GAS FIELD MACHINERY & EQUIPMENT
+    "3537":
+      AD_office: '10'
+      industry_title: INDUSTRIAL TRUCKS, TRACTORS, TRAILORS & STACKERS
+    "3540":
+      AD_office: '10'
+      industry_title: METALWORKG MACHINERY & EQUIPMENT
+    "3541":
+      AD_office: '10'
+      industry_title: MACHINE TOOLS, METAL CUTTING TYPES
+    "3550":
+      AD_office: '10'
+      industry_title: SPECIAL INDUSTRY MACHINERY (NO METALWORKING MACHINERY)
+    "3555":
+      AD_office: '10'
+      industry_title: PRINTING TRADES MACHINERY & EQUIPMENT
+    "3559":
+      AD_office: '10'
+      industry_title: SPECIAL INDUSTRY MACHINERY, NEC
+    "3560":
+      AD_office: '10'
+      industry_title: GENERAL INDUSTRIAL MACHINERY & EQUIPMENT
+    "3561":
+      AD_office: '10'
+      industry_title: PUMPS & PUMPING EQUIPMENT
+    "3562":
+      AD_office: '6'
+      industry_title: BALL & ROLLER BEARINGS
+    "3564":
+      AD_office: '6'
+      industry_title: INDUSTRIAL & COMMERCIAL FANS & BLOWERS & AIR PURIFING EQUIP
+    "3567":
+      AD_office: '6'
+      industry_title: INDUSTRIAL PROCESS FURNACES & OVENS
+    "3569":
+      AD_office: '6'
+      industry_title: GENERAL INDUSTRIAL MACHINERY & EQUIPMENT, NEC
+    "3570":
+      AD_office: '3'
+      industry_title: COMPUTER & OFFICE EQUIPMENT
+    "3571":
+      AD_office: '3'
+      industry_title: ELECTRONIC COMPUTERS
+    "3572":
+      AD_office: '3'
+      industry_title: COMPUTER STORAGE DEVICES
+    "3575":
+      AD_office: '3'
+      industry_title: COMPUTER TERMINALS
+    "3576":
+      AD_office: '3'
+      industry_title: COMPUTER COMMUNICATIONS EQUIPMENT
+    "3577":
+      AD_office: '3'
+      industry_title: COMPUTER PERIPHERAL EQUIPMENT, NEC
+    "3578":
+      AD_office: '3'
+      industry_title: CALCULATING & ACCOUNTING MACHINES (NO ELECTRONIC COMPUTERS)
+    "3579":
+      AD_office: '3'
+      industry_title: OFFICE MACHINES, NEC
+    "3580":
+      AD_office: '6'
+      industry_title: REFRIGERATION & SERVICE INDUSTRY MACHINERY
+    "3585":
+      AD_office: '6'
+      industry_title: AIR-COND & WARM AIR HEATG EQUIP & COMM & INDL REFRIG EQUIP
+    "3590":
+      AD_office: '6'
+      industry_title: MISC INDUSTRIAL & COMMERCIAL MACHINERY & EQUIPMENT
+    "3600":
+      AD_office: '10'
+      industry_title: ELECTRONIC & OTHER ELECTRICAL EQUIPMENT (NO COMPUTER EQUIP)
+    "3612":
+      AD_office: '10'
+      industry_title: POWER, DISTRIBUTION & SPECIALTY TRANSFORMERS
+    "3613":
+      AD_office: '10'
+      industry_title: SWITCHGEAR & SWITCHBOARD APPARATUS
+    "3620":
+      AD_office: '10'
+      industry_title: ELECTRICAL INDUSTRIAL APPARATUS
+    "3621":
+      AD_office: '10'
+      industry_title: MOTORS & GENERATORS
+    "3630":
+      AD_office: '11'
+      industry_title: HOUSEHOLD APPLIANCES
+    "3634":
+      AD_office: '11'
+      industry_title: ELECTRIC HOUSEWARES & FANS
+    "3640":
+      AD_office: '11'
+      industry_title: ELECTRIC LIGHTING & WIRING EQUIPMENT
+    "3651":
+      AD_office: '11'
+      industry_title: HOUSEHOLD AUDIO & VIDEO EQUIPMENT
+    "3652":
+      AD_office: '11'
+      industry_title: PHONOGRAPH RECORDS & PRERECORDED AUDIO TAPES & DISKS
+    "3661":
+      AD_office: '11'
+      industry_title: TELEPHONE & TELEGRAPH APPARATUS
+    "3663":
+      AD_office: '11'
+      industry_title: RADIO & TV BROADCASTING & COMMUNICATIONS EQUIPMENT
+    "3669":
+      AD_office: '11'
+      industry_title: COMMUNICATIONS EQUIPMENT, NEC
+    "3670":
+      AD_office: '10'
+      industry_title: ELECTRONIC COMPONENTS & ACCESSORIES
+    "3672":
+      AD_office: '3'
+      industry_title: PRINTED CIRCUIT BOARDS
+    "3674":
+      AD_office: '10'
+      industry_title: SEMICONDUCTORS & RELATED DEVICES
+    "3677":
+      AD_office: '10'
+      industry_title: ELECTRONIC COILS, TRANSFORMERS & OTHER INDUCTORS
+    "3678":
+      AD_office: '10'
+      industry_title: ELECTRONIC CONNECTORS
+    "3679":
+      AD_office: '10'
+      industry_title: ELECTRONIC COMPONENTS, NEC
+    "3690":
+      AD_office: '10'
+      industry_title: MISCELLANEOUS ELECTRICAL MACHINERY, EQUIPMENT & SUPPLIES
+    "3695":
+      AD_office: '11'
+      industry_title: MAGNETIC & OPTICAL RECORDING MEDIA
+    "3711":
+      AD_office: '5'
+      industry_title: MOTOR VEHICLES & PASSENGER CAR BODIES
+    "3713":
+      AD_office: '5'
+      industry_title: TRUCK & BUS BODIES
+    "3714":
+      AD_office: '5'
+      industry_title: MOTOR VEHICLE PARTS & ACCESSORIES
+    "3715":
+      AD_office: '5'
+      industry_title: TRUCK TRAILERS
+    "3716":
+      AD_office: '5'
+      industry_title: MOTOR HOMES
+    "3720":
+      AD_office: '5'
+      industry_title: AIRCRAFT & PARTS
+    "3721":
+      AD_office: '5'
+      industry_title: AIRCRAFT
+    "3724":
+      AD_office: '5'
+      industry_title: AIRCRAFT ENGINES & ENGINE PARTS
+    "3728":
+      AD_office: '5'
+      industry_title: AIRCRAFT PARTS & AUXILIARY EQUIPMENT, NEC
+    "3730":
+      AD_office: '5'
+      industry_title: SHIP & BOAT BUILDING & REPAIRING
+    "3743":
+      AD_office: '5'
+      industry_title: RAILROAD EQUIPMENT
+    "3751":
+      AD_office: '5'
+      industry_title: MOTORCYCLES, BICYCLES & PARTS
+    "3760":
+      AD_office: '5'
+      industry_title: GUIDED MISSILES & SPACE VEHICLES & PARTS
+    "3790":
+      AD_office: '5'
+      industry_title: MISCELLANEOUS TRANSPORTATION EQUIPMENT
+    "3812":
+      AD_office: '5'
+      industry_title: SEARCH, DETECTION, NAVAGATION, GUIDANCE, AERONAUTICAL SYS
+    "3821":
+      AD_office: '10'
+      industry_title: LABORATORY APPARATUS & FURNITURE
+    "3822":
+      AD_office: '10'
+      industry_title: AUTO CONTROLS FOR REGULATING RESIDENTIAL & COMML ENVIRONMENTS
+    "3823":
+      AD_office: '10'
+      industry_title: INDUSTRIAL INSTRUMENTS FOR MEASUREMENT, DISPLAY, AND CONTROL
+    "3824":
+      AD_office: '10'
+      industry_title: TOTALIZING FLUID METERS & COUNTING DEVICES
+    "3825":
+      AD_office: '10'
+      industry_title: INSTRUMENTS FOR MEAS & TESTING OF ELECTRICITY & ELEC SIGNALS
+    "3826":
+      AD_office: '10'
+      industry_title: LABORATORY ANALYTICAL INSTRUMENTS
+    "3827":
+      AD_office: '10'
+      industry_title: OPTICAL INSTRUMENTS & LENSES
+    "3829":
+      AD_office: '10'
+      industry_title: MEASURING & CONTROLLING DEVICES, NEC
+    "3841":
+      AD_office: '10'
+      industry_title: SURGICAL & MEDICAL INSTRUMENTS & APPARATUS
+    "3842":
+      AD_office: '10'
+      industry_title: ORTHOPEDIC, PROSTHETIC & SURGICAL APPLIANCES & SUPPLIES
+    "3843":
+      AD_office: '10'
+      industry_title: DENTAL EQUIPMENT & SUPPLIES
+    "3844":
+      AD_office: '10'
+      industry_title: X-RAY APPARATUS & TUBES & RELATED IRRADIATION APPARATUS
+    "3845":
+      AD_office: '10'
+      industry_title: ELECTROMEDICAL & ELECTROTHERAPEUTIC APPARATUS
+    "3851":
+      AD_office: '10'
+      industry_title: OPHTHALMIC GOODS
+    "3861":
+      AD_office: '10'
+      industry_title: PHOTOGRAPHIC EQUIPMENT & SUPPLIES
+    "3873":
+      AD_office: '2'
+      industry_title: WATCHES, CLOCKS, CLOCKWORK OPERATED DEVICES/PARTS
+    "3910":
+      AD_office: '2'
+      industry_title: JEWELRY, SILVERWARE & PLATED WARE
+    "3911":
+      AD_office: '2'
+      industry_title: JEWELRY, PRECIOUS METAL
+    "3931":
+      AD_office: '5'
+      industry_title: MUSICAL INSTRUMENTS
+    "3942":
+      AD_office: '5'
+      industry_title: DOLLS & STUFFED TOYS
+    "3944":
+      AD_office: '5'
+      industry_title: GAMES, TOYS & CHILDREN'S VEHICLES (NO DOLLS & BICYCLES)
+    "3949":
+      AD_office: '5'
+      industry_title: SPORTING & ATHLETIC GOODS, NEC
+    "3950":
+      AD_office: '9'
+      industry_title: PENS, PENCILS & OTHER ARTISTS' MATERIALS
+    "3960":
+      AD_office: '6'
+      industry_title: COSTUME JEWELRY & NOVELTIES
+    "3990":
+      AD_office: '6'
+      industry_title: MISCELLANEOUS MANUFACTURING INDUSTRIES
+    "4011":
+      AD_office: '5'
+      industry_title: RAILROADS, LINE-HAUL OPERATING
+    "4013":
+      AD_office: '5'
+      industry_title: RAILROAD SWITCHING & TERMINAL ESTABLISHMENTS
+    "4100":
+      AD_office: '5'
+      industry_title: LOCAL & SUBURBAN TRANSIT & INTERURBAN HWY PASSENGER TRANS
+    "4210":
+      AD_office: '5'
+      industry_title: TRUCKING & COURIER SERVICES (NO AIR)
+    "4213":
+      AD_office: '5'
+      industry_title: TRUCKING (NO LOCAL)
+    "4220":
+      AD_office: '5'
+      industry_title: PUBLIC WAREHOUSING & STORAGE
+    "4231":
+      AD_office: '5'
+      industry_title: TERMINAL MAINTENANCE FACILITIES FOR MOTOR FREIGHT TRANSPORT
+    "4400":
+      AD_office: '5'
+      industry_title: WATER TRANSPORTATION
+    "4412":
+      AD_office: '5'
+      industry_title: DEEP SEA FOREIGN TRANSPORTATION OF FREIGHT
+    "4512":
+      AD_office: '5'
+      industry_title: AIR TRANSPORTATION, SCHEDULED
+    "4513":
+      AD_office: '5'
+      industry_title: AIR COURIER SERVICES
+    "4522":
+      AD_office: '5'
+      industry_title: AIR TRANSPORTATION, NONSCHEDULED
+    "4581":
+      AD_office: '5'
+      industry_title: AIRPORTS, FLYING FIELDS & AIRPORT TERMINAL SERVICES
+    "4610":
+      AD_office: '4'
+      industry_title: PIPE LINES (NO NATURAL GAS)
+    "4700":
+      AD_office: '5'
+      industry_title: TRANSPORTATION SERVICES
+    "4731":
+      AD_office: '5'
+      industry_title: ARRANGEMENT OF TRANSPORTATION OF FREIGHT & CARGO
+    "4812":
+      AD_office: '11'
+      industry_title: RADIOTELEPHONE COMMUNICATIONS
+    "4813":
+      AD_office: '11'
+      industry_title: TELEPHONE COMMUNICATIONS (NO RADIOTELEPHONE)
+    "4822":
+      AD_office: '11'
+      industry_title: TELEGRAPH & OTHER MESSAGE COMMUNICATIONS
+    "4832":
+      AD_office: '11'
+      industry_title: RADIO BROADCASTING STATIONS
+    "4833":
+      AD_office: '11'
+      industry_title: TELEVISION BROADCASTING STATIONS
+    "4841":
+      AD_office: '11'
+      industry_title: CABLE & OTHER PAY TELEVISION SERVICES
+    "4899":
+      AD_office: '11'
+      industry_title: COMMUNICATIONS SERVICES, NEC
+    "4900":
+      AD_office: '2'
+      industry_title: ELECTRIC, GAS & SANITARY SERVICES
+    "4911":
+      AD_office: '2'
+      industry_title: ELECTRIC SERVICES
+    "4922":
+      AD_office: '2'
+      industry_title: NATURAL GAS TRANSMISSION
+    "4923":
+      AD_office: '2'
+      industry_title: NATURAL GAS TRANSMISISON & DISTRIBUTION
+    "4924":
+      AD_office: '2'
+      industry_title: NATURAL GAS DISTRIBUTION
+    "4931":
+      AD_office: '2'
+      industry_title: ELECTRIC & OTHER SERVICES COMBINED
+    "4932":
+      AD_office: '2'
+      industry_title: GAS & OTHER SERVICES COMBINED
+    "4941":
+      AD_office: '2'
+      industry_title: WATER SUPPLY
+    "4950":
+      AD_office: '6'
+      industry_title: SANITARY SERVICES
+    "4953":
+      AD_office: '6'
+      industry_title: REFUSE SYSTEMS
+    "4955":
+      AD_office: '6'
+      industry_title: HAZARDOUS WASTE MANAGEMENT
+    "4961":
+      AD_office: '2'
+      industry_title: STEAM & AIR-CONDITIONING SUPPLY
+    "4991":
+      AD_office: '2'
+      industry_title: COGENERATION SERVICES & SMALL POWER PRODUCERS
+    "5000":
+      AD_office: '2'
+      industry_title: WHOLESALE-DURABLE GOODS
+    "5010":
+      AD_office: '5'
+      industry_title: WHOLESALE-MOTOR VEHICLES & MOTOR VEHICLE PARTS & SUPPLIES
+    "5013":
+      AD_office: '5'
+      industry_title: WHOLESALE-MOTOR VEHICLE SUPPLIES & NEW PARTS
+    "5020":
+      AD_office: '2'
+      industry_title: WHOLESALE-FURNITURE & HOME FURNISHINGS
+    "5030":
+      AD_office: '6'
+      industry_title: WHOLESALE-LUMBER & OTHER CONSTRUCTION MATERIALS
+    "5031":
+      AD_office: '6'
+      industry_title: WHOLESALE-LUMBER, PLYWOOD, MILLWORK & WOOD PANELS
+    "5040":
+      AD_office: '2'
+      industry_title: WHOLESALE-PROFESSIONAL & COMMERCIAL EQUIPMENT & SUPPLIES
+    "5045":
+      AD_office: '3'
+      industry_title: WHOLESALE-COMPUTERS & PERIPHERAL EQUIPMENT & SOFTWARE
+    "5047":
+      AD_office: '9'
+      industry_title: WHOLESALE-MEDICAL, DENTAL & HOSPITAL EQUIPMENT & SUPPLIES
+    "5050":
+      AD_office: '5'
+      industry_title: WHOLESALE-METALS & MINERALS (NO PETROLEUM)
+    "5051":
+      AD_office: '5'
+      industry_title: WHOLESALE-METALS SERVICE CENTERS & OFFICES
+    "5063":
+      AD_office: '10'
+      industry_title: WHOLESALE-ELECTRICAL APPARATUS & EQUIPMENT, WIRING SUPPLIES
+    "5064":
+      AD_office: '10'
+      industry_title: WHOLESALE-ELECTRICAL APPLIANCES, TV & RADIO SETS
+    "5065":
+      AD_office: '10'
+      industry_title: WHOLESALE-ELECTRONIC PARTS & EQUIPMENT, NEC
+    "5070":
+      AD_office: '6'
+      industry_title: WHOLESALE-HARDWARE & PLUMBING & HEATING EQUIPMENT & SUPPLIES
+    "5072":
+      AD_office: '6'
+      industry_title: WHOLESALE-HARDWARE
+    "5080":
+      AD_office: '6'
+      industry_title: WHOLESALE-MACHINERY, EQUIPMENT & SUPPLIES
+    "5082":
+      AD_office: '6'
+      industry_title: WHOLESALE-CONSTRUCTION & MINING (NO PETRO) MACHINERY & EQUIP
+    "5084":
+      AD_office: '6'
+      industry_title: WHOLESALE-INDUSTRIAL MACHINERY & EQUIPMENT
+    "5090":
+      AD_office: '2'
+      industry_title: WHOLESALE-MISC DURABLE GOODS
+    "5094":
+      AD_office: '2'
+      industry_title: WHOLESALE-JEWELRY, WATCHES, PRECIOUS STONES & METALS
+    "5099":
+      AD_office: '2'
+      industry_title: WHOLESALE-DURABLE GOODS, NEC
+    "5110":
+      AD_office: '4'
+      industry_title: WHOLESALE-PAPER & PAPER PRODUCTS
+    "5122":
+      AD_office: '9'
+      industry_title: WHOLESALE-DRUGS, PROPRIETARIES & DRUGGISTS' SUNDRIES
+    "5130":
+      AD_office: '9'
+      industry_title: WHOLESALE-APPAREL, PIECE GOODS & NOTIONS
+    "5140":
+      AD_office: '2'
+      industry_title: WHOLESALE-GROCERIES & RELATED PRODUCTS
+    "5141":
+      AD_office: '2'
+      industry_title: WHOLESALE-GROCERIES, GENERAL LINE
+    "5150":
+      AD_office: '5'
+      industry_title: WHOLESALE-FARM PRODUCT RAW MATERIALS
+    "5160":
+      AD_office: '6'
+      industry_title: WHOLESALE-CHEMICALS & ALLIED PRODUCTS
+    "5171":
+      AD_office: '4'
+      industry_title: WHOLESALE-PETROLEUM BULK STATIONS & TERMINALS
+    "5172":
+      AD_office: '4'
+      industry_title: WHOLESALE-PETROLEUM & PETROLEUM PRODUCTS (NO BULK STATIONS)
+    "5180":
+      AD_office: '9'
+      industry_title: WHOLESALE-BEER, WINE & DISTILLED ALCOHOLIC BEVERAGES
+    "5190":
+      AD_office: '2'
+      industry_title: WHOLESALE-MISCELLANEOUS NONDURABLE GOODS
+    "5200":
+      AD_office: '6'
+      industry_title: RETAIL-BUILDING MATERIALS, HARDWARE, GARDEN SUPPLY
+    "5211":
+      AD_office: '6'
+      industry_title: RETAIL-LUMBER & OTHER BUILDING MATERIALS DEALERS
+    "5271":
+      AD_office: '2'
+      industry_title: RETAIL-MOBILE HOME DEALERS
+    "5311":
+      AD_office: '2'
+      industry_title: RETAIL-DEPARTMENT STORES
+    "5331":
+      AD_office: '2'
+      industry_title: RETAIL-VARIETY STORES
+    "5399":
+      AD_office: '2'
+      industry_title: RETAIL-MISC GENERAL MERCHANDISE STORES
+    "5400":
+      AD_office: '2'
+      industry_title: RETAIL-FOOD STORES
+    "5411":
+      AD_office: '2'
+      industry_title: RETAIL-GROCERY STORES
+    "5412":
+      AD_office: '2'
+      industry_title: RETAIL-CONVENIENCE STORES
+    "5500":
+      AD_office: '2'
+      industry_title: RETAIL-AUTO DEALERS & GASOLINE STATIONS
+    "5531":
+      AD_office: '2'
+      industry_title: RETAIL-AUTO & HOME SUPPLY STORES
+    "5600":
+      AD_office: '9'
+      industry_title: RETAIL-APPAREL & ACCESSORY STORES
+    "5621":
+      AD_office: '9'
+      industry_title: RETAIL-WOMEN'S CLOTHING STORES
+    "5651":
+      AD_office: '9'
+      industry_title: RETAIL-FAMILY CLOTHING STORES
+    "5661":
+      AD_office: '9'
+      industry_title: RETAIL-SHOE STORES
+    "5700":
+      AD_office: '2'
+      industry_title: RETAIL-HOME FURNITURE, FURNISHINGS & EQUIPMENT STORES
+    "5712":
+      AD_office: '2'
+      industry_title: RETAIL-FURNITURE STORES
+    "5731":
+      AD_office: '2'
+      industry_title: RETAIL-RADIO, TV & CONSUMER ELECTRONICS STORES
+    "5734":
+      AD_office: '2'
+      industry_title: RETAIL-COMPUTER & COMPUTER SOFTWARE STORES
+    "5735":
+      AD_office: '2'
+      industry_title: RETAIL-RECORD & PRERECORDED TAPE STORES
+    "5810":
+      AD_office: '5'
+      industry_title: RETAIL-EATING & DRINKING PLACES
+    "5812":
+      AD_office: '5'
+      industry_title: RETAIL-EATING PLACES
+    "5900":
+      AD_office: '2'
+      industry_title: RETAIL-MISCELLANEOUS RETAIL
+    "5912":
+      AD_office: '9'
+      industry_title: RETAIL-DRUG STORES AND PROPRIETARY STORES
+    "5940":
+      AD_office: '2'
+      industry_title: RETAIL-MISCELLANEOUS SHOPPING GOODS STORES
+    "5944":
+      AD_office: '2'
+      industry_title: RETAIL-JEWELRY STORES
+    "5945":
+      AD_office: '2'
+      industry_title: RETAIL-HOBBY, TOY & GAME SHOPS
+    "5960":
+      AD_office: '2'
+      industry_title: RETAIL-NONSTORE RETAILERS
+    "5961":
+      AD_office: '2'
+      industry_title: RETAIL-CATALOG & MAIL-ORDER HOUSES
+    "5990":
+      AD_office: '2'
+      industry_title: RETAIL-RETAIL STORES, NEC
+    "6021":
+      AD_office: '7'
+      industry_title: NATIONAL COMMERCIAL BANKS
+    "6022":
+      AD_office: '7'
+      industry_title: STATE COMMERCIAL BANKS
+    "6029":
+      AD_office: '7'
+      industry_title: COMMERCIAL BANKS, NEC
+    "6035":
+      AD_office: '7'
+      industry_title: SAVINGS INSTITUTION, FEDERALLY CHARTERED
+    "6036":
+      AD_office: '7'
+      industry_title: SAVINGS INSTITUTIONS, NOT FEDERALLY CHARTERED
+    "6099":
+      AD_office: '7'
+      industry_title: FUNCTIONS RELATED TO DEPOSITORY BANKING, NEC
+    "6111":
+      AD_office: '7'
+      industry_title: FEDERAL & FEDERALLY-SPONSORED CREDIT AGENCIES
+    "6141":
+      AD_office: '7'
+      industry_title: PERSONAL CREDIT INSTITUTIONS
+    "6153":
+      AD_office: '7'
+      industry_title: SHORT-TERM BUSINESS CREDIT INSTITUTIONS
+    "6159":
+      AD_office: '7'
+      industry_title: MISCELLANEOUS BUSINESS CREDIT INSTITUTION
+    "6162":
+      AD_office: '7'
+      industry_title: MORTGAGE BANKERS & LOAN CORRESPONDENTS
+    "6163":
+      AD_office: '7'
+      industry_title: LOAN BROKERS
+    "6172":
+      AD_office: '7'
+      industry_title: FINANCE LESSORS
+    "6189":
+      AD_office: OSF
+      industry_title: ASSET-BACKED SECURITIES
+    "6199":
+      AD_office: '7'
+      industry_title: FINANCE SERVICES
+    "6200":
+      AD_office: '7'
+      industry_title: SECURITY & COMMODITY BROKERS, DEALERS, EXCHANGES & SERVICES
+    "6211":
+      AD_office: '7'
+      industry_title: SECURITY BROKERS, DEALERS & FLOTATION COMPANIES
+    "6221":
+      AD_office: '8'
+      industry_title: COMMODITY CONTRACTS BROKERS & DEALERS
+    "6282":
+      AD_office: '7'
+      industry_title: INVESTMENT ADVICE
+    "6311":
+      AD_office: '1'
+      industry_title: LIFE INSURANCE
+    "6321":
+      AD_office: '1'
+      industry_title: ACCIDENT & HEALTH INSURANCE
+    "6324":
+      AD_office: '1'
+      industry_title: HOSPITAL & MEDICAL SERVICE PLANS
+    "6331":
+      AD_office: '1'
+      industry_title: FIRE, MARINE & CASUALTY INSURANCE
+    "6351":
+      AD_office: '1'
+      industry_title: SURETY INSURANCE
+    "6361":
+      AD_office: '1'
+      industry_title: TITLE INSURANCE
+    "6399":
+      AD_office: '1'
+      industry_title: INSURANCE CARRIERS, NEC
+    "6411":
+      AD_office: '1'
+      industry_title: INSURANCE AGENTS, BROKERS & SERVICE
+    "6500":
+      AD_office: '8'
+      industry_title: REAL ESTATE
+    "6510":
+      AD_office: '8'
+      industry_title: REAL ESTATE OPERATORS (NO DEVELOPERS) & LESSORS
+    "6512":
+      AD_office: '8'
+      industry_title: OPERATORS OF NONRESIDENTIAL BUILDINGS
+    "6513":
+      AD_office: '8'
+      industry_title: OPERATORS OF APARTMENT BUILDINGS
+    "6519":
+      AD_office: '8'
+      industry_title: LESSORS OF REAL PROPERTY, NEC
+    "6531":
+      AD_office: '8'
+      industry_title: REAL ESTATE AGENTS & MANAGERS (FOR OTHERS)
+    "6532":
+      AD_office: '8'
+      industry_title: REAL ESTATE DEALERS (FOR THEIR OWN ACCOUNT)
+    "6552":
+      AD_office: '8'
+      industry_title: LAND SUBDIVIDERS & DEVELOPERS (NO CEMETERIES)
+    "6770":
+      AD_office: All
+      industry_title: BLANK CHECKS
+    "6792":
+      AD_office: '4'
+      industry_title: OIL ROYALTY TRADERS
+    "6794":
+      AD_office: '3'
+      industry_title: PATENT OWNERS & LESSORS
+    "6795":
+      AD_office: '9'
+      industry_title: MINERAL ROYALTY TRADERS
+    "6798":
+      AD_office: '8'
+      industry_title: REAL ESTATE INVESTMENT TRUSTS
+    "6799":
+      AD_office: '8'
+      industry_title: INVESTORS, NEC
+    "7000":
+      AD_office: '8'
+      industry_title: HOTELS, ROOMING HOUSES, CAMPS & OTHER LODGING PLACES
+    "7011":
+      AD_office: '8'
+      industry_title: HOTELS & MOTELS
+    "7200":
+      AD_office: '11'
+      industry_title: SERVICES-PERSONAL SERVICES
+    "7310":
+      AD_office: '11'
+      industry_title: SERVICES-ADVERTISING
+    "7311":
+      AD_office: '11'
+      industry_title: SERVICES-ADVERTISING AGENCIES
+    "7320":
+      AD_office: '11'
+      industry_title: SERVICES-CONSUMER CREDIT REPORTING, COLLECTION AGENCIES
+    "7330":
+      AD_office: '11'
+      industry_title: SERVICES-MAILING, REPRODUCTION, COMMERCIAL ART & PHOTOGRAPHY
+    "7331":
+      AD_office: '11'
+      industry_title: SERVICES-DIRECT MAIL ADVERTISING SERVICES
+    "7340":
+      AD_office: '8'
+      industry_title: SERVICES-TO DWELLINGS & OTHER BUILDINGS
+    "7350":
+      AD_office: '6'
+      industry_title: SERVICES-MISCELLANEOUS EQUIPMENT RENTAL & LEASING
+    "7359":
+      AD_office: '6'
+      industry_title: SERVICES-EQUIPMENT RENTAL & LEASING, NEC
+    "7361":
+      AD_office: '8'
+      industry_title: SERVICES-EMPLOYMENT AGENCIES
+    "7363":
+      AD_office: '11'
+      industry_title: SERVICES-HELP SUPPLY SERVICES
+    "7370":
+      AD_office: '3'
+      industry_title: SERVICES-COMPUTER PROGRAMMING, DATA PROCESSING, ETC.
+    "7371":
+      AD_office: '3'
+      industry_title: SERVICES-COMPUTER PROGRAMMING SERVICES
+    "7372":
+      AD_office: '3'
+      industry_title: SERVICES-PREPACKAGED SOFTWARE
+    "7373":
+      AD_office: '3'
+      industry_title: SERVICES-COMPUTER INTEGRATED SYSTEMS DESIGN
+    "7374":
+      AD_office: '3'
+      industry_title: SERVICES-COMPUTER PROCESSING & DATA PREPARATION
+    "7377":
+      AD_office: '3'
+      industry_title: SERVICES-COMPUTER RENTAL & LEASING
+    "7380":
+      AD_office: '11'
+      industry_title: SERVICES-MISCELLANEOUS BUSINESS SERVICES
+    "7381":
+      AD_office: '11'
+      industry_title: SERVICES-DETECTIVE, GUARD & ARMORED CAR SERVICES
+    "7384":
+      AD_office: '11'
+      industry_title: SERVICES-PHOTOFINISHING LABORATORIES
+    "7385":
+      AD_office: '11'
+      industry_title: SERVICES-TELEPHONE INTERCONNECT SYSTEMS
+    "7389":
+      AD_office: 2 & 3
+      industry_title: SERVICES-BUSINESS SERVICES, NEC
+    "7500":
+      AD_office: '5'
+      industry_title: SERVICES-AUTOMOTIVE REPAIR, SERVICES & PARKING
+    "7510":
+      AD_office: '5'
+      industry_title: SERVICES-AUTO RENTAL & LEASING (NO DRIVERS)
+    "7600":
+      AD_office: '11'
+      industry_title: SERVICES-MISCELLANEOUS REPAIR SERVICES
+    "7812":
+      AD_office: '5'
+      industry_title: SERVICES-MOTION PICTURE & VIDEO TAPE PRODUCTION
+    "7819":
+      AD_office: '5'
+      industry_title: SERVICES-ALLIED TO MOTION PICTURE PRODUCTION
+    "7822":
+      AD_office: '5'
+      industry_title: SERVICES-MOTION PICTURE & VIDEO TAPE DISTRIBUTION
+    "7829":
+      AD_office: '5'
+      industry_title: SERVICES-ALLIED TO MOTION PICTURE DISTRIBUTION
+    "7830":
+      AD_office: '5'
+      industry_title: SERVICES-MOTION PICTURE THEATERS
+    "7841":
+      AD_office: '5'
+      industry_title: SERVICES-VIDEO TAPE RENTAL
+    "7900":
+      AD_office: '5'
+      industry_title: SERVICES-AMUSEMENT & RECREATION SERVICES
+    "7948":
+      AD_office: '5'
+      industry_title: SERVICES-RACING, INCLUDING TRACK OPERATION
+    "7990":
+      AD_office: '5'
+      industry_title: SERVICES-MISCELLANEOUS AMUSEMENT & RECREATION
+    "7997":
+      AD_office: '5'
+      industry_title: SERVICES-MEMBERSHIP SPORTS & RECREATION CLUBS
+    "8000":
+      AD_office: '9'
+      industry_title: SERVICES-HEALTH SERVICES
+    "8011":
+      AD_office: '11'
+      industry_title: SERVICES-OFFICES & CLINICS OF DOCTORS OF MEDICINE
+    "8050":
+      AD_office: '11'
+      industry_title: SERVICES-NURSING & PERSONAL CARE FACILITIES
+    "8051":
+      AD_office: '11'
+      industry_title: SERVICES-SKILLED NURSING CARE FACILITIES
+    "8060":
+      AD_office: '11'
+      industry_title: SERVICES-HOSPITALS
+    "8062":
+      AD_office: '11'
+      industry_title: SERVICES-GENERAL MEDICAL & SURGICAL HOSPITALS, NEC
+    "8071":
+      AD_office: '9'
+      industry_title: SERVICES-MEDICAL LABORATORIES
+    "8082":
+      AD_office: '9'
+      industry_title: SERVICES-HOME HEALTH CARE SERVICES
+    "8090":
+      AD_office: '9'
+      industry_title: SERVICES-MISC HEALTH & ALLIED SERVICES, NEC
+    "8093":
+      AD_office: '11'
+      industry_title: SERVICES-SPECIALTY OUTPATIENT FACILITIES, NEC
+    "8111":
+      AD_office: '11'
+      industry_title: SERVICES-LEGAL SERVICES
+    "8200":
+      AD_office: '11'
+      industry_title: SERVICES-EDUCATIONAL SERVICES
+    "8300":
+      AD_office: '9'
+      industry_title: SERVICES-SOCIAL SERVICES
+    "8351":
+      AD_office: '9'
+      industry_title: SERVICES-CHILD DAY CARE SERVICES
+    "8600":
+      AD_office: '5'
+      industry_title: SERVICES-MEMBERSHIP ORGANIZATIONS
+    "8700":
+      AD_office: '6'
+      industry_title: SERVICES-ENGINEERING, ACCOUNTING, RESEARCH, MANAGEMENT
+    "8711":
+      AD_office: '6'
+      industry_title: SERVICES-ENGINEERING SERVICES
+    "8731":
+      AD_office: '9'
+      industry_title: SERVICES-COMMERCIAL PHYSICAL & BIOLOGICAL RESEARCH
+    "8734":
+      AD_office: '9'
+      industry_title: SERVICES-TESTING LABORATORIES
+    "8741":
+      AD_office: '8'
+      industry_title: SERVICES-MANAGEMENT SERVICES
+    "8742":
+      AD_office: '8'
+      industry_title: SERVICES-MANAGEMENT CONSULTING SERVICES
+    "8744":
+      AD_office: '6'
+      industry_title: SERVICES-FACILITIES SUPPORT MANAGEMENT SERVICES
+    "8880":
+      AD_office: '99'
+      industry_title: AMERICAN DEPOSITARY RECEIPTS
+    "8888":
+      AD_office: '99'
+      industry_title: FOREIGN GOVERNMENTS
+    "8900":
+      AD_office: '11'
+      industry_title: SERVICES-SERVICES, NEC
+    "9721":
+      AD_office: '99'
+      industry_title: INTERNATIONAL AFFAIRS
+    "9995":
+      AD_office: All
+      industry_title: NON-OPERATING ESTABLISHMENTS

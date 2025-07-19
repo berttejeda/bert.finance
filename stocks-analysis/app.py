@@ -53,7 +53,9 @@ def home():
     if cached:
         stock_data_analysis = pd.read_json(StringIO(cached.decode('utf-8')))
         stock_data_analysis = stock_data_analysis.dropna(subset=['Price'])
+        # stock_data_analysis['Price'] = stock_data_analysis['Price'].round(2)
         stock_data_analysis = stock_data_analysis.dropna(subset=['CompletedAt'])
+        stock_data_analysis = stock_data_analysis.dropna(subset=['P/E'])
         task_duration = stock_data_analysis.dropna(subset=['Duration'])
         task_duration_in_minutes = task_duration['Duration'].sum() / 60
         last_cache_refresh = pd.to_datetime(stock_data_analysis['CompletedAt']).max().strftime("%Y-%m-%d %H:%M:%S")
@@ -64,7 +66,8 @@ def home():
           'current_vix': get_current_vix(),
           'task_duration_in_minutes': task_duration_in_minutes,
           'stock_data_is_ready': True,
-          'stock_data_analysis': stock_data_analysis.to_dict(orient='records')
+          'stock_data_analysis': stock_data_analysis.to_dict(orient='records'),
+          'total_tickers': len(stock_data_analysis)
           }
         )         
         return render_template('index.html', **context)

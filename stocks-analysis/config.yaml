@@ -123,3 +123,5 @@ tickers:
     type: stock
   - name: UI
     type: stock
+  - name: MARA
+    type: stock

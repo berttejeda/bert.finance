@@ -184,7 +184,8 @@
         <div style="font-size:.7em" class="relative w-full max-w-xs">
             {% if current_vix %}CBOE Volatility Index (VIX): <bold>{{ current_vix }}{% endif %}</bold><br />
             {% if last_cache_refresh %}Date of Last Cache Refresh: {{ last_cache_refresh }}{% endif %}<br />
-            {% if task_duration_in_minutes %}Cache refresh took {{ task_duration_in_minutes | round(2) }} minutes to complete{% endif %}
+            {% if task_duration_in_minutes %}Cache refresh took {{ task_duration_in_minutes | round(2) }} minutes to complete{% endif %}<br />
+            {% if last_cache_refresh %}Total Tickers: {{ total_tickers }}{% endif %}
         </div>
       </header>
 
