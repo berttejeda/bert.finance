@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from fake_useragent import UserAgent
 from finance_calendars import finance_calendars as fc
 from lib.api_client import PolygonTicker
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from lib.screener import Screener
 from requests import Session
 
 import hashlib
@@ -13,7 +13,6 @@ import json
 import glob
 import logging
 import matplotlib
-import nltk
 import os
 import pandas as pd
 import redis
@@ -47,11 +46,6 @@ logging.basicConfig(level=logging.INFO,
 # Create a logger
 logger = logging.getLogger('celery-task')
 
-logger.info("Initializing NLTK Sentiment Analyzer")
-# Ensure necessary NLTK data is downloaded
-nltk.download('vader_lexicon')
-# Initialize sentiment analyzer
-analyzer = SentimentIntensityAnalyzer()
 today = datetime.now()
 matplotlib.use('Agg')
 mlogger = logging.getLogger('matplotlib')
@@ -78,6 +72,13 @@ CACHE_TTL_STOCKS = 432000 # cache stock data for 5 hours
 CACHE_TTL_EARNINGS = 432000 # cache earnings data for 5 days
 QUIVER_API_KEY = os.environ.get('QUIVER_API_KEY')  # Replace with actual key
 POLYGON_API_KEY = os.environ.get('POLYGON_API_KEY')
+POLYGON_BASE_URL = 'https://api.polygon.io'
+
+stock_screener = Screener(
+    base_url=POLYGON_BASE_URL,
+    polygon_api_key=POLYGON_API_KEY
+    )
+
 end = datetime.utcnow()
 start = end - timedelta(days=365)
 
@@ -92,14 +93,14 @@ def get_current_vix():
         latest_price = int(vix_data['Close'].iloc[-1])
     return latest_price
 
-def refresh_yf_user_agent():
+def refresh_user_agent():
     """Refresh yfinance request session with a random User-Agent."""
     ua = UserAgent()
     session = Session()
     session.headers.update({'User-Agent': ua.random})
     yf.shared._requests = session
 
-refresh_yf_user_agent()
+refresh_user_agent()
 
 # Build dictionary of existing US stocks
 def build_ticker_db():
@@ -211,7 +212,7 @@ def fetch_stock_data_parallel(tickers, fetch_stock_data_parallel=False):
 def fetch_one_ticker(ticker):
     start_time = time.time()
     try:
-        stock = PolygonTicker(symbol=ticker, polygon_api_key=POLYGON_API_KEY, quiver_api_key=QUIVER_API_KEY, sic_data=sic_data)
+        stock = PolygonTicker(polygon_base_url=POLYGON_BASE_URL, symbol=ticker, polygon_api_key=POLYGON_API_KEY, quiver_api_key=QUIVER_API_KEY, sic_data=sic_data, screener=stock_screener)
         current_price = stock.current_price
         ma_50 = stock.sma_50
         ma_100 = stock.sma_100
@@ -229,10 +230,11 @@ def fetch_one_ticker(ticker):
         company_info = stock.company_info
         next_earnings_date = stock.next_earnings_date.get('date', 'N/A')
         senator_trades_data = stock.senator_trade_data
-        duration = time.time() - start_time
+        completed_time =  time.time()
+        duration = completed_time - start_time
         completed_at = datetime.utcnow().isoformat()
         market_cap = f'{stock.ticker_details_current_year.market_cap/1e9:.2f}B'
-        logger.info(f"Completed stock data fetch in {duration:.2f} seconds")
+        logger.info(f"Completed stock data fetch in {duration:.2f} milliseconds")
         data_obj = {
             'Ticker': ticker,
             'Info': company_info['summary'],
@@ -264,6 +266,7 @@ def fetch_one_ticker(ticker):
             'Σ-MA': ma_stock_signal,
             'P/E': stock.trailing_pe,
             'Score': piotroski_data['Score'],
+            'ScreenResult': stock.screener_data,
             'Earnings': next_earnings_date,
             'Duration': duration,
             'CompletedAt': completed_at,
@@ -279,9 +282,13 @@ def fetch_one_ticker(ticker):
 
 @celery.task(name='tasks.fetch_and_cache_all_tickers')
 def fetch_and_cache_all_tickers(force_cache_update=0):
+    start_time = time.time()
     if force_cache_update:
         logger.info('Got signal to force cache update')
     fetch_stock_data_parallel(tickers)
+    completed_time = time.time()
+    duration = completed_time - start_time
+    logger.info(f'Total task duration was {duration}')
 
 def start_worker():
 

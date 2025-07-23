@@ -180,7 +180,11 @@
           </nav>
         </div>
 
-        <!-- Right Side: Search -->
+        <div style="font-size:.7em" class="relative w-full max-w-xs">
+            Ticker Filters:<br />
+            {% if current_vix %}<input type="checkbox" id="ShowGreen" name="vehicle1" value="ShowGreen">Screened{% endif %}<br />
+            {% if current_vix %}<input type="checkbox" id="ShowUpTrend" name="vehicle1" value="ShowGreen">Uptrending{% endif %}<br />
+        </div>
         <div style="font-size:.7em" class="relative w-full max-w-xs">
             {% if current_vix %}CBOE Volatility Index (VIX): <bold>{{ current_vix }}{% endif %}</bold><br />
             {% if last_cache_refresh %}Date of Last Cache Refresh: {{ last_cache_refresh }}{% endif %}<br />
@@ -210,7 +214,7 @@
         <thead>
             <tr>
                 {% for key in stock_data_analysis[0].keys() %}
-                {% if not (key | regex_search('Description$|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error|^Duration|^CompletedAt|^Price Chart')) %}
+                {% if not (key | regex_search('Description$|^Industry|^Info$|^MACD|^VROC|^RSI|^News|^Senate|^Error|^Duration|^CompletedAt|^Price Chart')) %}
                 <th title="{{ stock_data_analysis[0]['Ticker'] }}"><button id="{{ key }}" class="sort" data-sort="{{ key }}" class="btn btn-primary">{{ key }}</button></th>
                 {% endif %}
                 {% endfor %}
@@ -230,7 +234,6 @@
             </td>
             <td class="Price">{{ stock_data['Price'] }}</td>
             <td class="Market Cap">{{ stock_data['Market Cap'] }}</td>
-            <td class="Industry">{{ stock_data['Industry'] }}</td>
             <td class="50-MA">{{ stock_data['50-MA'] }}</td>
             <td class="100-MA">{{ stock_data['100-MA'] }}</td>
             <td class="150-MA">{{ stock_data['150-MA'] }}</td>
@@ -250,6 +253,11 @@
             <td class="Σ-MA">{{ stock_data['Σ-MA'] }}</td>
             <td class="P/E">{{ stock_data['P/E'] }}</td>
             <td class="Score">{{ stock_data['Score'] }}</td>
+            {% if stock_data['ScreenResult']['result'] %}
+            <td style="background-color: green;" class="ScreenResult">{{ stock_data['ScreenResult']['result'] }}</td>
+            {% else %}
+            <td class="ScreenResult">{{ stock_data['ScreenResult']['result'] }}</td>
+            {% endif %}
             <td class="Earnings">{{ stock_data['Earnings'] }}</td>
         </tr>
         {% endfor %}
@@ -399,10 +407,10 @@
 
 
         const stock_list = new List('stock_data', {
-            valueNames: ['Ticker', 'Price', 'Market Cap','Industry','50-MA', '100-MA', '150-MA', '200-MA',
+            valueNames: ['Ticker', 'Price', 'Market Cap', '50-MA', '100-MA', '150-MA', '200-MA',
                         '52w High','52w Low',
                         'Charts', 'Sentiment','Σ-BOLL', 'Σ-MA', 'P/E',
-                        'Score', 'Earnings']
+                        'Score', 'ScreenResult','Earnings']
         });
 
 <!--        const numTabs = [0, 1, 2, 3, 4];-->

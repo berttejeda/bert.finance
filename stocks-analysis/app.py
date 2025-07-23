@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from flask import Flask, render_template, jsonify
 from tasks import get_cache_key, cache, tickers, earnings_by_day, get_current_vix
 from io import StringIO

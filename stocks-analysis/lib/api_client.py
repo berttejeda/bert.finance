@@ -26,11 +26,14 @@ import pandas as pd
 class PolygonTicker:
     def __init__(self, **kwargs):
         symbol = kwargs['symbol']
+        self.symbol = symbol.upper()
+        self.base_url = kwargs['polygon_base_url']
         self.polygon_api_key = kwargs['polygon_api_key']
         self.quiver_api_key = kwargs['quiver_api_key']
-        self.earnings_endpoint = "https://api.polygon.io/benzinga/v1/earnings"
+        self.screener = kwargs['screener']
+        self.screener_data = self.screener.screen(self.symbol)
+        self.earnings_endpoint = f"{self.base_url}/benzinga/v1/earnings"
         self.sic_data = kwargs['sic_data']
-        self.symbol = symbol.upper()
         self.client = RESTClient(self.polygon_api_key)
         self.default_period = 7
         self.today = datetime.now()
@@ -75,7 +78,10 @@ class PolygonTicker:
         fifty_two_week_highs_lows = self.get_fifty_two_week_highs_lows()
         self.fifty_two_week_low = f"{fifty_two_week_highs_lows['low']:.2f}"
         self.fifty_two_week_high = f"{fifty_two_week_highs_lows['high']:.2f}"
-        trailing_pe = self.fundamentals[0].financials.income_statement.basic_earnings_per_share.value
+        try:
+            trailing_pe = self.fundamentals[0].financials.income_statement.basic_earnings_per_share.value
+        except Exception as e:
+            trailing_pe = ''
         if not trailing_pe or math.isnan(trailing_pe):
             logger.warning(f'Trailing PE for {self.symbol} is Not a Number!')
             self.trailing_pe = ''
@@ -199,7 +205,7 @@ class PolygonTicker:
         print(f"Apple earnings last year: {len(data['previous_year'])} records")
 
     def fetch_earnings_data(self):
-        URL = "https://api.polygon.io/benzinga/v1/earnings"
+        URL = f"{self.base_url}/benzinga/v1/earnings"
         PARAMS = {
             "order": "asc",
             "ticker": self.symbol,
@@ -219,7 +225,11 @@ class PolygonTicker:
             print(response.text)
 
     def fetch_company_info(self):
-        industry = self.sic_data.codes[self.ticker_details_current_year.sic_code].industry_title
+        sic_code = self.ticker_details_current_year.sic_code
+        if sic_code:
+            industry = self.sic_data.codes[self.ticker_details_current_year.sic_code].industry_title
+        else:
+            industry = ''
         website_url = self.ticker_details_current_year.homepage_url
         website_display = website_url if website_url != '#' else ''
         company_info_markdown = f"""
