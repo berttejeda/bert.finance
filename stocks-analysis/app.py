@@ -1,10 +1,11 @@
 from datetime import datetime
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, send_from_directory
 from tasks import get_cache_key, cache, tickers, earnings_by_day, get_current_vix
 from io import StringIO
 
 import argparse
 import logging
+import os
 import pandas as pd
 import re
 
@@ -35,11 +36,18 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger('stock-analyzer.app')
 # Initialize Flask App
 app = Flask(__name__)
-# Custom jinja regex filter
+
+# Custom jinja filters
+
+def to_bool(value):
+    return bool(value)
+
 def regex_search(value, pattern):
     match = re.search(pattern, value)
     return match.group(0) if match else ''
+
 app.jinja_env.filters['regex_search'] = regex_search
+app.jinja_env.filters['to_bool'] = to_bool
 
 @app.route('/')
 def home():
@@ -59,6 +67,7 @@ def home():
         task_duration = stock_data_analysis.dropna(subset=['Duration'])
         task_duration_in_minutes = task_duration['Duration'].sum() / 60
         last_cache_refresh = pd.to_datetime(stock_data_analysis['CompletedAt']).max().strftime("%Y-%m-%d %H:%M:%S")
+        total_screened_tickers = [d['result'] for d in stock_data_analysis['ScreenResult'] if d['result']]
         logger.info(f'Task duration was {round(task_duration_in_minutes,2)}')
         context.update(
           {
@@ -67,6 +76,7 @@ def home():
           'task_duration_in_minutes': task_duration_in_minutes,
           'stock_data_is_ready': True,
           'stock_data_analysis': stock_data_analysis.to_dict(orient='records'),
+          'total_screened_tickers': len(total_screened_tickers),
           'total_tickers': len(stock_data_analysis)
           }
         )         
@@ -79,6 +89,11 @@ def data_status():
     key = get_cache_key(tickers)
     is_ready = {'ready': bool(cache.exists(key))}
     return jsonify(is_ready)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == '__main__':
     app.run(host=host_address, port=host_port, debug=debug)
