@@ -69,6 +69,7 @@ class Screener:
             prices = self.get_historical_prices(ticker)
             rsi = self.calculate_rsi(prices)
             is_uptrend = self.is_uptrend(prices)
+            data_obj['uptrending'] = is_uptrend
             if (rsi or rsi <= 70) and is_uptrend:
                 otm_calls = self.get_option_snapshot(ticker)
                 data_obj['price'] =  prices[-1]

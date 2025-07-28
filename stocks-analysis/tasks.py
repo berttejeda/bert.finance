@@ -266,6 +266,7 @@ def fetch_one_ticker(ticker):
             'Σ-MA': ma_stock_signal,
             'P/E': stock.trailing_pe,
             'Score': piotroski_data['Score'],
+            'IV': stock.screener_data.get('iv', ''),
             'ScreenResult': stock.screener_data,
             'Earnings': next_earnings_date,
             'Duration': duration,
