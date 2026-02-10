@@ -69,11 +69,20 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
 
     print(f"Reading {input_file}...")
     try:
-        # Try utf-8-sig first to handle BOM
-        df = pd.read_csv(input_file, encoding='utf-8-sig')
-    except UnicodeDecodeError:
-        print("utf-8-sig failed, trying latin1...")
-        df = pd.read_csv(input_file, encoding='latin1')
+        if input_file.lower().endswith(('.xls', '.xlsx')):
+            try:
+                df = pd.read_excel(input_file)
+            except ImportError as e:
+                print(f"Error reading Excel file: {e}")
+                print("Please install 'openpyxl' (for .xlsx) or 'xlrd' (for .xls).")
+                return
+        else:
+            # Try utf-8-sig first to handle BOM
+            try:
+                df = pd.read_csv(input_file, encoding='utf-8-sig')
+            except UnicodeDecodeError:
+                print("utf-8-sig failed, trying latin1...")
+                df = pd.read_csv(input_file, encoding='latin1')
     except Exception as e:
         print(f"Error reading CSV: {e}")
         return

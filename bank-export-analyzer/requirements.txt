@@ -2,3 +2,5 @@ scikit-learn
 matplotlib
 PyYAML
 pandas
+openpyxl
+xlrd
