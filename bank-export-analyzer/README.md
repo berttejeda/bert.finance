@@ -1,10 +1,10 @@
-# Bank Export Analyzer
+# Transaction Analyzer
 
 A powerful Python tool to automatically categorize and validade your personal bank transaction exports.
 
 ## Overview
 
-This project provides a script, `expense_analysis.py`, which reads bank export CSV files, categorizes transactions based on customizable regex patterns, and generates insightful reports and visualizations.
+This project provides a script, `transaction-analyzer.py`, which reads bank export CSV/Excel files, categorizes transactions based on customizable regex patterns, and generates insightful reports and visualizations for both **Expenses** and **Income**.
 
 For a detailed explanation of how the script works under the hood, please see [Script Logic Documentation](SCRIPT_LOGIC.md).
 
@@ -12,7 +12,7 @@ For a detailed explanation of how the script works under the hood, please see [S
 
 -   **Automated Categorization**: Uses regex patterns defined in `categories.yaml`.
 -   **Visualizations**: Generates monthly stacked bar charts to track spending trends.
--   **Flexible Input**: Supports various CSV formats (UTF-8, Latin1, BOM).
+-   **Flexible Input**: Supports various CSV formats (UTF-8, Latin1, BOM) and Excel files (.xls, .xlsx).
 -   **CLI Interface**: Easy-to-use command line arguments.
 -   **Smart Savings Tracking**: Automatically calculates net savings by deducting transfers *from* savings (configurable).
 -   **Interactive Training**: Helps you categorize unknown transactions.
@@ -20,7 +20,13 @@ For a detailed explanation of how the script works under the hood, please see [S
 
 ## Getting Started
 
-1.  **Generate Sample Data** (Optional):
+1.  **Install Dependencies**:
+    ```bash
+    pip install pandas matplotlib pyyaml openpyxl xlrd
+    ```
+    *Note: `openpyxl` is required for `.xlsx` files, and `xlrd` for `.xls` files.*
+
+2.  **Generate Sample Data** (Optional):
     If you don't have a bank export file yet, you can generate a sample one to test the script.
     ```bash
     python generate_sample_data.py
@@ -41,8 +47,20 @@ For a detailed explanation of how the script works under the hood, please see [S
     ```
 
 3.  **Run Analysis**:
+    
+    *Analyze Expenses (Default):*
     ```bash
-    python expense_analysis.py --input-file sample_transactions.csv
+    python transaction-analyzer.py --input-file sample_transactions.csv --debits
+    ```
+
+    *Analyze Income:*
+    ```bash
+    python transaction-analyzer.py --input-file sample_transactions.csv --credits
+    ```
+
+    *For Excel files:*
+    ```bash
+    python transaction-analyzer.py --input-file my_expenses.xlsx
     ```
 
 4.  **View Results**:
@@ -60,78 +78,106 @@ The script includes specific logic to calculate your **net** savings:
     -   These are automatically assigned to the `ToSavings` category.
     -   **Result**: The `ToSavings` total represents the *net* amount transferred to savings (Transfers To - Transfers From).
     
+    This logic applies only in **Expenses** mode (`--debits`).
+
     You can configure this pattern in `config.yaml`:
     ```yaml
-    savings_deduction_pattern: "Transfer.*From.*Savings"
+    expenses:
+      savings_deduction_pattern: "Transfer.*From.*Savings"
     ```
     Or via command line: `--savings-deduction-pattern "regex"`
 
+## Configuration Format
+
+The `config.yaml` supports separate sections for `income` and `expenses`:
+
+```yaml
+income:
+  categories:
+    - Job:
+      - PAYCHECK
+    - SideHustle:
+      - FREELANCE
+expenses:
+  savings_deduction_pattern: "Transfer.*From.*Savings"
+  categories:
+    Food:
+      - uber.*eats
+    Transport:
+      - shell
+```
+
 ## CLI Usage
 
--   **Standard Analysis**:
+-   **Standard Expenses Analysis**:
     ```bash
-    python expense_analysis.py --input-file sample_transactions.csv
+    python transaction-analyzer.py --input-file sample_transactions.csv --debits
+    ```
+
+-   **Income Analysis**:
+    ```bash
+    python transaction-analyzer.py --input-file sample_transactions.csv --credits
     ```
 
 -   **Save Chart Image**:
     ```bash
-    python expense_analysis.py --input-file sample_transactions.csv --save-chart-image
+    python transaction-analyzer.py --input-file sample_transactions.csv --save-chart-image
     ```
     Saves the generated chart to `reports/expense_chart.png`.
 
 -   **Custom Configuration**:
     ```bash
-    python expense_analysis.py --input-file sample_transactions.csv --config my_config.yaml
+    python transaction-analyzer.py --input-file sample_transactions.csv --config my_config.yaml
     ```
     Defaults to `config.yaml`.
 
 -   **Interactive Plot**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --plot
+    python transaction-analyzer.py --input-file AccountHistory.csv --plot
     ```
     Displays the generated chart in a window.
 
 -   **List Categorized Transactions**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --show-matched-categories-only
+    python transaction-analyzer.py --input-file AccountHistory.csv --show-matched-categories-only
     ```
     Prints a sorted list of categorized transactions to the terminal and exits.
 
 -   **Filter by Date Range**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --start 2023-01-01 --end 2023-01-31
+    python transaction-analyzer.py --input-file AccountHistory.csv --start 2023-01-01 --end 2023-01-31
     ```
     Analyzes only transactions within the specified date range.
 
 -   **Train Categories**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --train-categories
+    python transaction-analyzer.py --input-file AccountHistory.csv --train-categories
     ```
     Interactively helps you categorize "Other" transactions by grouping similar descriptions.
 
 -   **Filter by Category**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --filter "Food"
+    python transaction-analyzer.py --input-file AccountHistory.csv --filter "Food"
     ```
     Analyzes only transactions in the "Food" category.
 
 -   **Filter by Year**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --year 2023
+    python transaction-analyzer.py --input-file AccountHistory.csv --year 2023
     ```
     Analyzes transactions for the entire year of 2023.
 
 -   **Filter by Month**:
     ```bash
-    python expense_analysis.py --input-file AccountHistory.csv --month 2023-05
+    python transaction-analyzer.py --input-file AccountHistory.csv --month 2023-05
     ```
-    python expense_analysis.py --input-file sample_transactions.csv --month 2023-05
+    python transaction-analyzer.py --input-file sample_transactions.csv --month 2023-05
     ```
     Analyzes transactions for May 2023.
 
 -   **Chart Options**:
     ```bash
-    python expense_analysis.py -f file.csv --show-labels --chart-width 20 --chart-height 12
+    python transaction-analyzer.py -f file.csv --show-labels --chart-width 20 --chart-height 12
     ```
     - `--show-labels`: Adds value labels to chart segments (hides overlapping ones).
     - `--chart-width`, `--chart-height`: Sets figure size in inches.

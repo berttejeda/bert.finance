@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -8,11 +10,12 @@ import re
 from categorization_trainer import CategorizationTrainer
 
 class ExpenseCategorizer:
-    def __init__(self, config_file="config.yaml"):
+    def __init__(self, config_file="config.yaml", mode="expenses"):
+        self.mode = mode
         self.categories = self._load_config(config_file)
 
     def _load_config(self, config_file):
-        """Loads category regex pasterns from a YAML file."""
+        """Loads category regex patterns from a YAML file."""
         if not os.path.exists(config_file):
             print(f"Warning: Config file '{config_file}' not found. Using default empty config.")
             return {}
@@ -20,8 +23,33 @@ class ExpenseCategorizer:
         try:
             with open(config_file, 'r') as f:
                 config = yaml.safe_load(f) or {}
-                # Support both old (direct dict) and new (nested under 'categories') formats
-                return config.get('categories', config)
+                
+            # Mode-specific loading
+            section = config.get(self.mode, {})
+            # 'categories' might be a dict (expenses) or list of dicts (income)
+            raw_categories = section.get('categories', {})
+            
+            # Normalize to dict: {category: [patterns]}
+            normalized_categories = {}
+            
+            if isinstance(raw_categories, list):
+                # Handle list of dicts: [{Category: [patterns]}, ...]
+                for item in raw_categories:
+                    if isinstance(item, dict):
+                        for cat, patterns in item.items():
+                            normalized_categories[cat] = patterns
+            elif isinstance(raw_categories, dict):
+                # Handle standard dict
+                normalized_categories = raw_categories
+            else:
+                # Fallback check for old structure if not found in section
+                # If mode is expenses, maybe checking root? 
+                # For now, strict adherence to new structure is safer, but fallback is nice.
+                if self.mode == 'expenses':
+                     return config.get('categories', config)
+
+            return normalized_categories
+
         except Exception as e:
             print(f"Error loading config file: {e}")
             return {}
@@ -36,6 +64,8 @@ class ExpenseCategorizer:
             if isinstance(patterns, str):
                 patterns = [patterns]
             
+            if not patterns: continue
+
             for pattern in patterns:
                 try:
                     if re.search(pattern, description, re.IGNORECASE):
@@ -44,10 +74,12 @@ class ExpenseCategorizer:
                     print(f"Regex error for pattern '{pattern}': {e}")
         return "Other"
 
-def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_matched_categories_only=False, start_date=None, end_date=None, train_categories=False, category_filter=None, show_labels=False, chart_width=15, chart_height=10, savings_deduction_pattern=None, save_chart_image=False):
+def analyze_transactions(input_file, config_file="config.yaml", plot=False, show_matched_categories_only=False, start_date=None, end_date=None, train_categories=False, category_filter=None, show_labels=False, chart_width=15, chart_height=10, savings_deduction_pattern=None, save_chart_image=False, mode="expenses"):
     """
-    Reads the expense CSV, categorizes transactions, and generates a summary report and chart.
+    Reads the transaction CSV, categorizes, and generates a summary report and chart.
     """
+    print(f"Starting {mode.upper()} analysis...")
+
     # Load config early to get settings
     config = {}
     if os.path.exists(config_file):
@@ -59,8 +91,18 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
 
     # Determine savings_deduction_pattern
     # Priority: CLI arg > Config file > Default
-    if savings_deduction_pattern is None:
-        savings_deduction_pattern = config.get('savings_deduction_pattern', r"Transfer.*From.*Savings")
+    # Determine savings_deduction_pattern
+    # Only applicable in 'expenses' mode
+    if mode == 'expenses':
+        # Priority: CLI arg > Config file > Default
+        if savings_deduction_pattern is None:
+            # Look inside expenses section
+            expenses_config = config.get('expenses', {})
+            # Also check root for backward compatibility or if structure matches old style
+            savings_deduction_pattern = expenses_config.get('savings_deduction_pattern', config.get('savings_deduction_pattern', r"Transfer.*From.*Savings"))
+        print(f"Using savings deduction pattern: '{savings_deduction_pattern}'")
+    else:
+        print("Income mode: Savings deduction logic disabled.")
 
     print(f"Using savings deduction pattern: '{savings_deduction_pattern}'")
     if not os.path.exists(input_file):
@@ -133,27 +175,40 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
             return
     
     # Handle Debit/Credit logic
+    # Normalize 'Debit' and 'Credit' columns if present
     if 'Debit' in df.columns and 'Credit' in df.columns:
         df['Debit'] = pd.to_numeric(df['Debit'], errors='coerce').fillna(0)
         df['Credit'] = pd.to_numeric(df['Credit'], errors='coerce').fillna(0)
         
-        # Taking Debits as expenses
-        df['Amount'] = df['Debit']
+        if mode == 'expenses':
+            # Taking Debits as expenses
+            df['Amount'] = df['Debit']
+            
+            # Specific Logic: Deduct Credits matching the savings_deduction_pattern from expenses
+            # We handle this by making them negative expenses
+            mask = df['Description'].str.contains(savings_deduction_pattern, case=False, regex=True) & (df['Credit'] > 0)
+            
+            if mask.any():
+                print(f"Found {mask.sum()} credits matching the savings_deduction_pattern to deduct.")
+                df.loc[mask, 'Amount'] = -df.loc[mask, 'Credit']
         
-        # Specific Logic: Deduct Credits matching the savings_deduction_pattern from expenses
-        # We handle this by making them negative expenses
-        
-        mask = df['Description'].str.contains(savings_deduction_pattern, case=False, regex=True) & (df['Credit'] > 0)
-        
-        if mask.any():
-            print(f"Found {mask.sum()} credits matching the savings_deduction_pattern to deduct.")
-            df.loc[mask, 'Amount'] = -df.loc[mask, 'Credit']
+        elif mode == 'income':
+            # Taking Credits as income
+            df['Amount'] = df['Credit']
+            # No savings deduction logic for income
 
-        # Filter out 0 value transactions (unless they are the negative ones we just created)
+        # Filter out 0 value transactions (unless they are the negative ones we just created for expenses)
         df = df[df['Amount'] != 0].copy()
         
     elif 'Amount' in df.columns:
         df['Amount'] = pd.to_numeric(df['Amount'], errors='coerce').fillna(0)
+        if mode == 'expenses':
+             # Assume positive amounts are expenses if only one column? Or filter for negative?
+             # Standardizing: usually bank csvs with one column have - for expenses.
+             # If - for expenses, we might want to flip them to positive for the chart?
+             # Existing logic didn't flip, so charts likely showed negatives or inputs were absolute.
+             # The previous code seemed to just take Amount.
+             pass
     else:
         # Try case-insensitive Amount
         col_map = {c.lower(): c for c in df.columns}
@@ -164,8 +219,8 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
             return
 
     # Initialize Categorizer
-    print(f"Loading categories from {config_file}...")
-    categorizer = ExpenseCategorizer(config_file)
+    print(f"Loading categories from {config_file} for mode '{mode}'...")
+    categorizer = ExpenseCategorizer(config_file, mode=mode)
 
     # Categorize
     print(f"Categorizing {len(df)} transactions...")
@@ -175,10 +230,11 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
     # These should fall into 'ToSavings' to reduce the total
     # Pattern is already determined at start of function
 
-    mask = df['Description'].str.contains(savings_deduction_pattern, case=False, regex=True) & (df['Amount'] < 0)
-    if mask.any():
-        print("Assigning negative 'From Savings' transactions to 'ToSavings' category...")
-        df.loc[mask, 'Category'] = 'ToSavings'
+    if mode == 'expenses':
+        mask = df['Description'].str.contains(savings_deduction_pattern, case=False, regex=True) & (df['Amount'] < 0)
+        if mask.any():
+            print("Assigning negative 'From Savings' transactions to 'ToSavings' category...")
+            df.loc[mask, 'Category'] = 'ToSavings'
 
     # Filter by Category if requested
     if category_filter:
@@ -212,12 +268,12 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         if other_df.empty:
             print("No 'Other' transactions found to train on.")
         else:
-            trainer = CategorizationTrainer(other_df, config_file)
+            trainer = CategorizationTrainer(other_df, config_file, mode=mode)
             trainer.interactive_labeling()
             
             # Re-load categorizer and re-categorize to show impact
             print("\nRe-categorizing with new patterns...")
-            categorizer = ExpenseCategorizer(config_file)
+            categorizer = ExpenseCategorizer(config_file, mode=mode)
             df['Category'] = df['Description'].apply(categorizer.categorize)
             print("\nUpdated Categorization Stats:")
             print(df['Category'].value_counts())
@@ -225,7 +281,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
     # Summarize Total
     summary = df.groupby('Category')['Amount'].sum().sort_values(ascending=False)
     
-    print("\nTotal Expense Summary:")
+    print(f"\nTotal {mode.capitalize()} Summary:")
     print(summary)
 
     # Create output directory
@@ -264,7 +320,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         # Add a horizontal line at 0 for reference
         ax.axhline(0, color='black', linewidth=0.8)
         monthly_summary.plot(kind='bar', stacked=True, ax=ax, colormap='tab20', edgecolor='black', linewidth=0.5)
-        plt.title("Monthly Expenses by Category")
+        plt.title(f"Monthly {mode.capitalize()} by Category")
         plt.xlabel("Month")
         plt.ylabel("Amount ($)")
         plt.xticks(rotation=45)
@@ -324,7 +380,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         labels.append("")
         
         handles.append(empty_handle)
-        labels.append("Total Outflows")
+        labels.append(f"Total {mode.capitalize()}")
 
         handles.append(empty_handle)
         labels.append(f"Period Total: \\${grand_total:,.2f}")
@@ -337,7 +393,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         labels.append("")
 
         handles.append(empty_handle)
-        labels.append("Average Monthly Outflow")
+        labels.append(f"Average Monthly {mode.capitalize()}")
 
         handles.append(empty_handle)
         labels.append(f"Monthly Average: \\${avg_monthly_outflow:,.2f}")
@@ -349,7 +405,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         
         # Make the section headers bold
         for text in legend.get_texts():
-            if text.get_text() in ["Total Outflows", "Average Monthly Outflow"]:
+            if text.get_text() in [f"Total {mode.capitalize()}", f"Average Monthly {mode.capitalize()}"]:
                 text.set_fontweight('bold')
 
         plt.tight_layout()
@@ -388,7 +444,7 @@ def analyze_expenses(input_file, config_file="config.yaml", plot=False, show_mat
         # Fallback to simple bar chart
         plt.figure(figsize=(10, 6))
         summary.plot(kind='bar', ax=plt.gca(), color='skyblue')
-        plt.title("Total Expense Summary by Category")
+        plt.title(f"Total {mode.capitalize()} Summary by Category")
         plt.xlabel("Category")
         plt.ylabel("Amount ($)")
         plt.xticks(rotation=45)
@@ -430,6 +486,12 @@ if __name__ == "__main__":
     parser.add_argument("--savings-deduction-pattern", help="Regex pattern for savings deductions (overrides config)")
     parser.add_argument("--save-chart-image", action="store_true", help="Save the chart to an image file")
     
+    # Mutually exclusive group for mode
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--debits", dest='mode', action='store_const', const='expenses', help="Analyze expenses (Debits). Default.")
+    group.add_argument("--credits", dest='mode', action='store_const', const='income', help="Analyze income (Credits).")
+    parser.set_defaults(mode='expenses')
+    
     args = parser.parse_args()
 
     # handle shortcuts
@@ -449,6 +511,6 @@ if __name__ == "__main__":
         except ValueError:
              parser.error("Invalid format for --month. Use YYYY-MM.")
     try:
-        analyze_expenses(args.input_file, args.config, args.plot, args.show_matched_categories_only, args.start, args.end, args.train_categories, args.filter, args.show_labels, args.chart_width, args.chart_height, args.savings_deduction_pattern, args.save_chart_image)
+        analyze_transactions(args.input_file, args.config, args.plot, args.show_matched_categories_only, args.start, args.end, args.train_categories, args.filter, args.show_labels, args.chart_width, args.chart_height, args.savings_deduction_pattern, args.save_chart_image, args.mode)
     except KeyboardInterrupt:
         print("\nProcess interrupted.")

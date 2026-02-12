@@ -1,8 +1,18 @@
-savings_deduction_pattern: "Transfer.*From.*Savings"
-Food:
-  - uber.*eats
-  - starbucks
-Transport:
-  - uber
-  - shell
-  - sonoco
+income:
+  categories:
+    - Job:
+      - pattern1
+      - pattern2
+    - Tips:
+      - pattern1
+      - pattern2
+expenses:
+  savings_deduction_pattern: "Transfer.*From.*Savings"
+  categories:
+    Food:
+      - uber.*eats
+      - starbucks
+    Transport:
+      - uber
+      - shell
+      - sonoco
