@@ -324,7 +324,25 @@ def analyze_transactions(input_file, config_file="config.yaml", plot=False, show
         # Add a horizontal line at 0 for reference
         ax.axhline(0, color='black', linewidth=0.8)
         monthly_summary.plot(kind='bar', stacked=True, ax=ax, colormap='tab20', edgecolor='black', linewidth=0.5)
-        plt.title(f"Monthly {mode.capitalize()} by Category")
+        # Chart Title Logic
+        title_suffix = ""
+        if start_date and end_date:
+            try:
+                s = pd.to_datetime(start_date)
+                e = pd.to_datetime(end_date)
+                
+                if s == e:
+                    title_suffix = f" for {s.strftime('%b %d, %Y')}"
+                elif s.year == e.year and s.month == e.month and s.day == 1 and e.day == s.days_in_month:
+                    title_suffix = f" for {s.strftime('%b, %Y')}"
+                elif s.year == e.year and s.month == 1 and s.day == 1 and e.month == 12 and e.day == 31:
+                    title_suffix = f" for {s.year}"
+                else:
+                    title_suffix = f" ({start_date} to {end_date})"
+            except:
+                pass
+        
+        plt.title(f"Monthly {mode.capitalize()} by Category{title_suffix}")
         plt.xlabel("Month")
         plt.ylabel("Amount ($)")
         plt.xticks(rotation=45)
