@@ -78,6 +78,10 @@ def analyze_transactions(input_file, config_file="config.yaml", plot=False, show
     """
     Reads the transaction CSV, categorizes, and generates a summary report and chart.
     """
+    # Configure pandas display options to show full content
+    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.width', 1000)
+    
     print(f"Starting {mode.upper()} analysis...")
 
     # Load config early to get settings
