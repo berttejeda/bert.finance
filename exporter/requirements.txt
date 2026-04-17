@@ -1,0 +1,5 @@
+btconfig>=4.6.0
+influxdb-client>=1.38.0
+pandas>=2.2.3
+pyyaml>=6.0.1
+yfinance>=0.2.61

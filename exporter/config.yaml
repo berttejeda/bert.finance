@@ -1,0 +1,25 @@
+influxdb:
+  url: ${INFLUXDB_HOST}
+  token: ${INFLUXDB_TOKEN}
+  org: ${INFLUXDB_ORG}
+  bucket: ${INFLUXDB_BUCKET}
+
+tickers:
+  - AAPL
+  - MSFT
+  - NVDA
+  - AMZN
+  - GOOGL
+  - META
+  - TSLA
+  - AVGO
+  - NFLX
+  - AMD
+  - NET
+  - CSCO
+  - GME
+
+settings:
+  interval_minutes: 30
+  delay_between_tickers: 2
+  history_period: "1y"
