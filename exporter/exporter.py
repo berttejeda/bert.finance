@@ -7,7 +7,7 @@ import time
 
 from btconfig import Config
 
-from lib.fetcher import batch_download_history, fetch_ticker_data
+from lib.fetcher import batch_download_history, batch_download_intraday, fetch_ticker_data
 from lib.writer import InfluxWriter
 
 logging.basicConfig(
@@ -24,12 +24,17 @@ def load_config(config_path="config.yaml"):
 
 def run_once(config):
     """Fetch data for all tickers and write to InfluxDB."""
-    tickers = config.get("tickers", [])
+    raw_tickers = config.get("tickers", [])
+    tickers = list(dict.fromkeys(raw_tickers))  # deduplicate, preserve order
+    if len(tickers) < len(raw_tickers):
+        logger.warning(f"Removed {len(raw_tickers) - len(tickers)} duplicate ticker(s)")
     settings = config.get("settings", {})
     influx_cfg = config.get("influxdb", {})
 
     delay = settings.get("delay_between_tickers", 2)
     period = settings.get("history_period", "1y")
+    intraday_period = settings.get("intraday_period", "5d")
+    intraday_interval = settings.get("intraday_interval", "1m")
 
     writer = InfluxWriter(
         url=influx_cfg["url"],
@@ -40,6 +45,7 @@ def run_once(config):
 
     try:
         history = batch_download_history(tickers, period=period)
+        intraday = batch_download_intraday(tickers, period=intraday_period, interval=intraday_interval)
         results = []
         for ticker in tickers:
             df = history.get(ticker)
@@ -49,7 +55,7 @@ def run_once(config):
             logger.info(f"Processing {ticker}")
             data = fetch_ticker_data(ticker, df, delay=delay)
             results.append(data)
-        writer.write_batch(results, history_map=history)
+        writer.write_batch(results, history_map=history, intraday_map=intraday)
     finally:
         writer.close()
 

@@ -50,6 +50,18 @@ export INFLUXDB_BUCKET=stocks
 
 Edit `config.yaml` to customize the ticker list and settings.
 
+### Settings Reference
+
+| Key | Default | Description |
+|---|---|---|
+| `interval_minutes` | `30` | Minutes between exporter runs (loop mode) |
+| `delay_between_tickers` | `2` | Seconds between per-ticker API calls |
+| `history_period` | `1y` | yfinance period for daily history download |
+| `intraday_period` | `5d` | yfinance period for intraday download (max `7d`) |
+| `intraday_interval` | `1m` | Bar interval for intraday download |
+
+> **Note**: Duplicate tickers in `config.yaml` are automatically deduplicated at runtime.
+
 ## Usage
 
 ### One-shot run
@@ -78,7 +90,8 @@ The `InfluxWriter` class handles all writes to InfluxDB. Each call to `write_bat
 
 1. **`write_ticker_data(data)`** — Writes a snapshot point to `stock_data` for each ticker with the current UTC ingestion timestamp.
 2. **`write_price_history(ticker, df)`** — Writes daily historical close prices and computed indicator series to `price_history` using the trading-day date from the yfinance DataFrame index.
-3. **`write_live_price(data)`** — Writes today's live price and snapshot indicator values as an additional `price_history` point so time-series panels extend to the current day.
+3. **`write_intraday(ticker, df)`** — Writes 1-minute OHLCV bars to `price_intraday` using timestamps from the yfinance intraday download.
+4. **`write_live_price(data)`** — Writes today's live price and snapshot indicator values as an additional `price_history` point so time-series panels extend to the current day.
 
 ### Indicator Series (`lib/indicators.py`)
 
@@ -97,6 +110,12 @@ The `InfluxWriter` class handles all writes to InfluxDB. Each call to `write_bat
 - **Tags**: `ticker`
 - **Fields**: `close`, `ma_50`, `ma_100`, `ma_150`, `ma_200`, `rsi`, `macd`, `macd_signal`, `macd_histogram`, `vroc`
 - **Timestamp**: Trading-day date at noon UTC (second precision)
+
+### `price_intraday` (1-minute OHLCV bars)
+
+- **Tags**: `ticker`
+- **Fields**: `open`, `high`, `low`, `close`, `volume`
+- **Timestamp**: Original minute-level timestamp from yfinance (second precision, timezone-aware)
 
 ### Timestamp Convention
 
@@ -141,6 +160,16 @@ from(bucket: "${bucket}")
   |> filter(fn: (r) => r["_measurement"] == "price_history")
   |> filter(fn: (r) => r["ticker"] =~ /^${ticker:regex}$/)
   |> filter(fn: (r) => r["_field"] == "close" or r["_field"] == "ma_50" ...)
+```
+
+**Intraday panel** (Intraday Price) queries `price_intraday`:
+
+```flux
+from(bucket: "${bucket}")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "price_intraday")
+  |> filter(fn: (r) => r["ticker"] =~ /^${ticker:regex}$/)
+  |> filter(fn: (r) => r["_field"] == "close")
 ```
 
 **Bollinger Signal** reads the tag value from the `current_price` record:

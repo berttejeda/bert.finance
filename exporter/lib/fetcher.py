@@ -123,6 +123,43 @@ def fetch_ticker_data(ticker, history_df, delay=2):
         return {"ticker": ticker, "error": str(e)}
 
 
+def batch_download_intraday(tickers, period="1d", interval="1m"):
+    """Download intraday OHLCV bars for all tickers in one call.
+
+    Args:
+        tickers: List of ticker symbol strings.
+        period: yfinance period string (e.g. '1d', '5d', '7d').
+        interval: Bar interval string (e.g. '1m', '2m', '5m').
+
+    Returns:
+        Dict mapping ticker -> DataFrame with columns
+        ['Open', 'High', 'Low', 'Close', 'Volume'] and a
+        timezone-aware DatetimeIndex.
+    """
+    logger.info(f"Batch downloading {period} intraday ({interval}) for {len(tickers)} tickers")
+    raw = yf.download(tickers, period=period, interval=interval, group_by="ticker", threads=True)
+
+    if raw.empty:
+        logger.warning("Intraday download returned no data")
+        return {}
+
+    result = {}
+    for t in tickers:
+        try:
+            if len(tickers) == 1:
+                df = raw.copy()
+            else:
+                df = raw[t].copy()
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(-1)
+            df = df.dropna(subset=["Close"])
+            if not df.empty:
+                result[t] = df
+        except Exception as e:
+            logger.warning(f"No intraday data for {t}: {e}")
+    return result
+
+
 def batch_download_history(tickers, period="1y"):
     """Download daily OHLCV history for all tickers in one call.
 

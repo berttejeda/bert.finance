@@ -6,19 +6,68 @@ influxdb:
 
 tickers:
   - AAPL
-  - MSFT
-  - NVDA
-  - AMZN
-  - GOOGL
-  - META
-  - TSLA
-  - AVGO
-  - NFLX
   - AMD
-  - NET
+  - AMGN
+  - AMZN
+  - ASML
+  - AVGO
+  - AXP
+  - CAT
+  - CMG
+  - COIN
+  - COST
   - CSCO
+  - CVNA
+  - DFS
+  - DG
+  - DIS
+  - DOCN
+  - ECL
+  - ETSY
   - GME
-
+  - GOOGL
+  - HD
+  - HIMS
+  - LLY
+  - LMT
+  - MCD
+  - MELI
+  - META
+  - MSFT
+  - NET
+  - NFLX
+  - NOW
+  - NVDA
+  - NVO
+  - OC
+  - OKLO
+  - PANW
+  - PFE
+  - PHM
+  - PLTR
+  - QCOM
+  - QQQ
+  - QQQM
+  - REGN
+  - RYAAY
+  - SBUX
+  - SCHD
+  - SHOP
+  - SNY
+  - SOFI
+  - SYK
+  - TMUS
+  - TSLA
+  - TSM
+  - UBER
+  - UI
+  - ULTA
+  - V
+  - VOO
+  - VUG
+  - WMT
+  - XLV
+  - XOM
 settings:
   interval_minutes: 30
   delay_between_tickers: 2

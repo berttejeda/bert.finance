@@ -135,18 +135,54 @@ class InfluxWriter:
         self.write_api.write(bucket=self.bucket, org=self.org, record=p)
         logger.info(f"Wrote live price_history point for {ticker} (close={price})")
 
-    def write_batch(self, data_list, history_map=None):
+    def write_intraday(self, ticker, intraday_df):
+        """Write 1-minute OHLCV bars as individual timestamped points.
+
+        Args:
+            ticker: Stock symbol string.
+            intraday_df: DataFrame with DatetimeIndex and OHLCV columns
+                         from yfinance intraday download.
+        """
+        if intraday_df is None or intraday_df.empty:
+            return
+
+        points = []
+        for dt, row in intraday_df.iterrows():
+            close = row.get("Close")
+            if close is None or (isinstance(close, float) and pd.isna(close)):
+                continue
+            ts = dt.to_pydatetime() if hasattr(dt, "to_pydatetime") else dt
+            p = (
+                Point("price_intraday")
+                .tag("ticker", ticker)
+                .field("close", float(close))
+                .time(ts, WritePrecision.S)
+            )
+            for col in ("Open", "High", "Low", "Volume"):
+                val = row.get(col)
+                if val is not None and not (isinstance(val, float) and (math.isnan(val) or math.isinf(val))):
+                    p = p.field(col.lower(), float(val))
+            points.append(p)
+        if points:
+            self.write_api.write(bucket=self.bucket, org=self.org, record=points)
+            logger.info(f"Wrote {len(points)} intraday points for {ticker}")
+
+    def write_batch(self, data_list, history_map=None, intraday_map=None):
         """Write multiple ticker data dicts and optional price history.
 
         Args:
             data_list: List of dicts from fetcher.fetch_ticker_data().
             history_map: Optional dict mapping ticker -> DataFrame of OHLCV history.
+            intraday_map: Optional dict mapping ticker -> DataFrame of intraday bars.
         """
         for data in data_list:
             self.write_ticker_data(data)
         if history_map:
             for ticker, df in history_map.items():
                 self.write_price_history(ticker, df)
+        if intraday_map:
+            for ticker, df in intraday_map.items():
+                self.write_intraday(ticker, df)
         for data in data_list:
             self.write_live_price(data)
         logger.info(f"Batch write complete: {len(data_list)} tickers")
