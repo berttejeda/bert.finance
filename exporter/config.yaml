@@ -72,3 +72,21 @@ settings:
   interval_minutes: 30
   delay_between_tickers: 2
   history_period: "1y"
+
+plugins:
+  - name: eodhd
+    version: 1.0.0
+    enabled: false
+    args:
+      api_key: ${EODHD_API_TOKEN}
+      exchange: US
+      delay_between_tickers: 1.5
+      # Uses global tickers list if not specified here
+      # tickers: [AAPL, MSFT]
+      # Uses global influxdb config if not specified here;
+      # override to write to a separate bucket:
+      # influxdb:
+      #   url: ${INFLUXDB_HOST}
+      #   token: ${INFLUXDB_TOKEN}
+      #   org: ${INFLUXDB_ORG}
+      #   bucket: ${INFLUXDB_EODHD_BUCKET}

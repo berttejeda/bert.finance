@@ -5,10 +5,14 @@ import logging
 import sys
 import time
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from btconfig import Config
 
 from lib.fetcher import batch_download_history, batch_download_intraday, fetch_ticker_data
 from lib.writer import InfluxWriter
+from plugins.loader import load_plugins
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,7 +63,35 @@ def run_once(config):
     finally:
         writer.close()
 
+    # --- Plugins ---
+    run_plugins(config)
+
     logger.info("Run complete")
+
+
+def run_plugins(config, only=None):
+    """Load and execute enabled plugins.
+
+    Args:
+        config: Full parsed config dict.
+        only: If set, run only the plugin with this name.
+    """
+    plugins = load_plugins(config)
+    if not plugins:
+        logger.debug("No enabled plugins found")
+        return
+
+    for plugin, plugin_args in plugins:
+        if only and plugin.name != only:
+            continue
+        logger.info(f"=== Running plugin: {plugin.name} ===")
+        try:
+            plugin.run(plugin_args)
+        except Exception as e:
+            logger.error(f"Plugin '{plugin.name}' failed: {e}", exc_info=True)
+
+    if only and not any(p.name == only for p, _ in plugins):
+        logger.error(f"Plugin '{only}' not found or not enabled")
 
 
 def main():
@@ -74,12 +106,22 @@ def main():
         action="store_true",
         help="Run continuously at the configured interval",
     )
+    parser.add_argument(
+        "--plugin", "-p",
+        type=str,
+        default=None,
+        help="Run only the named plugin (skip core export)",
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
     interval = config.get("settings", {}).get("interval_minutes", 30)
 
-    if args.loop:
+    if args.plugin:
+        # Plugin-only mode: skip core export, run just the named plugin
+        logger.info(f"Running plugin-only mode: {args.plugin}")
+        run_plugins(config, only=args.plugin)
+    elif args.loop:
         logger.info(f"Running in loop mode, interval={interval}m")
         while True:
             try:
