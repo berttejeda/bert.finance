@@ -112,7 +112,15 @@ def main():
         default=None,
         help="Run only the named plugin (skip core export)",
     )
+    parser.add_argument(
+        "--debug", "-d",
+        action="store_true",
+        help="Enable debug logging (shows InfluxDB line protocol, etc.)",
+    )
     args = parser.parse_args()
+
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
 
     config = load_config(args.config)
     interval = config.get("settings", {}).get("interval_minutes", 30)

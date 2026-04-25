@@ -57,6 +57,7 @@ class InfluxWriter:
             elif isinstance(value, str):
                 point = point.field(key, value)
 
+        logger.debug(f"stock_data point: {point.to_line_protocol()}")
         self.write_api.write(bucket=self.bucket, org=self.org, record=point)
         logger.info(f"Wrote data point for {ticker}")
 
@@ -95,6 +96,8 @@ class InfluxWriter:
                         p = p.field(col, float(val))
             points.append(p)
         if points:
+            for p in points:
+                logger.debug(f"price_history point: {p.to_line_protocol()}")
             self.write_api.write(bucket=self.bucket, org=self.org, record=points)
             logger.info(f"Wrote {len(points)} price_history points for {ticker}")
 
@@ -132,6 +135,7 @@ class InfluxWriter:
             if val is not None and isinstance(val, (int, float)) and not (math.isnan(val) or math.isinf(val)):
                 p = p.field(key, float(val))
 
+        logger.debug(f"live price_history point: {p.to_line_protocol()}")
         self.write_api.write(bucket=self.bucket, org=self.org, record=p)
         logger.info(f"Wrote live price_history point for {ticker} (close={price})")
 
@@ -164,6 +168,8 @@ class InfluxWriter:
                     p = p.field(col.lower(), float(val))
             points.append(p)
         if points:
+            for p in points:
+                logger.debug(f"price_intraday point: {p.to_line_protocol()}")
             self.write_api.write(bucket=self.bucket, org=self.org, record=points)
             logger.info(f"Wrote {len(points)} intraday points for {ticker}")
 
