@@ -53,6 +53,7 @@ tickers:
   - SBUX
   - SCHD
   - SHOP
+  - SOLV
   - SNY
   - SOFI
   - SYK
@@ -69,14 +70,17 @@ tickers:
   - XLV
   - XOM
 settings:
-  interval_minutes: 30
+  interval_minutes: 1
   delay_between_tickers: 2
   history_period: "1y"
+  max_retries: 3
+  retry_delay: 5
+  timeout: 30
 
 plugins:
   - name: eodhd
     version: 1.0.0
-    enabled: false
+    enabled: true
     args:
       api_key: ${EODHD_API_TOKEN}
       exchange: US

@@ -5,7 +5,6 @@ import time
 import pandas as pd
 import yfinance as yf
 
-from lib.fscore import calc_fscore
 from lib.indicators import (
     calc_bollinger_signal,
     calc_macd,
@@ -89,7 +88,16 @@ def fetch_ticker_data(ticker, history_df, delay=2):
         iv = _get_implied_volatility(ticker_obj)
 
         piotroski = calc_piotroski_score(ticker_obj)
-        fscore = calc_fscore(ticker_obj)
+
+        bid = _safe_info_get(info, "bid")
+        ask = _safe_info_get(info, "ask")
+        if bid is not None and ask is not None and bid > 0 and ask > 0:
+            bid_ask_spread = round(ask - bid, 4)
+            midpoint = (bid + ask) / 2
+            bid_ask_spread_pct = round((bid_ask_spread / midpoint) * 100, 4) if midpoint else None
+        else:
+            bid_ask_spread = None
+            bid_ask_spread_pct = None
 
         data = {
             "ticker": ticker,
@@ -114,7 +122,10 @@ def fetch_ticker_data(ticker, history_df, delay=2):
             "pe_ratio": _safe_info_get(info, "trailingPE"),
             "iv": iv,
             "piotroski_score": piotroski.get("piotroski_score"),
-            "fscore": fscore.get("fscore"),
+            "bid": bid,
+            "ask": ask,
+            "bid_ask_spread": bid_ask_spread,
+            "bid_ask_spread_pct": bid_ask_spread_pct,
         }
         return data
 

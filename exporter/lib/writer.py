@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime, timezone
 
 import math
@@ -6,10 +7,19 @@ import math
 import pandas as pd
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
+from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError
 
 from lib.indicators import calc_indicator_series
 
 logger = logging.getLogger("writer")
+
+RETRIABLE_EXCEPTIONS = (
+    TimeoutError,
+    ReadTimeoutError,
+    ConnectTimeoutError,
+    ConnectionError,
+    OSError,
+)
 
 # Fields that are stored as InfluxDB tags (indexed, string-only)
 TAG_FIELDS = {"ticker", "industry", "bollinger_signal"}
@@ -22,12 +32,38 @@ SKIP_FIELDS = {"error"}
 
 
 class InfluxWriter:
-    def __init__(self, url, token, org, bucket):
+    def __init__(self, url, token, org, bucket, max_retries=3, retry_delay=5, timeout=30):
         self.org = org
         self.bucket = bucket
-        self.client = InfluxDBClient(url=url, token=token, org=org)
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
+        self.client = InfluxDBClient(url=url, token=token, org=org, timeout=timeout * 1000)
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
-        logger.info(f"InfluxDB writer initialized: {url}, bucket={bucket}")
+        logger.info(
+            f"InfluxDB writer initialized: {url}, bucket={bucket}, "
+            f"max_retries={max_retries}, retry_delay={retry_delay}s, timeout={timeout}s"
+        )
+
+    def _write_with_retry(self, record):
+        """Write record(s) to InfluxDB with retry and exponential backoff."""
+        last_exc = None
+        for attempt in range(1, self.max_retries + 1):
+            try:
+                self.write_api.write(bucket=self.bucket, org=self.org, record=record)
+                return
+            except Exception as exc:
+                if not isinstance(exc, RETRIABLE_EXCEPTIONS) and \
+                   not isinstance(exc.__cause__, RETRIABLE_EXCEPTIONS):
+                    raise
+                last_exc = exc
+                delay = self.retry_delay * (2 ** (attempt - 1))
+                logger.warning(
+                    f"Write attempt {attempt}/{self.max_retries} failed: {exc}  "
+                    f"Retrying in {delay}s ..."
+                )
+                time.sleep(delay)
+        logger.error(f"Write failed after {self.max_retries} attempts")
+        raise last_exc  # type: ignore[misc]
 
     def write_ticker_data(self, data):
         """Write a single ticker's data dict as an InfluxDB point.
@@ -58,7 +94,7 @@ class InfluxWriter:
                 point = point.field(key, value)
 
         logger.debug(f"stock_data point: {point.to_line_protocol()}")
-        self.write_api.write(bucket=self.bucket, org=self.org, record=point)
+        self._write_with_retry(point)
         logger.info(f"Wrote data point for {ticker}")
 
     def write_price_history(self, ticker, history_df):
@@ -98,7 +134,7 @@ class InfluxWriter:
         if points:
             for p in points:
                 logger.debug(f"price_history point: {p.to_line_protocol()}")
-            self.write_api.write(bucket=self.bucket, org=self.org, record=points)
+            self._write_with_retry(points)
             logger.info(f"Wrote {len(points)} price_history points for {ticker}")
 
     # Snapshot fields that map to price_history indicator fields
@@ -136,7 +172,7 @@ class InfluxWriter:
                 p = p.field(key, float(val))
 
         logger.debug(f"live price_history point: {p.to_line_protocol()}")
-        self.write_api.write(bucket=self.bucket, org=self.org, record=p)
+        self._write_with_retry(p)
         logger.info(f"Wrote live price_history point for {ticker} (close={price})")
 
     def write_intraday(self, ticker, intraday_df):
@@ -170,7 +206,7 @@ class InfluxWriter:
         if points:
             for p in points:
                 logger.debug(f"price_intraday point: {p.to_line_protocol()}")
-            self.write_api.write(bucket=self.bucket, org=self.org, record=points)
+            self._write_with_retry(points)
             logger.info(f"Wrote {len(points)} intraday points for {ticker}")
 
     def write_batch(self, data_list, history_map=None, intraday_map=None):

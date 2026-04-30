@@ -45,6 +45,9 @@ def run_once(config):
         token=influx_cfg["token"],
         org=influx_cfg["org"],
         bucket=influx_cfg["bucket"],
+        max_retries=settings.get("max_retries", 3),
+        retry_delay=settings.get("retry_delay", 5),
+        timeout=settings.get("timeout", 30),
     )
 
     try:
@@ -113,6 +116,30 @@ def main():
         help="Run only the named plugin (skip core export)",
     )
     parser.add_argument(
+        "--tickers", "-t",
+        type=str,
+        default=None,
+        help="Comma-separated list of tickers (overrides config)",
+    )
+    parser.add_argument(
+        "--retries",
+        type=int,
+        default=None,
+        help="Max write retries on timeout (overrides config; default: 3)",
+    )
+    parser.add_argument(
+        "--retry-delay",
+        type=float,
+        default=None,
+        help="Base delay in seconds between retries (overrides config; default: 5)",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=None,
+        help="InfluxDB write timeout in seconds (overrides config; default: 30)",
+    )
+    parser.add_argument(
         "--debug", "-d",
         action="store_true",
         help="Enable debug logging (shows InfluxDB line protocol, etc.)",
@@ -123,7 +150,19 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     config = load_config(args.config)
-    interval = config.get("settings", {}).get("interval_minutes", 30)
+    settings = config.get("settings", {})
+    interval = settings.get("interval_minutes", 30)
+
+    # CLI overrides > config > defaults
+    if args.tickers is not None:
+        config["tickers"] = [t.strip().upper() for t in args.tickers.split(",") if t.strip()]
+    if args.retries is not None:
+        settings["max_retries"] = args.retries
+    if args.retry_delay is not None:
+        settings["retry_delay"] = args.retry_delay
+    if args.timeout is not None:
+        settings["timeout"] = args.timeout
+    config["settings"] = settings
 
     if args.plugin:
         # Plugin-only mode: skip core export, run just the named plugin
