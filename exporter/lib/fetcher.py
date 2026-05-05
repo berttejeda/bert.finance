@@ -17,6 +17,57 @@ from lib.piotroski import calc_piotroski_score
 logger = logging.getLogger("fetcher")
 
 
+def _get_earnings_calendar(ticker_obj):
+    """Extract upcoming earnings date and consensus estimates.
+
+    Uses ``Ticker.calendar`` which returns a dict with keys like
+    ``Earnings Date``, ``Earnings Average``, ``Revenue Average``, etc.
+
+    Returns:
+        Dict with available fields; empty dict on failure.
+    """
+    result = {}
+    try:
+        cal = ticker_obj.calendar
+        if cal is None:
+            return result
+
+        # Newer yfinance returns a plain dict
+        if isinstance(cal, dict):
+            dates = cal.get("Earnings Date", [])
+            if dates:
+                first = pd.Timestamp(dates[0])
+                result["next_earnings_date"] = first.isoformat()
+                delta = first.tz_localize(None) - pd.Timestamp.now()
+                result["days_until_earnings"] = max(int(delta.days), 0)
+                if len(dates) > 1 and dates[1] != dates[0]:
+                    result["next_earnings_date_end"] = pd.Timestamp(dates[1]).isoformat()
+
+            for src, dst in [
+                ("Earnings Average", "earnings_estimate_avg"),
+                ("Earnings Low", "earnings_estimate_low"),
+                ("Earnings High", "earnings_estimate_high"),
+                ("Revenue Average", "revenue_estimate_avg"),
+            ]:
+                val = cal.get(src)
+                if val is not None and not (isinstance(val, float) and (math.isnan(val) or math.isinf(val))):
+                    result[dst] = val
+
+        # Older yfinance may return a DataFrame
+        elif isinstance(cal, pd.DataFrame) and not cal.empty:
+            if "Earnings Date" in cal.index:
+                raw = cal.loc["Earnings Date"].iloc[0] if hasattr(cal.loc["Earnings Date"], "iloc") else cal.loc["Earnings Date"]
+                if pd.notna(raw):
+                    first = pd.Timestamp(raw)
+                    result["next_earnings_date"] = first.isoformat()
+                    delta = first.tz_localize(None) - pd.Timestamp.now()
+                    result["days_until_earnings"] = max(int(delta.days), 0)
+
+    except Exception as e:
+        logger.warning(f"Could not fetch earnings calendar for {ticker_obj.ticker}: {e}")
+    return result
+
+
 def _safe_info_get(info, key, default=None):
     """Safely retrieve a value from yfinance info dict."""
     val = info.get(key, default)
@@ -88,6 +139,7 @@ def fetch_ticker_data(ticker, history_df, delay=2):
         iv = _get_implied_volatility(ticker_obj)
 
         piotroski = calc_piotroski_score(ticker_obj)
+        earnings = _get_earnings_calendar(ticker_obj)
 
         bid = _safe_info_get(info, "bid")
         ask = _safe_info_get(info, "ask")
@@ -126,6 +178,13 @@ def fetch_ticker_data(ticker, history_df, delay=2):
             "ask": ask,
             "bid_ask_spread": bid_ask_spread,
             "bid_ask_spread_pct": bid_ask_spread_pct,
+            "next_earnings_date": earnings.get("next_earnings_date"),
+            "next_earnings_date_end": earnings.get("next_earnings_date_end"),
+            "days_until_earnings": earnings.get("days_until_earnings"),
+            "earnings_estimate_avg": earnings.get("earnings_estimate_avg"),
+            "earnings_estimate_low": earnings.get("earnings_estimate_low"),
+            "earnings_estimate_high": earnings.get("earnings_estimate_high"),
+            "revenue_estimate_avg": earnings.get("revenue_estimate_avg"),
         }
         return data
 

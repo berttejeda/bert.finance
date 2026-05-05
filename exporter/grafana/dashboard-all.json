@@ -22,7 +22,7 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -30,1237 +30,13 @@
         "y": 0
       },
       "id": 104,
-      "panels": [],
-      "title": "Company Info",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "_value"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Company Info"
-              },
-              {
-                "id": "custom.width",
-                "value": 900
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "_time"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Last Updated"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ticker"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Ticker"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "industry"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Industry"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "id": 15,
-      "options": {
-        "cellHeight": "auto",
-        "frameIndex": 8,
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "Industry"
-          }
-        ]
-      },
-      "pluginVersion": "12.4.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"company_info\")\n  |> filter(fn: (r) => exists r[\"industry\"] and r[\"industry\"] != \"\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> group()\n  |> unique(column: \"ticker\")\n  |> keep(columns: [\"_time\", \"_value\", \"ticker\", \"industry\"])",
-          "refId": "A"
-        }
-      ],
-      "title": "Company Details",
-      "type": "table"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 13
-      },
-      "id": 100,
       "panels": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "#6D1F62",
-                    "value": 10
-                  },
-                  {
-                    "color": "#584477",
-                    "value": 20
-                  },
-                  {
-                    "color": "#0A437C",
-                    "value": 30
-                  },
-                  {
-                    "color": "#890F02",
-                    "value": 40
-                  },
-                  {
-                    "color": "#C15C17",
-                    "value": 50
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 100
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 200
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 300
-                  },
-                  {
-                    "color": "#E24D42",
-                    "value": 400
-                  },
-                  {
-                    "color": "#1F78C1",
-                    "value": 500
-                  },
-                  {
-                    "color": "#BA43A9",
-                    "value": 600
-                  },
-                  {
-                    "color": "#705DA0",
-                    "value": 700
-                  },
-                  {
-                    "color": "#508642",
-                    "value": 800
-                  },
-                  {
-                    "color": "#CCA300",
-                    "value": 900
-                  },
-                  {
-                    "color": "#447EBC",
-                    "value": 1000
-                  }
-                ]
-              },
-              "unit": "currencyUSD"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "_value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Price"
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 24,
-            "w": 24,
-            "x": 0,
-            "y": 14
-          },
-          "id": 1,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "Current Price",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "decimals": 2,
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 25
-                  },
-                  {
-                    "color": "red",
-                    "value": 40
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 50
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 60
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 70
-                  },
-                  {
-                    "color": "#E24D42",
-                    "value": 80
-                  },
-                  {
-                    "color": "dark-red",
-                    "value": 90
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 26,
-            "w": 24,
-            "x": 0,
-            "y": 103
-          },
-          "id": 3,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"pe_ratio\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "P/E Ratio",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 50
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 100
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 150
-                  },
-                  {
-                    "color": "#E24D42",
-                    "value": 200
-                  },
-                  {
-                    "color": "#1F78C1",
-                    "value": 300
-                  },
-                  {
-                    "color": "#BA43A9",
-                    "value": 400
-                  },
-                  {
-                    "color": "#705DA0",
-                    "value": 500
-                  },
-                  {
-                    "color": "#508642",
-                    "value": 600
-                  },
-                  {
-                    "color": "#CCA300",
-                    "value": 700
-                  }
-                ]
-              },
-              "unit": "currencyUSD"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 21,
-            "w": 24,
-            "x": 0,
-            "y": 129
-          },
-          "id": 5,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "52-Week High",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "orange",
-                    "value": 0
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 100
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 150
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 200
-                  },
-                  {
-                    "color": "#E24D42",
-                    "value": 250
-                  },
-                  {
-                    "color": "#1F78C1",
-                    "value": 300
-                  },
-                  {
-                    "color": "#BA43A9",
-                    "value": 350
-                  },
-                  {
-                    "color": "#705DA0",
-                    "value": 400
-                  },
-                  {
-                    "color": "#508642",
-                    "value": 450
-                  },
-                  {
-                    "color": "#CCA300",
-                    "value": 500
-                  },
-                  {
-                    "color": "#447EBC",
-                    "value": 600
-                  },
-                  {
-                    "color": "#C15C17",
-                    "value": 700
-                  },
-                  {
-                    "color": "#890F02",
-                    "value": 800
-                  },
-                  {
-                    "color": "#0A437C",
-                    "value": 900
-                  }
-                ]
-              },
-              "unit": "currencyUSD"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 27,
-            "w": 24,
-            "x": 0,
-            "y": 150
-          },
-          "id": 6,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "52-Week Low",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        }
-      ],
-      "title": "Overview",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 107,
-      "panels": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "blue",
-                    "value": 0
-                  },
-                  {
-                    "color": "semi-dark-orange",
-                    "value": 100000000
-                  },
-                  {
-                    "color": "semi-dark-purple",
-                    "value": 2000000000
-                  },
-                  {
-                    "color": "#705DA0",
-                    "value": 10000000000
-                  },
-                  {
-                    "color": "dark-yellow",
-                    "value": 100000000000
-                  },
-                  {
-                    "color": "orange",
-                    "value": 1000000000000
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 2000000000000
-                  },
-                  {
-                    "color": "#1F78C1",
-                    "value": 3000000000000
-                  },
-                  {
-                    "color": "green",
-                    "value": 4000000000000
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 5000000000000
-                  }
-                ]
-              },
-              "unit": "currencyUSD"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 21,
-            "w": 24,
-            "x": 0,
-            "y": 178
-          },
-          "id": 2,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"market_cap\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "Market Cap",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "dark-red",
-                    "value": 1
-                  },
-                  {
-                    "color": "semi-dark-red",
-                    "value": 2
-                  },
-                  {
-                    "color": "red",
-                    "value": 3
-                  },
-                  {
-                    "color": "semi-dark-purple",
-                    "value": 4
-                  },
-                  {
-                    "color": "dark-orange",
-                    "value": 5
-                  },
-                  {
-                    "color": "dark-yellow",
-                    "value": 6
-                  },
-                  {
-                    "color": "#705DA0",
-                    "value": 7
-                  },
-                  {
-                    "color": "semi-dark-green",
-                    "value": 8
-                  },
-                  {
-                    "color": "green",
-                    "value": 9
-                  }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "ticker"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Ticker"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "_value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Score"
-                  },
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 23,
-            "w": 24,
-            "x": 0,
-            "y": 199
-          },
-          "id": 7,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"piotroski_score\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "Piotroski Score",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "decimals": 2,
-              "mappings": [],
-              "max": 100,
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "purple",
-                    "value": 0
-                  },
-                  {
-                    "color": "super-light-blue",
-                    "value": 5
-                  },
-                  {
-                    "color": "light-blue",
-                    "value": 10
-                  },
-                  {
-                    "color": "blue",
-                    "value": 15
-                  },
-                  {
-                    "color": "super-light-yellow",
-                    "value": 20
-                  },
-                  {
-                    "color": "light-yellow",
-                    "value": 25
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 30
-                  },
-                  {
-                    "color": "semi-dark-yellow",
-                    "value": 35
-                  },
-                  {
-                    "color": "dark-yellow",
-                    "value": 40
-                  },
-                  {
-                    "color": "super-light-orange",
-                    "value": 45
-                  },
-                  {
-                    "color": "light-orange",
-                    "value": 50
-                  },
-                  {
-                    "color": "orange",
-                    "value": 55
-                  },
-                  {
-                    "color": "semi-dark-orange",
-                    "value": 60
-                  },
-                  {
-                    "color": "dark-orange",
-                    "value": 65
-                  },
-                  {
-                    "color": "super-light-red",
-                    "value": 70
-                  },
-                  {
-                    "color": "light-red",
-                    "value": 75
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  },
-                  {
-                    "color": "semi-dark-red",
-                    "value": 85
-                  },
-                  {
-                    "color": "dark-red",
-                    "value": 90
-                  }
-                ]
-              },
-              "unit": "percent"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 22,
-            "w": 10,
-            "x": 0,
-            "y": 222
-          },
-          "id": 4,
-          "options": {
-            "barRadius": 0,
-            "barWidth": 0.97,
-            "fullHighlight": false,
-            "groupWidth": 0.7,
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "orientation": "horizontal",
-            "showValue": "auto",
-            "stacking": "none",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            },
-            "xTickLabelRotation": 0,
-            "xTickLabelSpacing": 0
-          },
-          "pluginVersion": "12.4.2",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
-              },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iv\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
-              "refId": "A"
-            }
-          ],
-          "title": "Implied Volatility",
-          "transformations": [
-            {
-              "id": "sortBy",
-              "options": {
-                "fields": {},
-                "sort": [
-                  {
-                    "desc": true,
-                    "field": "_value"
-                  }
-                ]
-              }
-            }
-          ],
-          "type": "barchart"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
-          },
+          "description": "Business summary, industry classification, and last-updated timestamp for each tracked stock.",
           "fieldConfig": {
             "defaults": {
               "custom": {
@@ -1292,6 +68,34 @@
               {
                 "matcher": {
                   "id": "byName",
+                  "options": "_value"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Company Info"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 900
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "_time"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Last Updated"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
                   "options": "ticker"
                 },
                 "properties": [
@@ -1304,81 +108,1415 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "_value"
+                  "options": "industry"
                 },
                 "properties": [
                   {
                     "id": "displayName",
-                    "value": "Signal"
-                  },
-                  {
-                    "id": "mappings",
-                    "value": [
-                      {
-                        "options": {
-                          "Buy": {
-                            "color": "green",
-                            "text": "Buy"
-                          },
-                          "Hold": {
-                            "color": "yellow",
-                            "text": "Hold"
-                          },
-                          "Sell": {
-                            "color": "red",
-                            "text": "Sell"
-                          }
-                        },
-                        "type": "value"
-                      }
-                    ]
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-background"
-                    }
+                    "value": "Industry"
                   }
                 ]
               }
             ]
           },
           "gridPos": {
-            "h": 22,
-            "w": 14,
-            "x": 10,
-            "y": 222
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 1
           },
-          "id": 9,
+          "id": 15,
           "options": {
-            "cellHeight": "sm",
+            "cellHeight": "auto",
+            "frameIndex": 8,
             "showHeader": true,
             "sortBy": [
               {
                 "desc": false,
-                "displayName": "Signal"
+                "displayName": "Ticker"
               }
             ]
           },
-          "pluginVersion": "12.4.2",
+          "pluginVersion": "12.4.3",
           "targets": [
             {
               "datasource": {
                 "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
+                "uid": "${datasource}"
               },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r.bollinger_signal, ticker: r.ticker}))\n  |> group()",
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"company_info\")\n  |> filter(fn: (r) => exists r[\"industry\"] and r[\"industry\"] != \"\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> group()\n  |> unique(column: \"ticker\")\n  |> keep(columns: [\"_time\", \"_value\", \"ticker\", \"industry\"])",
               "refId": "A"
             }
           ],
-          "title": "Bollinger Signal",
+          "title": "Company Details",
           "type": "table"
+        }
+      ],
+      "title": "Company Info",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Latest trade price from [yfinance](https://pypi.org/project/yfinance/). Updated each export cycle.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#6D1F62",
+                "value": 10
+              },
+              {
+                "color": "#584477",
+                "value": 20
+              },
+              {
+                "color": "#0A437C",
+                "value": 30
+              },
+              {
+                "color": "#890F02",
+                "value": 40
+              },
+              {
+                "color": "#C15C17",
+                "value": 50
+              },
+              {
+                "color": "#EAB839",
+                "value": 100
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 200
+              },
+              {
+                "color": "#EF843C",
+                "value": 300
+              },
+              {
+                "color": "#E24D42",
+                "value": 400
+              },
+              {
+                "color": "#1F78C1",
+                "value": 500
+              },
+              {
+                "color": "#BA43A9",
+                "value": 600
+              },
+              {
+                "color": "#705DA0",
+                "value": 700
+              },
+              {
+                "color": "#508642",
+                "value": 800
+              },
+              {
+                "color": "#CCA300",
+                "value": 900
+              },
+              {
+                "color": "#447EBC",
+                "value": 1000
+              }
+            ]
+          },
+          "unit": "currencyUSD"
         },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Price"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 2
+      },
+      "id": 1,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Current Price",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Price-to-Earnings ratio](https://www.investopedia.com/terms/p/price-earningsratio.asp) (trailing 12 months). Lower values may indicate undervaluation relative to earnings; high values suggest growth expectations or overvaluation. Negative = unprofitable.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 25
+              },
+              {
+                "color": "red",
+                "value": 40
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 60
+              },
+              {
+                "color": "#EF843C",
+                "value": 70
+              },
+              {
+                "color": "#E24D42",
+                "value": 80
+              },
+              {
+                "color": "dark-red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 26,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "id": 3,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"pe_ratio\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "P/E Ratio",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Highest trade price in the past 52 weeks. Proximity may indicate [resistance](https://www.investopedia.com/terms/r/resistance.asp) or a breakout.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 100
+              },
+              {
+                "color": "#EF843C",
+                "value": 150
+              },
+              {
+                "color": "#E24D42",
+                "value": 200
+              },
+              {
+                "color": "#1F78C1",
+                "value": 300
+              },
+              {
+                "color": "#BA43A9",
+                "value": 400
+              },
+              {
+                "color": "#705DA0",
+                "value": 500
+              },
+              {
+                "color": "#508642",
+                "value": 600
+              },
+              {
+                "color": "#CCA300",
+                "value": 700
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 5,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "52-Week High",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Lowest trade price in the past 52 weeks. Proximity may indicate [support](https://www.investopedia.com/terms/s/support.asp) or further downside.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 100
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 150
+              },
+              {
+                "color": "#EF843C",
+                "value": 200
+              },
+              {
+                "color": "#E24D42",
+                "value": 250
+              },
+              {
+                "color": "#1F78C1",
+                "value": 300
+              },
+              {
+                "color": "#BA43A9",
+                "value": 350
+              },
+              {
+                "color": "#705DA0",
+                "value": 400
+              },
+              {
+                "color": "#508642",
+                "value": 450
+              },
+              {
+                "color": "#CCA300",
+                "value": 500
+              },
+              {
+                "color": "#447EBC",
+                "value": 600
+              },
+              {
+                "color": "#C15C17",
+                "value": 700
+              },
+              {
+                "color": "#890F02",
+                "value": 800
+              },
+              {
+                "color": "#0A437C",
+                "value": 900
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 27,
+        "w": 24,
+        "x": 0,
+        "y": 73
+      },
+      "id": 6,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "52-Week Low",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 100
+      },
+      "id": 107,
+      "panels": [],
+      "title": "Market Cap, Scores, Signals",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Market capitalization](https://www.investopedia.com/terms/m/marketcapitalization.asp) = share price × shares outstanding. Micro (<$300M), Small (<$2B), Mid (<$10B), Large (<$200B), Mega (>$200B).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": 0
+              },
+              {
+                "color": "semi-dark-orange",
+                "value": 100000000
+              },
+              {
+                "color": "semi-dark-purple",
+                "value": 2000000000
+              },
+              {
+                "color": "#705DA0",
+                "value": 10000000000
+              },
+              {
+                "color": "dark-yellow",
+                "value": 100000000000
+              },
+              {
+                "color": "orange",
+                "value": 1000000000000
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 2000000000000
+              },
+              {
+                "color": "#1F78C1",
+                "value": 3000000000000
+              },
+              {
+                "color": "green",
+                "value": 4000000000000
+              },
+              {
+                "color": "#EF843C",
+                "value": 5000000000000
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 24,
+        "x": 0,
+        "y": 101
+      },
+      "id": 2,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"market_cap\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Market Cap",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Piotroski F-Score](https://www.investopedia.com/terms/p/piotroski-score.asp) (0–9). Measures financial strength across profitability, leverage, liquidity, and operating efficiency. ≥7 = strong fundamentals; ≤3 = weakness.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "dark-red",
+                "value": 1
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 3
+              },
+              {
+                "color": "semi-dark-purple",
+                "value": 4
+              },
+              {
+                "color": "dark-orange",
+                "value": 5
+              },
+              {
+                "color": "dark-yellow",
+                "value": 6
+              },
+              {
+                "color": "#705DA0",
+                "value": 7
+              },
+              {
+                "color": "semi-dark-green",
+                "value": 8
+              },
+              {
+                "color": "green",
+                "value": 9
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ticker"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Ticker"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Score"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 23,
+        "w": 24,
+        "x": 0,
+        "y": 122
+      },
+      "id": 7,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"piotroski_score\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Piotroski Score",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Implied volatility](https://www.investopedia.com/terms/i/iv.asp) (IV) from nearest-expiry ATM call option. Higher IV = market expects larger price swings. Useful for [options](https://www.investopedia.com/terms/o/option.asp) pricing and gauging uncertainty.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 2,
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": 0
+              },
+              {
+                "color": "super-light-blue",
+                "value": 5
+              },
+              {
+                "color": "light-blue",
+                "value": 10
+              },
+              {
+                "color": "blue",
+                "value": 15
+              },
+              {
+                "color": "super-light-yellow",
+                "value": 20
+              },
+              {
+                "color": "light-yellow",
+                "value": 25
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "semi-dark-yellow",
+                "value": 35
+              },
+              {
+                "color": "dark-yellow",
+                "value": 40
+              },
+              {
+                "color": "super-light-orange",
+                "value": 45
+              },
+              {
+                "color": "light-orange",
+                "value": 50
+              },
+              {
+                "color": "orange",
+                "value": 55
+              },
+              {
+                "color": "semi-dark-orange",
+                "value": 60
+              },
+              {
+                "color": "dark-orange",
+                "value": 65
+              },
+              {
+                "color": "super-light-red",
+                "value": 70
+              },
+              {
+                "color": "light-red",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 80
+              },
+              {
+                "color": "semi-dark-red",
+                "value": 85
+              },
+              {
+                "color": "dark-red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 10,
+        "x": 0,
+        "y": 145
+      },
+      "id": 4,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iv\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Implied Volatility",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Bollinger Bands](https://www.investopedia.com/terms/b/bollingerbands.asp) signal (Buy / Hold / Sell). Buy = price near lower band (potential [support](https://www.investopedia.com/terms/s/support.asp)); Sell = price near upper band (potential [resistance](https://www.investopedia.com/terms/r/resistance.asp)).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ticker"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Ticker"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Signal"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "Buy": {
+                        "color": "green",
+                        "text": "Buy"
+                      },
+                      "Hold": {
+                        "color": "yellow",
+                        "text": "Hold"
+                      },
+                      "Sell": {
+                        "color": "red",
+                        "text": "Sell"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 22,
+        "w": 14,
+        "x": 10,
+        "y": 145
+      },
+      "id": 9,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Signal"
+          }
+        ]
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r.bollinger_signal, ticker: r.ticker}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Bollinger Signal",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Bid-ask spread](https://www.investopedia.com/terms/b/bid-askspread.asp) as a percentage of the midpoint price. Lower = more liquid; wider spreads indicate lower liquidity or higher volatility. Useful for assessing [market depth](https://www.investopedia.com/terms/m/marketdepth.asp) and trading costs.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 167
+      },
+      "id": 214,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"bid_ask_spread_pct\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Bid/Ask Spread %",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "_value"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "barchart"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 191
+      },
+      "id": 218,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Calendar days until the next [earnings date](https://www.investopedia.com/terms/e/earningsreport.asp) from yfinance. Stocks with imminent reports appear first.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1410,118 +1548,34 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
+                    "color": "red",
                     "value": 0
                   },
                   {
-                    "color": "red",
-                    "value": 1
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 2
-                  },
-                  {
-                    "color": "#6ED0E0",
-                    "value": 3
-                  },
-                  {
-                    "color": "#EF843C",
-                    "value": 4
-                  },
-                  {
-                    "color": "#E24D42",
-                    "value": 5
-                  },
-                  {
-                    "color": "#1F78C1",
-                    "value": 6
-                  },
-                  {
-                    "color": "#BA43A9",
+                    "color": "orange",
                     "value": 7
                   },
                   {
-                    "color": "#705DA0",
-                    "value": 8
+                    "color": "yellow",
+                    "value": 14
                   },
                   {
-                    "color": "#508642",
-                    "value": 9
-                  },
-                  {
-                    "color": "#CCA300",
-                    "value": 10
-                  }
-                ]
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "ticker"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Ticker"
+                    "color": "green",
+                    "value": 30
                   }
                 ]
               },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "_value"
-                },
-                "properties": [
-                  {
-                    "id": "displayName",
-                    "value": "Score"
-                  },
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  },
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "red",
-                          "value": 0
-                        },
-                        {
-                          "color": "orange",
-                          "value": 3
-                        },
-                        {
-                          "color": "yellow",
-                          "value": 5
-                        },
-                        {
-                          "color": "green",
-                          "value": 7
-                        },
-                        {
-                          "color": "dark-green",
-                          "value": 8
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
+              "unit": "none"
+            },
+            "overrides": []
           },
           "gridPos": {
-            "h": 24,
+            "h": 22,
             "w": 24,
             "x": 0,
-            "y": 244
+            "y": 192
           },
-          "id": 8,
+          "id": 215,
           "options": {
             "barRadius": 0,
             "barWidth": 0.97,
@@ -1544,18 +1598,241 @@
             "xTickLabelRotation": 0,
             "xTickLabelSpacing": 0
           },
-          "pluginVersion": "12.4.2",
+          "pluginVersion": "12.4.3",
           "targets": [
             {
               "datasource": {
                 "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
+                "uid": "${datasource}"
               },
-              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"fscore\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"days_until_earnings\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
               "refId": "A"
             }
           ],
-          "title": "F-Score",
+          "title": "Days Until Earnings",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": false,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Consensus [EPS](https://www.investopedia.com/terms/e/eps.asp) estimate for the upcoming quarter from analyst forecasts via yfinance. Positive = profitable expectations; negative = expected loss.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 0.5
+                  }
+                ]
+              },
+              "unit": "currencyUSD"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 24,
+            "x": 0,
+            "y": 214
+          },
+          "id": 216,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"earnings_estimate_avg\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "EPS Estimate (Avg)",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Consensus [revenue](https://www.investopedia.com/terms/r/revenue.asp) estimate for the upcoming quarter from analyst forecasts via yfinance.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1000000000
+                  },
+                  {
+                    "color": "semi-dark-green",
+                    "value": 10000000000
+                  }
+                ]
+              },
+              "unit": "currencyUSD"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 24,
+            "x": 0,
+            "y": 236
+          },
+          "id": 217,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"revenue_estimate_avg\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Revenue Estimate",
           "transformations": [
             {
               "id": "sortBy",
@@ -1573,7 +1850,7 @@
           "type": "barchart"
         }
       ],
-      "title": "Market Cap, Scores, Signals",
+      "title": "Earnings Calendar",
       "type": "row"
     },
     {
@@ -1582,15 +1859,16 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 192
       },
       "id": 102,
       "panels": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
+          "description": "Daily close overlaid with [Simple Moving Averages](https://www.investopedia.com/terms/s/sma.asp) (50, 100, 150, 200-day). Price crossing above/below an MA may signal trend changes. The 200-day MA is a widely-watched long-term trend indicator.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1765,6 +2043,33 @@
                     "value": "200-MA"
                   }
                 ]
+              },
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "AAPL at Close",
+                      "AAPL MA50",
+                      "AAPL MA100",
+                      "AAPL MA150"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1772,7 +2077,7 @@
             "h": 15,
             "w": 24,
             "x": 0,
-            "y": 179
+            "y": 1336
           },
           "id": 11,
           "options": {
@@ -1792,12 +2097,12 @@
               "sort": "none"
             }
           },
-          "pluginVersion": "12.4.2",
+          "pluginVersion": "12.4.3",
           "targets": [
             {
               "datasource": {
                 "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
+                "uid": "${datasource}"
               },
               "query": "import \"strings\"\n\nfrom(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"close\" or r[\"_field\"] == \"ma_50\" or r[\"_field\"] == \"ma_100\" or r[\"_field\"] == \"ma_150\" or r[\"_field\"] == \"ma_200\")\n  |> map(fn: (r) => ({r with _field: if r[\"_field\"] == \"close\" then r[\"ticker\"] + \" at Close\" else r[\"ticker\"] + \" MA\" + strings.substring(v: r[\"_field\"], start: 3, end: strings.strlen(v: r[\"_field\"]))}))\n  |> drop(columns: [\"ticker\"])",
               "refId": "A"
@@ -1816,14 +2121,14 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 193
       },
       "id": 106,
       "panels": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "description": "Uses the Price History Range dropdown instead of the dashboard time picker",
           "fieldConfig": {
@@ -1892,7 +2197,8 @@
                   "options": {
                     "mode": "exclude",
                     "names": [
-                      "AAPL"
+                      "AAPL",
+                      "AMGN"
                     ],
                     "prefix": "All except:",
                     "readOnly": true
@@ -1915,7 +2221,7 @@
             "h": 11,
             "w": 24,
             "x": 0,
-            "y": 845
+            "y": 1337
           },
           "id": 17,
           "options": {
@@ -1938,12 +2244,12 @@
               "sort": "desc"
             }
           },
-          "pluginVersion": "12.4.2",
+          "pluginVersion": "12.4.3",
           "targets": [
             {
               "datasource": {
                 "type": "influxdb",
-                "uid": "cfj4fr3jkyupsa"
+                "uid": "${datasource}"
               },
               "query": "from(bucket: \"${bucket}\")\n  |> range(start: -${price_range})\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"close\")\n  |> map(fn: (r) => ({r with _field: r.ticker}))\n  |> drop(columns: [\"ticker\"])",
               "refId": "A"
@@ -1962,7 +2268,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 194
       },
       "id": 103,
       "panels": [],
@@ -1972,8 +2278,9 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
+        "uid": "${datasource}"
       },
+      "description": "[Relative Strength Index](https://www.investopedia.com/terms/r/rsi.asp) (14-period). Oscillator 0–100. >70 = [overbought](https://www.investopedia.com/terms/o/overbought.asp) (potential pullback); <30 = [oversold](https://www.investopedia.com/terms/o/oversold.asp) (potential bounce). Shaded zones highlight these regions.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2039,13 +2346,38 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "SOLV RSI"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 195
       },
       "id": 12,
       "options": {
@@ -2065,12 +2397,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.2",
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> map(fn: (r) => ({r with _field: r[\"ticker\"] + \" RSI\"}))\n  |> drop(columns: [\"ticker\"])",
           "refId": "A"
@@ -2082,8 +2414,9 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
+        "uid": "${datasource}"
       },
+      "description": "[Moving Average Convergence Divergence](https://www.investopedia.com/terms/m/macd.asp). MACD crossing above the signal line = bullish; below = bearish. Histogram bars show the gap — growing bars = strengthening momentum.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2191,6 +2524,31 @@
                 }
               }
             ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "AAPL MACD",
+                  "AAPL MACD SIGNAL"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
+              }
+            ]
           }
         ]
       },
@@ -2198,7 +2556,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 208
       },
       "id": 13,
       "options": {
@@ -2216,12 +2574,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.2",
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\" or r[\"_field\"] == \"macd_signal\")\n  |> map(fn: (r) => ({r with _field: if r[\"_field\"] == \"macd_signal\" then r[\"ticker\"] + \" MACD SIGNAL\" else r[\"ticker\"] + \" MACD\"}))\n  |> drop(columns: [\"ticker\"])",
           "refId": "A"
@@ -2229,7 +2587,7 @@
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_histogram\")",
           "refId": "B"
@@ -2241,8 +2599,9 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
+        "uid": "${datasource}"
       },
+      "description": "[Volume Rate of Change](https://www.investopedia.com/terms/v/volumepricetrend.asp) — % change in volume over a lookback period. Spikes may confirm price moves (high conviction) or signal reversals.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2423,38 +2782,13 @@
           },
           "unit": "percent"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "OKLO VROC"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 221
       },
       "id": 14,
       "options": {
@@ -2465,8 +2799,8 @@
           "displayMode": "table",
           "placement": "right",
           "showLegend": true,
-          "sortBy": "Last *",
-          "sortDesc": true
+          "sortBy": "Name",
+          "sortDesc": false
         },
         "tooltip": {
           "hideZeros": false,
@@ -2474,12 +2808,12 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "12.4.2",
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"vroc\")\n  |> map(fn: (r) => ({r with _field: if r[\"_field\"] == \"vroc\" then r[\"ticker\"] + \" VROC\" else r[\"ticker\"] + \" VROC\"}))\n  |> drop(columns: [\"ticker\"])  ",
           "refId": "A"
@@ -2491,7 +2825,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2526,7 +2860,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 234
       },
       "id": 18,
       "options": {
@@ -2547,12 +2881,12 @@
           "titleSize": 10
         }
       },
-      "pluginVersion": "12.4.2",
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "import \"join\"\n\nrsi = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\", \"ticker\"])\n\nindustries = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"company_info\")\n  |> filter(fn: (r) => exists r[\"industry\"] and r[\"industry\"] != \"\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> group()\n  |> keep(columns: [\"ticker\", \"industry\"])\n\njoin.inner(\n  left: rsi,\n  right: industries,\n  on: (l, r) => l.ticker == r.ticker,\n  as: (l, r) => ({_time: l._time, _value: l._value, industry: r.industry})\n)\n  |> group(columns: [\"industry\"])\n  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)",
           "refId": "A"
@@ -2564,7 +2898,7 @@
     {
       "datasource": {
         "type": "influxdb",
-        "uid": "cfj4fr3jkyupsa"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -2594,7 +2928,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 247
       },
       "id": 19,
       "options": {
@@ -2615,12 +2949,12 @@
           "titleSize": 10
         }
       },
-      "pluginVersion": "12.4.2",
+      "pluginVersion": "12.4.3",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
-            "uid": "cfj4fr3jkyupsa"
+            "uid": "${datasource}"
           },
           "query": "import \"join\"\n\niv = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iv\")\n  |> group()\n  |> keep(columns: [\"_time\", \"_value\", \"ticker\"])\n\nindustries = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"company_info\")\n  |> filter(fn: (r) => exists r[\"industry\"] and r[\"industry\"] != \"\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> group()\n  |> keep(columns: [\"ticker\", \"industry\"])\n\njoin.inner(\n  left: iv,\n  right: industries,\n  on: (l, r) => l.ticker == r.ticker,\n  as: (l, r) => ({_time: l._time, _value: l._value, industry: r.industry})\n)\n  |> group(columns: [\"industry\"])\n  |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)",
           "refId": "A"
@@ -2628,6 +2962,1707 @@
       ],
       "title": "Average Implied Volatility by Industry",
       "type": "gauge"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 260
+      },
+      "id": 200,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Distribution of analyst ratings (Strong Buy → Strong Sell) from [EODHD](https://eodhd.com/). Stacked bars show the sentiment balance per ticker.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Strong Buy"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "dark-green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Buy"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "green",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Hold"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "yellow",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Sell"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "orange",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Strong Sell"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "red",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 103,
+            "w": 24,
+            "x": 0,
+            "y": 2336
+          },
+          "id": 201,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "normal",
+            "tooltip": {
+              "hideZeros": true,
+              "mode": "multi",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "strong_buy = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_strong_buy\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r._value, ticker: r.ticker, _field: \"Strong Buy\"}))\n  |> group()\n\nbuy = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_buy\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r._value, ticker: r.ticker, _field: \"Buy\"}))\n  |> group()\n\nhold = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_hold\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r._value, ticker: r.ticker, _field: \"Hold\"}))\n  |> group()\n\nsell = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_sell\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r._value, ticker: r.ticker, _field: \"Sell\"}))\n  |> group()\n\nstrong_sell = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_strong_sell\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({_value: r._value, ticker: r.ticker, _field: \"Strong Sell\"}))\n  |> group()\n\nunion(tables: [strong_buy, buy, hold, sell, strong_sell])",
+              "refId": "A"
+            }
+          ],
+          "title": "Analyst Consensus",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[EPS](https://www.investopedia.com/terms/e/eps.asp) actual vs analyst consensus estimate. Points above the estimate line = positive surprise (beat); below = miss.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "points",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 0,
+                "pointSize": 8,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "always",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*Actual.*"
+                },
+                "properties": [
+                  {
+                    "id": "custom.drawStyle",
+                    "value": "points"
+                  },
+                  {
+                    "id": "custom.pointSize",
+                    "value": 10
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": ".*Estimate.*"
+                },
+                "properties": [
+                  {
+                    "id": "custom.drawStyle",
+                    "value": "line"
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 2
+                  },
+                  {
+                    "id": "custom.lineStyle",
+                    "value": {
+                      "dash": [
+                        10,
+                        10
+                      ],
+                      "fill": "dash"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 24,
+            "x": 0,
+            "y": 2439
+          },
+          "id": 202,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Last *",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_earnings\")\n  |> filter(fn: (r) => r[\"_field\"] == \"epsActual\" or r[\"_field\"] == \"epsEstimate\")\n  |> map(fn: (r) => ({r with _field: if r[\"_field\"] == \"epsActual\" then r[\"ticker\"] + \" Actual\" else r[\"ticker\"] + \" Estimate\"}))\n  |> drop(columns: [\"ticker\"])",
+              "refId": "A"
+            }
+          ],
+          "title": "Earnings Surprise — EPS Actual vs Estimate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[Short ratio](https://www.investopedia.com/terms/s/shortinterestratio.asp) (days to cover) = short interest ÷ avg daily volume. Higher = more days for shorts to unwind, increasing [short squeeze](https://www.investopedia.com/terms/s/shortsqueeze.asp) potential.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 5
+                  },
+                  {
+                    "color": "orange",
+                    "value": 10
+                  },
+                  {
+                    "color": "red",
+                    "value": 20
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 20,
+            "w": 12,
+            "x": 0,
+            "y": 2453
+          },
+          "id": 203,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"short_ratio\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Short Ratio",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "% of [float](https://www.investopedia.com/terms/f/float.asp) sold short. >10% = elevated; >20% = very high — bearish sentiment or squeeze risk.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 5
+                  },
+                  {
+                    "color": "orange",
+                    "value": 15
+                  },
+                  {
+                    "color": "red",
+                    "value": 25
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 20,
+            "w": 12,
+            "x": 12,
+            "y": 2453
+          },
+          "id": 204,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"short_percent_float\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Short % of Float",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[Net profit margin](https://www.investopedia.com/terms/n/net_margin.asp) = net income ÷ revenue. Higher is better; negative = losing money.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 10
+                  },
+                  {
+                    "color": "green",
+                    "value": 20
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 40
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 0,
+            "y": 2473
+          },
+          "id": 205,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"profit_margin\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Profit Margin",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[ROE](https://www.investopedia.com/terms/r/returnonequity.asp) = net income ÷ shareholders' equity. Measures how efficiently profits are generated from equity. Above 15–20% is generally strong.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 10
+                  },
+                  {
+                    "color": "green",
+                    "value": 20
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 40
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 12,
+            "y": 2473
+          },
+          "id": 206,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"return_on_equity\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Return on Equity (ROE)",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Year-over-year growth in quarterly [earnings](https://www.investopedia.com/terms/e/earnings.asp). Positive = growing profits; negative = shrinking.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": -10
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 10
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 25
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 0,
+            "y": 2495
+          },
+          "id": 207,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"quarterly_earnings_growth\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Quarterly Earnings Growth (YoY)",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Year-over-year growth in quarterly [revenue](https://www.investopedia.com/terms/r/revenue.asp). Positive = top-line growth. Compare with earnings growth to assess margin trends.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": -10
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 10
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 25
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 12,
+            "x": 12,
+            "y": 2495
+          },
+          "id": 208,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"quarterly_revenue_growth\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Quarterly Revenue Growth (YoY)",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[Dividend yield](https://www.investopedia.com/terms/d/dividendyield.asp) = annual dividend ÷ share price. >4–5% may indicate value or distress; compare within sector.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "decimals": 4,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "light-blue",
+                    "value": 0
+                  },
+                  {
+                    "color": "blue",
+                    "value": 0.01
+                  },
+                  {
+                    "color": "green",
+                    "value": 0.02
+                  },
+                  {
+                    "color": "dark-green",
+                    "value": 0.04
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 24,
+            "x": 0,
+            "y": 2517
+          },
+          "id": 209,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"dividend_yield\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Dividend Yield",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Key [valuation ratios](https://www.investopedia.com/terms/v/valuationratio.asp): Trailing P/E, Forward P/E, [P/B](https://www.investopedia.com/terms/p/price-to-bookratio.asp), [P/S](https://www.investopedia.com/terms/p/price-to-salesratio.asp), [PEG](https://www.investopedia.com/terms/p/pegratio.asp), [EV/EBITDA](https://www.investopedia.com/terms/e/ev-ebitda.asp). Lower multiples vs peers may suggest undervaluation.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "footer": {
+                  "reducers": []
+                },
+                "inspect": false
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ticker"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Ticker"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "trailing_pe"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Trailing P/E"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "forward_pe"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Forward P/E"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "price_book"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "P/B"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "price_sales"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "P/S"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "peg_ratio"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "PEG"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ev_ebitda"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "EV/EBITDA"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 18,
+            "w": 24,
+            "x": 0,
+            "y": 2539
+          },
+          "id": 210,
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Ticker"
+              }
+            ]
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "import \"join\"\n\ntrailing = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"trailing_pe\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"trailing_pe\"})\n  |> group()\n\nforward = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"forward_pe\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"forward_pe\"})\n  |> group()\n\npb = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"price_book\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"price_book\"})\n  |> group()\n\nps = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"price_sales\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"price_sales\"})\n  |> group()\n\npeg = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"peg_ratio\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"peg_ratio\"})\n  |> group()\n\neve = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"enterprise_value_ebitda\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"ev_ebitda\"})\n  |> group()\n\nj1 = join.inner(left: trailing, right: forward, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, trailing_pe: l.trailing_pe, forward_pe: r.forward_pe}))\nj2 = join.inner(left: j1, right: pb, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, trailing_pe: l.trailing_pe, forward_pe: l.forward_pe, price_book: r.price_book}))\nj3 = join.inner(left: j2, right: ps, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, trailing_pe: l.trailing_pe, forward_pe: l.forward_pe, price_book: l.price_book, price_sales: r.price_sales}))\nj4 = join.inner(left: j3, right: peg, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, trailing_pe: l.trailing_pe, forward_pe: l.forward_pe, price_book: l.price_book, price_sales: l.price_sales, peg_ratio: r.peg_ratio}))\njoin.inner(left: j4, right: eve, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, trailing_pe: l.trailing_pe, forward_pe: l.forward_pe, price_book: l.price_book, price_sales: l.price_sales, peg_ratio: l.peg_ratio, ev_ebitda: r.ev_ebitda}))",
+              "refId": "A"
+            }
+          ],
+          "title": "Valuation Multiples",
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Quarterly [revenue](https://www.investopedia.com/terms/r/revenue.asp) and [EBITDA](https://www.investopedia.com/terms/e/ebitda.asp) from financial statements. Shows top-line and operational profitability trends.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "currencyUSD"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 24,
+            "x": 0,
+            "y": 2557
+          },
+          "id": 211,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "sortBy": "Name",
+              "sortDesc": false
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_financials\")\n  |> filter(fn: (r) => r[\"period\"] == \"quarterly\")\n  |> filter(fn: (r) => r[\"statement\"] == \"income_statement\")\n  |> filter(fn: (r) => r[\"_field\"] == \"totalRevenue\")\n  |> map(fn: (r) => ({r with _field: r[\"ticker\"] + \" Revenue\"}))\n  |> drop(columns: [\"ticker\"])",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_financials\")\n  |> filter(fn: (r) => r[\"period\"] == \"quarterly\")\n  |> filter(fn: (r) => r[\"statement\"] == \"income_statement\")\n  |> filter(fn: (r) => r[\"_field\"] == \"ebitda\")\n  |> map(fn: (r) => ({r with _field: r[\"ticker\"] + \" EBITDA\"}))\n  |> drop(columns: [\"ticker\"])",
+              "refId": "B"
+            }
+          ],
+          "title": "Quarterly Revenue & EBITDA",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "[Beta](https://www.investopedia.com/terms/b/beta.asp) — volatility relative to the market (S&P 500). 1.0 = moves with market; >1.0 = more volatile; <1.0 = less volatile; negative = inverse.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "dashed+area"
+                }
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "blue",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 0.8
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1.2
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1.5
+                  },
+                  {
+                    "color": "red",
+                    "value": 2
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 22,
+            "w": 24,
+            "x": 0,
+            "y": 2571
+          },
+          "id": 212,
+          "options": {
+            "barRadius": 0,
+            "barWidth": 0.97,
+            "fullHighlight": false,
+            "groupWidth": 0.7,
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "orientation": "horizontal",
+            "showValue": "auto",
+            "stacking": "none",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            },
+            "xTickLabelRotation": 0,
+            "xTickLabelSpacing": 0
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"beta\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+              "refId": "A"
+            }
+          ],
+          "title": "Beta",
+          "transformations": [
+            {
+              "id": "sortBy",
+              "options": {
+                "fields": {},
+                "sort": [
+                  {
+                    "desc": true,
+                    "field": "_value"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "barchart"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "description": "Current price vs consensus [analyst target](https://www.investopedia.com/terms/p/pricetarget.asp). Upside % = (target − current) ÷ current. Positive = analysts expect appreciation.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "footer": {
+                  "reducers": []
+                },
+                "inspect": false
+              },
+              "decimals": 2,
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ticker"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Ticker"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "current_price"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Current Price"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "target_price"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Analyst Target"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "upside_pct"
+                },
+                "properties": [
+                  {
+                    "id": "displayName",
+                    "value": "Upside %"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "red",
+                          "value": 0
+                        },
+                        {
+                          "color": "orange",
+                          "value": -10
+                        },
+                        {
+                          "color": "yellow",
+                          "value": 0
+                        },
+                        {
+                          "color": "green",
+                          "value": 10
+                        },
+                        {
+                          "color": "dark-green",
+                          "value": 25
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 18,
+            "w": 24,
+            "x": 0,
+            "y": 2593
+          },
+          "id": 213,
+          "options": {
+            "cellHeight": "sm",
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": true,
+                "displayName": "Upside %"
+              }
+            ]
+          },
+          "pluginVersion": "12.4.3",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "${datasource}"
+              },
+              "query": "import \"join\"\n\nprice = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\ntarget = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_target_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"target_price\"})\n  |> group()\n\njoin.inner(\n  left: price,\n  right: target,\n  on: (l, r) => l.ticker == r.ticker,\n  as: (l, r) => ({\n    ticker: l.ticker,\n    current_price: l.current_price,\n    target_price: r.target_price,\n    upside_pct: (r.target_price - l.current_price) / l.current_price * 100.0\n  })\n)",
+              "refId": "A"
+            }
+          ],
+          "title": "Analyst Target vs Current Price",
+          "type": "table"
+        }
+      ],
+      "title": "EODHD Fundamentals",
+      "type": "row"
     }
   ],
   "preload": false,
@@ -2636,6 +4671,20 @@
   "tags": [],
   "templating": {
     "list": [
+      {
+        "current": {
+          "text": "InfluxDB",
+          "value": "P951FEA4DE68E13C5"
+        },
+        "includeAll": false,
+        "label": "Data Source",
+        "name": "datasource",
+        "options": [],
+        "query": "influxdb",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
       {
         "current": {
           "text": "stocks",
@@ -2655,8 +4704,8 @@
       },
       {
         "current": {
-          "text": "1y",
-          "value": "1y"
+          "text": "6mo",
+          "value": "6mo"
         },
         "label": "Price History Range",
         "name": "price_range",
@@ -2668,13 +4717,13 @@
     ]
   },
   "time": {
-    "from": "now-1y",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Stock Analysis Dashboard - ALL",
   "uid": "ad8qcmj",
-  "version": 34,
+  "version": 7,
   "weekStart": ""
 }
