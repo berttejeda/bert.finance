@@ -125,6 +125,19 @@ python exporter.py --debug
 python exporter.py --retries 5 --retry-delay 10 --timeout 60
 ```
 
+### Stop at market close
+
+```bash
+python exporter.py --loop --run-until-market-close
+```
+
+### Stop at a specific time
+
+```bash
+python exporter.py --loop --run-until-time "4:00 PM"
+python exporter.py --loop --run-until-time "16:00"
+```
+
 ### CLI Reference
 
 | Flag | Short | Description |
@@ -137,6 +150,8 @@ python exporter.py --retries 5 --retry-delay 10 --timeout 60
 | `--retry-delay` | | Base delay in seconds between retries (overrides config) |
 | `--timeout` | | InfluxDB write timeout in seconds (overrides config) |
 | `--debug` | `-d` | Enable debug logging (line protocol, etc.) |
+| `--run-until-market-close` | | Stop the loop at US market close (4:00 PM Eastern) |
+| `--run-until-time` | | Stop the loop at a given local time (e.g. `4:00 PM`, `16:00`) |
 
 ## Architecture
 

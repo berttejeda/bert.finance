@@ -4,6 +4,8 @@ import argparse
 import logging
 import sys
 import time
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -97,6 +99,39 @@ def run_plugins(config, only=None):
         logger.error(f"Plugin '{only}' not found or not enabled")
 
 
+MARKET_CLOSE_HOUR = 16  # 4:00 PM
+MARKET_TZ = ZoneInfo("America/New_York")
+
+
+def _resolve_stop_time(args):
+    """Return a timezone-aware datetime deadline, or None."""
+    if args.run_until_market_close:
+        now_et = datetime.now(MARKET_TZ)
+        close = now_et.replace(hour=MARKET_CLOSE_HOUR, minute=0, second=0, microsecond=0)
+        if close <= now_et:
+            close += timedelta(days=1)
+        return close
+
+    if args.run_until_time:
+        raw = args.run_until_time.strip()
+        for fmt in ("%I:%M %p", "%I:%M%p", "%H:%M"):
+            try:
+                parsed = datetime.strptime(raw, fmt)
+                break
+            except ValueError:
+                continue
+        else:
+            logger.error(f"Cannot parse --run-until-time '{raw}'. Use e.g. '4:00 PM' or '16:00'")
+            sys.exit(1)
+        now_local = datetime.now().astimezone()
+        target = now_local.replace(hour=parsed.hour, minute=parsed.minute, second=0, microsecond=0)
+        if target <= now_local:
+            target += timedelta(days=1)
+        return target
+
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser(description="Stock data exporter to InfluxDB")
     parser.add_argument(
@@ -144,6 +179,17 @@ def main():
         action="store_true",
         help="Enable debug logging (shows InfluxDB line protocol, etc.)",
     )
+    parser.add_argument(
+        "--run-until-market-close",
+        action="store_true",
+        help="Stop the loop at US market close (4:00 PM Eastern)",
+    )
+    parser.add_argument(
+        "--run-until-time",
+        type=str,
+        default=None,
+        help="Stop the loop after this local time today (e.g. '4:00 PM', '16:00')",
+    )
     args = parser.parse_args()
 
     if args.debug:
@@ -164,6 +210,11 @@ def main():
         settings["timeout"] = args.timeout
     config["settings"] = settings
 
+    # Determine stop deadline (if any)
+    stop_time = _resolve_stop_time(args)
+    if stop_time:
+        logger.info(f"Will stop after {stop_time.strftime('%Y-%m-%d %I:%M %p %Z')}")
+
     if args.plugin:
         # Plugin-only mode: skip core export, run just the named plugin
         logger.info(f"Running plugin-only mode: {args.plugin}")
@@ -171,10 +222,16 @@ def main():
     elif args.loop:
         logger.info(f"Running in loop mode, interval={interval}m")
         while True:
+            if stop_time and datetime.now(stop_time.tzinfo) >= stop_time:
+                logger.info("Reached stop time, exiting loop")
+                break
             try:
                 run_once(config)
             except Exception as e:
                 logger.error(f"Run failed: {e}", exc_info=True)
+            if stop_time and datetime.now(stop_time.tzinfo) >= stop_time:
+                logger.info("Reached stop time, exiting loop")
+                break
             logger.info(f"Sleeping {interval} minutes")
             time.sleep(interval * 60)
     else:
