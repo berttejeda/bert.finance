@@ -6,14 +6,18 @@ influxdb:
 
 tickers:
   - AAPL
+  - AMAT
   - AMD
   - AMGN
   - AMZN
+  - APH
   - ASML
   - AVGO
   - AXP
   - CAT
+  - CEG
   - CMG
+  - COHR
   - COIN
   - COST
   - CSCO
@@ -22,18 +26,24 @@ tickers:
   - DG
   - DIS
   - DOCN
+  - DRAM
   - ECL
+  - ETN
   - ETSY
   - GME
   - GOOGL
   - HD
   - HIMS
+  - IONQ
   - LLY
   - LMT
   - MCD
   - MELI
   - META
+  - MPWR
+  - MRVL
   - MSFT
+  - NBIS
   - NET
   - NFLX
   - NOW
@@ -53,10 +63,12 @@ tickers:
   - SBUX
   - SCHD
   - SHOP
-  - SOLV
   - SNY
   - SOFI
+  - SOLV
   - SYK
+  - SYM
+  - TER
   - TMUS
   - TSLA
   - TSM
@@ -65,6 +77,7 @@ tickers:
   - ULTA
   - V
   - VOO
+  - VRT
   - VUG
   - WMT
   - XLV
