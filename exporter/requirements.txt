@@ -1,5 +1,6 @@
 btconfig>=4.6.0
 influxdb-client>=1.38.0
+lxml>=6.1.0
 pandas>=2.2.3
 python-dotenv>=1.0.0
 pyyaml>=6.0.1

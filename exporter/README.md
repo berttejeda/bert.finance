@@ -28,6 +28,7 @@ Extensible via a **plugin system** for additional data sources (e.g. EODHD funda
 | Earnings Estimate (Avg/Low/High) | `yf.Ticker.calendar` → consensus EPS estimates |
 | Revenue Estimate (Avg) | `yf.Ticker.calendar` → consensus revenue estimate |
 | Next Earnings Date | `yf.Ticker.calendar` → ISO 8601 date string(s) |
+| Earnings Price Changes | Computed from `yf.Ticker.earnings_dates` + daily close history: price 1 day before, 1 day after each report, and percentage change |
 
 ## Prerequisites
 
@@ -157,12 +158,13 @@ python exporter.py --loop --run-until-time "16:00"
 
 ### Write Pipeline (`lib/writer.py`)
 
-The `InfluxWriter` class handles all writes to InfluxDB. Each call to `write_batch()` performs four steps in order:
+The `InfluxWriter` class handles all writes to InfluxDB. Each call to `write_batch()` performs five steps in order:
 
 1. **`write_ticker_data(data)`** — Writes a snapshot point to `stock_data` for each ticker with the current UTC ingestion timestamp.
 2. **`write_price_history(ticker, df)`** — Writes daily historical close prices and computed indicator series to `price_history` using the trading-day date from the yfinance DataFrame index.
 3. **`write_intraday(ticker, df)`** — Writes 1-minute OHLCV bars to `price_intraday` using timestamps from the yfinance intraday download.
 4. **`write_live_price(data)`** — Writes today's live price and snapshot indicator values as an additional `price_history` point so time-series panels extend to the current day.
+5. **`write_earnings_price_changes(ticker, changes)`** — Writes earnings-related price change records to `earnings_price_change` with the report date as the timestamp. Data is computed by `_get_earnings_price_changes()` which cross-references `yf.Ticker.earnings_dates` with the daily close history.
 
 All writes use `_write_with_retry()`, which retries on timeout/connection errors with exponential backoff (base delay doubles each attempt).
 
@@ -227,6 +229,12 @@ class Plugin(PluginBase):
 - **Fields**: `open`, `high`, `low`, `close`, `volume`
 - **Timestamp**: Original minute-level timestamp from yfinance (second precision, timezone-aware)
 
+#### `earnings_price_change` (per earnings report)
+
+- **Tags**: `ticker`
+- **Fields**: `price_before`, `price_after`, `pct_change`
+- **Timestamp**: Earnings report date at noon UTC (second precision)
+
 ### Plugin Measurements (EODHD)
 
 #### `eodhd_fundamentals` (snapshot per run)
@@ -253,12 +261,13 @@ All `price_history` timestamps are set to **noon UTC (12:00:00Z)** of the tradin
 
 ## Grafana Dashboard
 
-Two dashboards are provided:
+Three dashboards are provided:
 
 - **`grafana/dashboard.json`** — Single-ticker dashboard with stat panels, time-series charts, and technical indicators for one selected stock.
 - **`grafana/dashboard-all.json`** — All-tickers dashboard with bar charts and grouped rows comparing every tracked stock side-by-side.
+- **`grafana/changes.json`** — Working copy of the single-ticker dashboard with the latest panel additions and manual customizations.
 
-A working copy with the latest manual customizations is kept in `grafana/dashboard-modified.json`.
+An older snapshot is kept in `grafana/dashboard-modified.json`.
 
 ### Duplicate Series Prevention
 
@@ -322,6 +331,32 @@ from(bucket: "${bucket}")
 ```
 
 In `dashboard.json` these are **stat** panels; in `dashboard-all.json` they appear inside a collapsed **Earnings Calendar** row as **bar chart** panels.
+
+**IV vs Price** panel queries `stock_data` for both `current_price` and `iv` fields:
+
+```flux
+from(bucket: "${bucket}")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "stock_data")
+  |> filter(fn: (r) => r["ticker"] =~ /^${ticker:regex}$/)
+  |> filter(fn: (r) => r["_field"] == "current_price" or r["_field"] == "iv")
+```
+
+In `dashboard.json` / `changes.json` this is a **dual-axis timeseries** (price on left, IV % on right). In `dashboard-all.json` it is a **table** that pivots the latest values per ticker, sorted by IV descending.
+
+**Earnings-Related Price Changes** panel queries `earnings_price_change`:
+
+```flux
+from(bucket: "${bucket}")
+  |> range(start: -5y)
+  |> filter(fn: (r) => r["_measurement"] == "earnings_price_change")
+  |> filter(fn: (r) => r["ticker"] =~ /^${ticker:regex}$/)
+  |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+  |> keep(columns: ["_time", "price_before", "price_after", "pct_change"])
+  |> sort(columns: ["_time"], desc: true)
+```
+
+In `dashboard.json` this is a **table** matching the earnings report view (Report Date, Price 1 Day Before, Price 1 Day After, Percentage Change). In `dashboard-all.json` it is a **horizontal bar chart** showing the most recent earnings pct_change per ticker, sorted by magnitude, with red/green color thresholds.
 
 **Bollinger Signal** reads the tag value from the `current_price` record:
 

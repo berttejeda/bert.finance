@@ -28,7 +28,7 @@ TAG_FIELDS = {"ticker", "industry", "bollinger_signal"}
 STRING_FIELDS = {"company_info", "next_earnings_date", "next_earnings_date_end"}
 
 # Fields to skip (not written to InfluxDB)
-SKIP_FIELDS = {"error"}
+SKIP_FIELDS = {"error", "earnings_price_changes"}
 
 
 class InfluxWriter:
@@ -175,6 +175,45 @@ class InfluxWriter:
         self._write_with_retry(p)
         logger.info(f"Wrote live price_history point for {ticker} (close={price})")
 
+    def write_earnings_price_changes(self, ticker, changes):
+        """Write earnings-related price change records as individual timestamped points.
+
+        Measurement: ``earnings_price_change``
+        Tags: ticker
+        Fields: price_before, price_after, pct_change
+        Timestamp: the earnings report date (noon UTC)
+
+        Args:
+            ticker: Stock symbol string.
+            changes: List of dicts from _get_earnings_price_changes().
+        """
+        if not changes:
+            return
+
+        points = []
+        for entry in changes:
+            report_date = entry.get("report_date")
+            if report_date is None:
+                continue
+            ts = pd.Timestamp(report_date).to_pydatetime().replace(
+                hour=12, minute=0, second=0, microsecond=0, tzinfo=timezone.utc
+            )
+            p = (
+                Point("earnings_price_change")
+                .tag("ticker", ticker)
+                .field("price_before", float(entry["price_before"]))
+                .field("price_after", float(entry["price_after"]))
+                .field("pct_change", float(entry["pct_change"]))
+                .time(ts, WritePrecision.S)
+            )
+            points.append(p)
+
+        if points:
+            for p in points:
+                logger.debug(f"earnings_price_change point: {p.to_line_protocol()}")
+            self._write_with_retry(points)
+            logger.info(f"Wrote {len(points)} earnings_price_change points for {ticker}")
+
     def write_intraday(self, ticker, intraday_df):
         """Write 1-minute OHLCV bars as individual timestamped points.
 
@@ -227,6 +266,11 @@ class InfluxWriter:
                 self.write_intraday(ticker, df)
         for data in data_list:
             self.write_live_price(data)
+        for data in data_list:
+            ticker = data.get("ticker")
+            changes = data.get("earnings_price_changes", [])
+            if ticker and changes:
+                self.write_earnings_price_changes(ticker, changes)
         logger.info(f"Batch write complete: {len(data_list)} tickers")
 
     def close(self):

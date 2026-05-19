@@ -68,6 +68,79 @@ def _get_earnings_calendar(ticker_obj):
     return result
 
 
+def _get_earnings_price_changes(ticker_obj, history_df):
+    """Compute price changes around historical earnings dates.
+
+    For each past earnings date, finds the close price on the last trading
+    day before and the first trading day after, then calculates the
+    percentage change.
+
+    Args:
+        ticker_obj: yfinance Ticker object.
+        history_df: DataFrame with DatetimeIndex and 'Close' column.
+
+    Returns:
+        List of dicts with keys: report_date, price_before, price_after,
+        pct_change.  Empty list on failure.
+    """
+    results = []
+    try:
+        earnings_dates = ticker_obj.earnings_dates
+        if earnings_dates is None or earnings_dates.empty:
+            logger.debug(f"{ticker_obj.ticker}: no earnings_dates available")
+            return results
+
+        if history_df is None or history_df.empty:
+            logger.debug(f"{ticker_obj.ticker}: no history_df for earnings price changes")
+            return results
+
+        # Normalize history index to tz-naive dates for comparison
+        hist = history_df[["Close"]].copy()
+        if hist.index.tz is not None:
+            hist.index = hist.index.tz_convert(None)
+        hist = hist.sort_index()
+        hist = hist.dropna(subset=["Close"])
+
+        logger.debug(
+            f"{ticker_obj.ticker}: earnings_dates has {len(earnings_dates)} entries, "
+            f"history covers {hist.index.min()} to {hist.index.max()}"
+        )
+
+        for dt in earnings_dates.index:
+            # Normalize earnings date to tz-naive midnight
+            ts = pd.Timestamp(dt)
+            if ts.tz is not None:
+                ts = ts.tz_convert(None)
+            report_date = ts.normalize()
+
+            # Find last trading day before the report
+            before_mask = hist.index < report_date
+            if not before_mask.any():
+                continue
+            price_before = float(hist.loc[before_mask, "Close"].iloc[-1])
+
+            # Find first trading day after the report
+            after_mask = hist.index > report_date
+            if not after_mask.any():
+                continue
+            price_after = float(hist.loc[after_mask, "Close"].iloc[0])
+
+            pct_change = round(((price_after - price_before) / price_before) * 100, 2)
+
+            results.append({
+                "report_date": report_date,
+                "price_before": round(price_before, 2),
+                "price_after": round(price_after, 2),
+                "pct_change": pct_change,
+            })
+
+        logger.debug(f"{ticker_obj.ticker}: computed {len(results)} earnings price changes")
+
+    except Exception as e:
+        logger.warning(f"Could not compute earnings price changes for {ticker_obj.ticker}: {e}")
+    return results
+
+
 def _safe_info_get(info, key, default=None):
     """Safely retrieve a value from yfinance info dict."""
     val = info.get(key, default)
@@ -140,6 +213,7 @@ def fetch_ticker_data(ticker, history_df, delay=2):
 
         piotroski = calc_piotroski_score(ticker_obj)
         earnings = _get_earnings_calendar(ticker_obj)
+        earnings_price_changes = _get_earnings_price_changes(ticker_obj, history_df)
 
         bid = _safe_info_get(info, "bid")
         ask = _safe_info_get(info, "ask")
@@ -185,6 +259,7 @@ def fetch_ticker_data(ticker, history_df, delay=2):
             "earnings_estimate_low": earnings.get("earnings_estimate_low"),
             "earnings_estimate_high": earnings.get("earnings_estimate_high"),
             "revenue_estimate_avg": earnings.get("revenue_estimate_avg"),
+            "earnings_price_changes": earnings_price_changes,
         }
         return data
 
