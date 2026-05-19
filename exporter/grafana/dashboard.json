@@ -41,22 +41,22 @@
       "options": {
         "autoAnalyze": false,
         "influxdb": {
-          "bucket": "stocks",
-          "org": "leh",
+          "bucket": "${INFLUXDB_BUCKET}",
+          "org": "${INFLUXDB_ORG}",
           "timeout": 300,
-          "token": "JPoA7g4ATlLDCl5CtnsmUyeE1YK1TO45",
-          "url": "https://influxdb.leh.tejedas.net"
+          "token": "${INFLUXDB_TOKEN}",
+          "url": "${INFLUXDB_HOST}"
         },
         "llm": {
           "apiKey": "",
-          "endpoint": "https://ollama.leh.tejedas.net",
-          "model": "gemma-4-E2B-it-uncensored-Q8_0:latest",
+          "endpoint": "${OLLAMA_ENDPOINT}",
+          "model": "${OLLAMA_MODEL}",
           "provider": "ollama"
         },
         "mode": "ask",
         "prompt": "You are an expert data analyst reviewing Grafana panel data.\n\nGiven the panel configuration and query results below, provide:\n1. A summary of what metrics/data are being displayed\n2. Key trends or patterns in the data\n3. Any anomalies or notable observations\n4. Actionable insights or recommendations\n\nBe concise but thorough. Use bullet points for clarity."
       },
-      "pluginVersion": "1.2.4",
+      "pluginVersion": "1.4.0",
       "targets": [
         {
           "datasource": {
@@ -1225,7 +1225,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "orange",
@@ -1249,7 +1249,7 @@
         "h": 5,
         "w": 3,
         "x": 0,
-        "y": 24
+        "y": 29
       },
       "id": 117,
       "options": {
@@ -1315,7 +1315,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "yellow",
@@ -1335,7 +1335,7 @@
         "h": 5,
         "w": 3,
         "x": 3,
-        "y": 24
+        "y": 29
       },
       "id": 118,
       "options": {
@@ -1400,7 +1400,7 @@
             "steps": [
               {
                 "color": "blue",
-                "value": null
+                "value": 0
               },
               {
                 "color": "green",
@@ -1420,7 +1420,7 @@
         "h": 5,
         "w": 3,
         "x": 6,
-        "y": 24
+        "y": 29
       },
       "id": 119,
       "options": {
@@ -1474,7 +1474,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 34
       },
       "id": 106,
       "panels": [],
@@ -1544,7 +1544,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 35
       },
       "id": 111,
       "options": {
@@ -1648,7 +1648,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 45
       },
       "id": 17,
       "options": {
@@ -1689,7 +1689,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 55
       },
       "id": 114,
       "panels": [],
@@ -1883,7 +1883,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 56
       },
       "id": 11,
       "options": {
@@ -1988,7 +1988,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 60
+        "y": 65
       },
       "id": 12,
       "options": {
@@ -2140,7 +2140,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 60
+        "y": 65
       },
       "id": 13,
       "options": {
@@ -2194,7 +2194,7 @@
         "h": 16,
         "w": 12,
         "x": 0,
-        "y": 68
+        "y": 73
       },
       "id": 112,
       "options": {
@@ -2208,8 +2208,8 @@
         },
         "llm": {
           "apiKey": "",
-          "endpoint": "https://ollama.leh.tejedas.net",
-          "model": "gemma-4-E2B-it-uncensored-Q8_0:latest",
+          "endpoint": "${OLLAMA_ENDPOINT}",
+          "model": "${OLLAMA_MODEL}",
           "provider": "ollama"
         },
         "mode": "analyze",
@@ -2243,7 +2243,7 @@
         "h": 16,
         "w": 12,
         "x": 12,
-        "y": 68
+        "y": 73
       },
       "id": 113,
       "options": {
@@ -2257,8 +2257,8 @@
         },
         "llm": {
           "apiKey": "",
-          "endpoint": "https://ollama.leh.tejedas.net",
-          "model": "gemma-4-E2B-it-uncensored-Q8_0:latest",
+          "endpoint": "${OLLAMA_ENDPOINT}",
+          "model": "${OLLAMA_MODEL}",
           "provider": "ollama"
         },
         "mode": "analyze",
@@ -2354,7 +2354,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 84
+        "y": 89
       },
       "id": 14,
       "options": {
@@ -2385,6 +2385,463 @@
       ],
       "title": "VROC",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Implied volatility](https://www.investopedia.com/terms/i/iv.asp) overlaid with current price. Rising IV with falling price may signal fear; rising IV with rising price may indicate speculative momentum.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "current_price"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Price (USD)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "white",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "iv"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "IV %"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 89
+      },
+      "id": 120,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\" or r[\"_field\"] == \"iv\")",
+          "refId": "A"
+        }
+      ],
+      "title": "IV vs Price",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Earnings announcements can affect a stock's price. This table shows the stock's price the day before and the day after recent earnings reports, including the percentage change.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_time"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Report Date"
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "price_before"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Price 1 Day Before"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "price_after"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Price 1 Day After"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pct_change"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Percentage Change"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red"
+                    },
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 97
+      },
+      "id": 121,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "reducer": []
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Report Date"
+          }
+        ]
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: -5y)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"earnings_price_change\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> pivot(rowKey: [\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"_time\", \"price_before\", \"price_after\", \"pct_change\"])\n  |> sort(columns: [\"_time\"], desc: true)",
+          "refId": "A"
+        }
+      ],
+      "title": "Earnings-Related Price Changes",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\nThe 52-week low column provides historical support context.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "footer": { "reducers": [] },
+            "inspect": false
+          },
+          "decimals": 2, "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "ticker" },
+            "properties": [
+              { "id": "displayName", "value": "Ticker" },
+              { "id": "custom.width", "value": 80 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "rsi" },
+            "properties": [
+              { "id": "displayName", "value": "RSI (14)" },
+              { "id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "dark-green", "value": 0 },
+                  { "color": "green", "value": 30 },
+                  { "color": "yellow", "value": 50 },
+                  { "color": "orange", "value": 70 },
+                  { "color": "red", "value": 85 }
+                ]
+              }},
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "macd" },
+            "properties": [
+              { "id": "displayName", "value": "MACD" },
+              { "id": "decimals", "value": 4 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "macd_signal" },
+            "properties": [
+              { "id": "displayName", "value": "MACD Signal" },
+              { "id": "decimals", "value": 4 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "macd_bullish" },
+            "properties": [
+              { "id": "displayName", "value": "MACD Cross" },
+              { "id": "mappings", "value": [
+                { "options": { "0": { "text": "Bearish", "color": "red" } }, "type": "value" },
+                { "options": { "1": { "text": "Bullish", "color": "green" } }, "type": "value" }
+              ]},
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "rsi_oversold" },
+            "properties": [
+              { "id": "displayName", "value": "RSI Oversold" },
+              { "id": "mappings", "value": [
+                { "options": { "0": { "text": "No", "color": "text" } }, "type": "value" },
+                { "options": { "1": { "text": "YES", "color": "dark-green" } }, "type": "value" }
+              ]},
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "buy_signal" },
+            "properties": [
+              { "id": "displayName", "value": "BUY SIGNAL" },
+              { "id": "mappings", "value": [
+                { "options": { "0": { "text": "-", "color": "text" } }, "type": "value" },
+                { "options": { "1": { "text": "BUY", "color": "dark-green" } }, "type": "value" }
+              ]},
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } },
+              { "id": "custom.width", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "week_52_low" },
+            "properties": [
+              { "id": "displayName", "value": "52W Low (Support)" },
+              { "id": "unit", "value": "currencyUSD" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "current_price" },
+            "properties": [
+              { "id": "displayName", "value": "Price" },
+              { "id": "unit", "value": "currencyUSD" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "pct_above_52low" },
+            "properties": [
+              { "id": "displayName", "value": "% Above 52W Low" },
+              { "id": "unit", "value": "percent" },
+              { "id": "thresholds", "value": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "dark-green", "value": 0 },
+                  { "color": "green", "value": 5 },
+                  { "color": "yellow", "value": 15 },
+                  { "color": "orange", "value": 30 },
+                  { "color": "red", "value": 50 }
+                ]
+              }},
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "color-background" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 200 },
+      "id": 120,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [{ "desc": false, "displayName": "RSI (14)" }]
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "${datasource}" },
+          "query": "import \"join\"\n\nrsi_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"rsi\"})\n  |> group()\n\nmacd_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd\"})\n  |> group()\n\nsignal_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_signal\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd_signal\"})\n  |> group()\n\nprice_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\nlow_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_low\"})\n  |> group()\n\nj1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))\nj2 = join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: r.macd_signal}))\nj3 = join.inner(left: j2, right: price_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: r.current_price}))\njoin.inner(left: j3, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({\n  ticker: l.ticker,\n  rsi: l.rsi,\n  rsi_oversold: if l.rsi < 30.0 then 1 else 0,\n  macd: l.macd,\n  macd_signal: l.macd_signal,\n  macd_bullish: if l.macd > l.macd_signal then 1 else 0,\n  buy_signal: if l.rsi < 30.0 and l.macd > l.macd_signal then 1 else 0,\n  current_price: l.current_price,\n  week_52_low: r.week_52_low,\n  pct_above_52low: (l.current_price - r.week_52_low) / r.week_52_low * 100.0\n}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Entry Point Screener (RSI + MACD Crossover)",
+      "type": "table"
     }
   ],
   "preload": false,
@@ -2473,6 +2930,6 @@
   "timezone": "browser",
   "title": "Stock Analysis Dashboard",
   "uid": "stock-analysis-main",
-  "version": 11,
+  "version": 19,
   "weekStart": ""
 }
