@@ -367,6 +367,133 @@ In `dashboard.json` this is a **table** matching the earnings report view (Repor
 |> map(fn: (r) => ({_value: r.bollinger_signal, ticker: r.ticker}))
 |> group()
 ```
+## Grafana Alerting
+
+Automated alert rules are managed via `grafana/manage-alerts.py`, which provisions Grafana unified alerting rules from a YAML config and routes notifications to an [ntfy.sh](https://ntfy.sh) server.
+
+### Additional Environment Variables
+
+The following are required in addition to the core exporter variables (set in `.env` or exported):
+
+```bash
+GRAFANA_URL=https://grafana.example.com        # Grafana base URL
+GRAFANA_API_KEY=your-service-account-token      # Grafana API key with alerting permissions
+INFLUXDB_DATASOURCE_UID=A987BCD6EF54G32H3       # UID of the InfluxDB datasource in Grafana
+NTFY_URL=https://ntfy.example.com               # ntfy server base URL
+NTFY_TOPIC=trading-signals                       # ntfy topic name
+```
+
+### Alert Management Script
+
+`grafana/manage-alerts.py` creates or deletes the full alerting stack: contact point, notification policy, and alert rules.
+
+#### CLI Reference
+
+| Flag | Short | Description |
+|---|---|---|
+| `--create` | | Create or update alerts, contact point, and notification policy |
+| `--delete` | | Delete all alerts, notification policy, and contact point |
+| `--config` | `-c` | Path to alert config YAML (default: `grafana/alerts/config.yaml`) |
+| `--test` | `-t` | After creating, send a test notification through the contact point |
+
+#### Usage
+
+```bash
+# Create/update all alerts
+python grafana/manage-alerts.py --create
+
+# Create with custom config path
+python grafana/manage-alerts.py --create -c grafana/alerts/config.yaml
+
+# Create and send a test notification to ntfy
+python grafana/manage-alerts.py --create --test
+
+# Delete all alerts and cleanup
+python grafana/manage-alerts.py --delete
+```
+
+### Alert Configuration (`grafana/alerts/config.yaml`)
+
+The config file has three top-level sections:
+
+```yaml
+grafana:
+  folder: "Stock Alerts"                        # Grafana folder for alert rules
+  datasource_uid: "${INFLUXDB_DATASOURCE_UID}"  # InfluxDB datasource UID
+
+notification:
+  contact_point: "ntfy-trading"                 # Grafana contact point name
+  ntfy:
+    url: "${NTFY_URL}"
+    topic: "${NTFY_TOPIC}"
+    priority: 4                                 # ntfy priority (1-5)
+    tags:                                       # emoji tags shown in ntfy
+      - chart_with_upwards_trend
+      - money_bag
+
+alerts:
+  alert_name:
+    enabled: true                  # toggle alert on/off
+    severity: critical             # critical | warning | info
+    evaluation_interval: 5m        # how often Grafana evaluates the rule
+    for: 0s                        # how long condition must hold before firing
+    annotations:
+      summary: "..."               # Go template with {{ $labels.ticker }}
+      description: "..."           # Go template with {{ $values.B }}
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0                     # fire when value > threshold
+      # or: below: 7              # fire when value < threshold
+    query: |-
+      <Flux query>
+```
+
+### Available Alerts
+
+| Alert | Severity | Interval | Condition | Description |
+|---|---|---|---|---|
+| `buy_signal` | critical | 5m | RSI < 30 AND MACD > signal | Classic oversold + bullish momentum crossover |
+| `near_52_week_low` | warning | 15m | Price within 5% of 52w low | Stock approaching its 52-week low |
+| `week_52_high_breakout` | info | 15m | Price within 2% of 52w high | Stock approaching/breaking 52-week high |
+| `high_implied_volatility` | warning | 15m | IV > 50% | Implied volatility exceeds 50% |
+| `earnings_approaching` | info | 1h | Days until earnings < 7 | Earnings report within 7 days (configurable via `days_threshold`) |
+| `large_analyst_upside` | warning | 1h | Analyst target > 30% above price | Significant analyst upside potential |
+| `macd_bullish_crossover` | info | 5m | MACD > MACD signal | Bullish MACD crossover detected |
+
+### Notification Format
+
+Notifications are sent to ntfy using its JSON publish API with markdown formatting:
+
+- **Firing**: Title shows the alert summary (e.g., `EARNINGS SOON: ULTA`), body contains alert details with severity
+- **Resolved**: Title shows `[OK] <alertname>`, body confirms resolution
+- **Click URL**: Links back to the Grafana instance
+
+### Provisioning Details
+
+The script manages three Grafana resources in order:
+
+1. **Contact Point** — A webhook contact point that POSTs ntfy-formatted JSON to the ntfy server. Uses Go templates to produce clean markdown notifications instead of Grafana's raw alert payload.
+2. **Notification Policy** — A child route matching `category=signals` labels, directing matching alerts to the ntfy contact point.
+3. **Alert Rules** — Each alert is a Grafana unified alerting rule with three expressions:
+   - **A** (query) — The Flux query against InfluxDB
+   - **B** (reduce) — Reduces the query result using `last()` with `dropNN` mode
+   - **C** (threshold) — Evaluates whether the reduced value crosses the configured threshold (`gt` or `lt`)
+
+Both `noDataState` and `execErrState` are set to `OK` to prevent false-positive error notifications when data is temporarily unavailable.
+
+### Flux Query Requirements for Grafana Alerting
+
+Flux queries used in Grafana alert rules have specific requirements that differ from dashboard queries:
+
+- **`_time` column is required** — All `keep()` calls must include `_time`. Without it, Grafana's InfluxDB plugin cannot build valid data frames and returns `nodata`.
+- **`rawQuery: true`** — Must be set in the query model so Grafana sends the Flux query as-is.
+- **`queryType: ""`** — Must be an empty string (not `"flux"`); the plugin infers the language from the datasource config.
+- **Extended ranges for joins** — Queries using `join.inner` use `range(start: -7d)` (or longer for infrequently updated data like fundamentals at `-90d`) to handle weekends, holidays, and exporter downtime. The `|> last()` still returns only the most recent data point.
+- **`join.inner` fails on empty tables** — If either side of a Flux `join.inner` produces zero rows, the query errors. Extended ranges mitigate this.
+
 # Queries
 
 ## Technical Analysis
@@ -422,3 +549,26 @@ Market Overview (cross-data)
 "Find stocks with Piotroski score >= 7, RSI < 50, and positive quarterly earnings growth"
 "Which stocks have analyst target upside > 20%, profit margin > 15%, and PEG < 2?"
 "Show me stocks with F-score >= 7 that are also trading below their 200-day MA"
+
+
+## Scrap
+
+Show me a list of stocks matching the following criteria: 
+- Days Until Earnings greater than or equal to 7 
+- EPS Estimate (Avg) greater than 0.50 
+- RSI lower than 50 
+- VROC Greater than 20%
+
+curl http://localhost:11434/completion \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Write a short poem about coding.",
+    "stream": true
+  }'
+
+Most excellent. I see metrics in the corresponding bucket:
+
+influx query 'from(bucket:"stocks") |> range(start:-30m)' 
+
+Now, help me craft a Grafana dashboard showing things like 
+  

@@ -1,0 +1,296 @@
+grafana:
+  folder: "Stock Alerts"
+  datasource_uid: "${INFLUXDB_DATASOURCE_UID}"
+
+notification:
+  contact_point: "ntfy-trading"
+  ntfy:
+    url: "${NTFY_URL}"
+    topic: "${NTFY_TOPIC}"
+    priority: 4
+    tags:
+      - chart_with_upwards_trend
+      - money_bag
+
+alerts:
+  buy_signal:
+    enabled: true
+    severity: critical
+    evaluation_interval: 5m
+    for: 0s
+    annotations:
+      summary: "BUY SIGNAL: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} has a buy signal (RSI < 30 and MACD > MACD signal)"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      import "join"
+
+      rsi_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "price_history")
+        |> filter(fn: (r) => r["_field"] == "rsi")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "rsi"})
+        |> group()
+
+      macd_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "price_history")
+        |> filter(fn: (r) => r["_field"] == "macd")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "macd"})
+        |> group()
+
+      signal_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "price_history")
+        |> filter(fn: (r) => r["_field"] == "macd_signal")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "macd_signal"})
+        |> group()
+
+      j1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))
+      join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({
+        ticker: l.ticker,
+        _value: if l.rsi < 30.0 and l.macd > r.macd_signal then 1.0 else 0.0
+      }))
+        |> filter(fn: (r) => r._value == 1.0)
+        |> group(columns: ["ticker"])
+
+  near_52_week_low:
+    enabled: true
+    severity: warning
+    evaluation_interval: 15m
+    for: 0s
+    annotations:
+      summary: "NEAR 52W LOW: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} is within 5% of its 52-week low"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      import "join"
+
+      price_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "current_price")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "current_price"})
+        |> group()
+
+      low_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "week_52_low")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "week_52_low"})
+        |> group()
+
+      join.inner(left: price_data, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({
+        ticker: l.ticker,
+        _value: if l.current_price <= r.week_52_low * 1.05 then 1.0 else 0.0
+      }))
+        |> filter(fn: (r) => r._value == 1.0)
+        |> group(columns: ["ticker"])
+
+  week_52_high_breakout:
+    enabled: true
+    severity: info
+    evaluation_interval: 15m
+    for: 0s
+    annotations:
+      summary: "52W HIGH BREAKOUT: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} is within 2% of its 52-week high"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      import "join"
+
+      price_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "current_price")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "current_price"})
+        |> group()
+
+      high_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "week_52_high")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "week_52_high"})
+        |> group()
+
+      join.inner(left: price_data, right: high_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({
+        ticker: l.ticker,
+        _value: if l.current_price >= r.week_52_high * 0.98 then 1.0 else 0.0
+      }))
+        |> filter(fn: (r) => r._value == 1.0)
+        |> group(columns: ["ticker"])
+
+  high_implied_volatility:
+    enabled: true
+    severity: warning
+    evaluation_interval: 15m
+    for: 0s
+    annotations:
+      summary: "HIGH IV: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} implied volatility exceeds 50%"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 50
+    query: |-
+      from(bucket: "stocks")
+        |> range(start: -1d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "iv")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> group(columns: ["ticker"])
+
+  earnings_approaching:
+    enabled: true
+    severity: info
+    evaluation_interval: 1h
+    for: 0s
+    days_threshold: 21
+    annotations:
+      summary: "EARNINGS SOON: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} reports earnings within {{ $values.B }} days"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      below: 21
+    query: |-
+      from(bucket: "stocks")
+        |> range(start: -1d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "days_until_earnings")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> filter(fn: (r) => r._value > 0.0)
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> group(columns: ["ticker"])
+
+  large_analyst_upside:
+    enabled: true
+    severity: warning
+    evaluation_interval: 1h
+    for: 0s
+    annotations:
+      summary: "ANALYST UPSIDE >30%: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} analyst target is >30% above current price"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      import "join"
+
+      price_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "current_price")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "current_price"})
+        |> group()
+
+      target_data = from(bucket: "stocks")
+        |> range(start: -90d)
+        |> filter(fn: (r) => r["_measurement"] == "eodhd_fundamentals")
+        |> filter(fn: (r) => r["_field"] == "analyst_target_price")
+        |> filter(fn: (r) => exists r._value)
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "analyst_target"})
+        |> group()
+
+      join.inner(left: price_data, right: target_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({
+        ticker: l.ticker,
+        _value: if (r.analyst_target - l.current_price) / l.current_price * 100.0 > 30.0 then 1.0 else 0.0
+      }))
+        |> filter(fn: (r) => r._value == 1.0)
+        |> group(columns: ["ticker"])
+
+  macd_bullish_crossover:
+    enabled: true
+    severity: info
+    evaluation_interval: 5m
+    for: 0s
+    annotations:
+      summary: "MACD CROSSOVER: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} MACD crossed above signal line"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      import "join"
+
+      macd_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "price_history")
+        |> filter(fn: (r) => r["_field"] == "macd")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "macd"})
+        |> group()
+
+      signal_data = from(bucket: "stocks")
+        |> range(start: -7d)
+        |> filter(fn: (r) => r["_measurement"] == "price_history")
+        |> filter(fn: (r) => r["_field"] == "macd_signal")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> rename(columns: {_value: "macd_signal"})
+        |> group()
+
+      join.inner(left: macd_data, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({
+        ticker: l.ticker,
+        _value: if l.macd > r.macd_signal then 1.0 else 0.0
+      }))
+        |> filter(fn: (r) => r._value == 1.0)
+        |> group(columns: ["ticker"])

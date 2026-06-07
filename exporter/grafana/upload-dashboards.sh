@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GRAFANA_DIR="${SCRIPT_DIR}/grafana"
+GRAFANA_DIR="${SCRIPT_DIR}/dashboards"
 
 # --- Required environment variables ---
 # GRAFANA_URL        - e.g. https://grafana.example.com
