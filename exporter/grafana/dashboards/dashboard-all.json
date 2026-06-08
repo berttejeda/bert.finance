@@ -923,7 +923,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 21,
+        "h": 26,
         "w": 24,
         "x": 0,
         "y": 35
@@ -1093,7 +1093,7 @@
         "h": 23,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 61
       },
       "id": 7,
       "options": {
@@ -1271,7 +1271,7 @@
         "h": 25,
         "w": 10,
         "x": 0,
-        "y": 79
+        "y": 84
       },
       "id": 4,
       "options": {
@@ -1416,7 +1416,7 @@
         "h": 25,
         "w": 14,
         "x": 10,
-        "y": 79
+        "y": 84
       },
       "id": 9,
       "options": {
@@ -1502,10 +1502,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 24,
+        "h": 32,
         "w": 24,
         "x": 0,
-        "y": 104
+        "y": 109
       },
       "id": 214,
       "options": {
@@ -1707,7 +1707,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 146
+        "y": 159
       },
       "id": 218,
       "panels": [],
@@ -1773,10 +1773,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 30,
         "w": 24,
         "x": 0,
-        "y": 147
+        "y": 160
       },
       "id": 215,
       "options": {
@@ -1888,7 +1888,7 @@
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 169
+        "y": 190
       },
       "id": 216,
       "options": {
@@ -1999,7 +1999,7 @@
         "h": 22,
         "w": 24,
         "x": 0,
-        "y": 193
+        "y": 214
       },
       "id": 217,
       "options": {
@@ -2107,7 +2107,7 @@
         "h": 33,
         "w": 24,
         "x": 0,
-        "y": 215
+        "y": 236
       },
       "id": 222,
       "options": {
@@ -2166,7 +2166,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 248
+        "y": 269
       },
       "id": 102,
       "panels": [],
@@ -2353,34 +2353,6 @@
                 "value": "200-MA"
               }
             ]
-          },
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "HIMS at Close",
-                  "HIMS MA50",
-                  "HIMS MA100",
-                  "HIMS MA150",
-                  "HIMS MA200"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
           }
         ]
       },
@@ -2388,7 +2360,7 @@
         "h": 15,
         "w": 24,
         "x": 0,
-        "y": 249
+        "y": 270
       },
       "id": 11,
       "options": {
@@ -2428,7 +2400,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 264
+        "y": 285
       },
       "id": 106,
       "panels": [],
@@ -2499,39 +2471,13 @@
           },
           "unit": "currencyUSD"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "AAPL",
-                  "AMGN"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 265
+        "y": 286
       },
       "id": 17,
       "options": {
@@ -2652,38 +2598,13 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "SOLV RSI"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 277
+        "y": 298
       },
       "id": 12,
       "options": {
@@ -2830,30 +2751,6 @@
                 }
               }
             ]
-          },
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "AAPL MACD"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
           }
         ]
       },
@@ -2861,7 +2758,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 290
+        "y": 311
       },
       "id": 13,
       "options": {
@@ -3087,38 +2984,13 @@
           },
           "unit": "percent"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "CSCO VROC"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 303
+        "y": 324
       },
       "id": 14,
       "options": {
@@ -3190,7 +3062,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 316
+        "y": 337
       },
       "id": 18,
       "options": {
@@ -3258,7 +3130,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 329
+        "y": 350
       },
       "id": 19,
       "options": {
@@ -3299,7 +3171,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 342
+        "y": 363
       },
       "id": 200,
       "panels": [],
@@ -3431,7 +3303,7 @@
         "h": 103,
         "w": 24,
         "x": 0,
-        "y": 343
+        "y": 364
       },
       "id": 201,
       "options": {
@@ -3586,30 +3458,6 @@
                 }
               }
             ]
-          },
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "AAPL Actual"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": true,
-                  "viz": true
-                }
-              }
-            ]
           }
         ]
       },
@@ -3617,7 +3465,7 @@
         "h": 14,
         "w": 24,
         "x": 0,
-        "y": 446
+        "y": 467
       },
       "id": 202,
       "options": {
@@ -3710,10 +3558,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 20,
+        "h": 30,
         "w": 12,
         "x": 0,
-        "y": 460
+        "y": 481
       },
       "id": 203,
       "options": {
@@ -3826,10 +3674,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 20,
-        "w": 12,
+        "h": 30,
+        "w": 11,
         "x": 12,
-        "y": 460
+        "y": 481
       },
       "id": 204,
       "options": {
@@ -3946,10 +3794,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 28,
         "w": 12,
         "x": 0,
-        "y": 480
+        "y": 511
       },
       "id": 205,
       "options": {
@@ -4066,10 +3914,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 28,
         "w": 12,
         "x": 12,
-        "y": 480
+        "y": 511
       },
       "id": 206,
       "options": {
@@ -4121,6 +3969,566 @@
         }
       ],
       "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential. Inspired by [this analysis](https://www.reddit.com/r/insiderData/comments/1teeent/now_buy_the_dip/).\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced — gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward — same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ticker"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Ticker"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rsi"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "RSI (14)"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 30
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50
+                    },
+                    {
+                      "color": "orange",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 85
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "macd"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "MACD"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "macd_signal"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "MACD Signal"
+              },
+              {
+                "id": "decimals",
+                "value": 4
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "macd_bullish"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "MACD Cross"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "red",
+                        "text": "Bearish"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "1": {
+                        "color": "green",
+                        "text": "Bullish"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rsi_oversold"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "RSI Oversold"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "text": "No"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "1": {
+                        "color": "dark-green",
+                        "text": "YES"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "buy_signal"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "BUY SIGNAL"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "text": "-"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "1": {
+                        "color": "dark-green",
+                        "text": "BUY"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "current_price"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Price"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "week_52_low"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "52W Low"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "week_52_high"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "52W High"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "pct_above_52low"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "% Above 52W Low"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 5
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 15
+                    },
+                    {
+                      "color": "orange",
+                      "value": 30
+                    },
+                    {
+                      "color": "red",
+                      "value": 50
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "analyst_target"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Analyst Target"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "upside_pct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Upside to Target"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": -10
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 10
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 25
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit_conservative"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Limit (Conservative)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "dark-green",
+                      "value": 0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit_moderate"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Limit (Moderate)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "limit_aggressive"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Limit (Aggressive)"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "yellow",
+                      "value": 0
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 539
+      },
+      "id": 223,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "RSI Oversold"
+          }
+        ]
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "import \"join\"\n\nrsi_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"rsi\"})\n  |> group()\n\nmacd_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd\"})\n  |> group()\n\nsignal_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_signal\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd_signal\"})\n  |> group()\n\nprice_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\nlow_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_low\"})\n  |> group()\n\nhigh_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_high\"})\n  |> group()\n\ntarget_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_target_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"analyst_target\"})\n  |> group()\n\nj1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))\nj2 = join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: r.macd_signal}))\nj3 = join.inner(left: j2, right: price_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: r.current_price}))\nj4 = join.inner(left: j3, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: r.week_52_low}))\nj5 = join.inner(left: j4, right: high_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: r.week_52_high}))\njoin.inner(left: j5, right: target_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({\n  ticker: l.ticker,\n  rsi: l.rsi,\n  rsi_oversold: if l.rsi < 30.0 then 1 else 0,\n  macd: l.macd,\n  macd_signal: l.macd_signal,\n  macd_bullish: if l.macd > l.macd_signal then 1 else 0,\n  buy_signal: if l.rsi < 30.0 and l.macd > l.macd_signal then 1 else 0,\n  current_price: l.current_price,\n  week_52_low: l.week_52_low,\n  week_52_high: l.week_52_high,\n  pct_above_52low: (l.current_price - l.week_52_low) / l.week_52_low * 100.0,\n  analyst_target: r.analyst_target,\n  upside_pct: (r.analyst_target - l.current_price) / l.current_price * 100.0,\n  limit_conservative: l.week_52_low * 1.05,\n  limit_moderate: (l.week_52_low + l.current_price) / 2.0,\n  limit_aggressive: l.current_price * 0.95\n}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Entry Point Screener (RSI + MACD Crossover)",
+      "type": "table"
     },
     {
       "datasource": {
@@ -4186,10 +4594,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 27,
         "w": 12,
         "x": 0,
-        "y": 502
+        "y": 559
       },
       "id": 207,
       "options": {
@@ -4306,10 +4714,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 27,
         "w": 12,
         "x": 12,
-        "y": 502
+        "y": 559
       },
       "id": 208,
       "options": {
@@ -4367,7 +4775,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "[Dividend yield](https://www.investopedia.com/terms/d/dividendyield.asp) = annual dividend \u00f7 share price. >4\u20135% may indicate value or distress; compare within sector.",
+      "description": "[Dividend yield](https://www.investopedia.com/terms/d/dividendyield.asp) = annual dividend ÷ share price. >4–5% may indicate value or distress; compare within sector.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4425,7 +4833,7 @@
         "h": 22,
         "w": 24,
         "x": 0,
-        "y": 524
+        "y": 586
       },
       "id": 209,
       "options": {
@@ -4603,7 +5011,7 @@
         "h": 18,
         "w": 24,
         "x": 0,
-        "y": 546
+        "y": 608
       },
       "id": 210,
       "options": {
@@ -4612,7 +5020,7 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "EV/EBITDA"
+            "displayName": "Forward P/E"
           }
         ]
       },
@@ -4693,7 +5101,7 @@
         "h": 14,
         "w": 24,
         "x": 0,
-        "y": 564
+        "y": 626
       },
       "id": 211,
       "options": {
@@ -4738,7 +5146,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "[Beta](https://www.investopedia.com/terms/b/beta.asp) \u2014 volatility relative to the market (S&P 500). 1.0 = moves with market; >1.0 = more volatile; <1.0 = less volatile; negative = inverse.",
+      "description": "[Beta](https://www.investopedia.com/terms/b/beta.asp) — volatility relative to the market (S&P 500). 1.0 = moves with market; >1.0 = more volatile; <1.0 = less volatile; negative = inverse.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -4796,10 +5204,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 22,
+        "h": 29,
         "w": 24,
         "x": 0,
-        "y": 578
+        "y": 640
       },
       "id": 212,
       "options": {
@@ -4857,7 +5265,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "Current price vs consensus [analyst target](https://www.investopedia.com/terms/p/pricetarget.asp). Upside % = (target \u2212 current) \u00f7 current. Positive = analysts expect appreciation.",
+      "description": "Current price vs consensus [analyst target](https://www.investopedia.com/terms/p/pricetarget.asp). Upside % = (target − current) ÷ current. Positive = analysts expect appreciation.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -4988,7 +5396,7 @@
         "h": 18,
         "w": 24,
         "x": 0,
-        "y": 600
+        "y": 669
       },
       "id": 213,
       "options": {
@@ -5014,566 +5422,6 @@
       ],
       "title": "Analyst Target vs Current Price",
       "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "${datasource}"
-      },
-      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential. Inspired by [this analysis](https://www.reddit.com/r/insiderData/comments/1teeent/now_buy_the_dip/).\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced — gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward — same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "decimals": 2,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ticker"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Ticker"
-              },
-              {
-                "id": "custom.width",
-                "value": 80
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "rsi"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "RSI (14)"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": 0
-                    },
-                    {
-                      "color": "green",
-                      "value": 30
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 50
-                    },
-                    {
-                      "color": "orange",
-                      "value": 70
-                    },
-                    {
-                      "color": "red",
-                      "value": 85
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "macd"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "MACD"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "macd_signal"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "MACD Signal"
-              },
-              {
-                "id": "decimals",
-                "value": 4
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "macd_bullish"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "MACD Cross"
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "text": "Bearish",
-                        "color": "red"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "1": {
-                        "text": "Bullish",
-                        "color": "green"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "rsi_oversold"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "RSI Oversold"
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "text": "No",
-                        "color": "text"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "1": {
-                        "text": "YES",
-                        "color": "dark-green"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "buy_signal"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "BUY SIGNAL"
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "text": "-",
-                        "color": "text"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "1": {
-                        "text": "BUY",
-                        "color": "dark-green"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "current_price"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Price"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "week_52_low"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "52W Low"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "week_52_high"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "52W High"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "pct_above_52low"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "% Above 52W Low"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": 0
-                    },
-                    {
-                      "color": "green",
-                      "value": 5
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 15
-                    },
-                    {
-                      "color": "orange",
-                      "value": 30
-                    },
-                    {
-                      "color": "red",
-                      "value": 50
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "analyst_target"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Analyst Target"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "upside_pct"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Upside to Target"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "red",
-                      "value": -100
-                    },
-                    {
-                      "color": "orange",
-                      "value": -10
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 0
-                    },
-                    {
-                      "color": "green",
-                      "value": 10
-                    },
-                    {
-                      "color": "dark-green",
-                      "value": 25
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit_conservative"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Limit (Conservative)"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": 0
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit_moderate"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Limit (Moderate)"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": 0
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "limit_aggressive"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Limit (Aggressive)"
-              },
-              {
-                "id": "unit",
-                "value": "currencyUSD"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "yellow",
-                      "value": 0
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 20,
-        "w": 24,
-        "x": 0,
-        "y": 490
-      },
-      "id": 214,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "RSI (14)"
-          }
-        ]
-      },
-      "pluginVersion": "12.4.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "${datasource}"
-          },
-          "query": "import \"join\"\n\nrsi_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"rsi\"})\n  |> group()\n\nmacd_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd\"})\n  |> group()\n\nsignal_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_signal\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd_signal\"})\n  |> group()\n\nprice_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\nlow_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_low\"})\n  |> group()\n\nhigh_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_high\"})\n  |> group()\n\ntarget_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_target_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"analyst_target\"})\n  |> group()\n\nj1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))\nj2 = join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: r.macd_signal}))\nj3 = join.inner(left: j2, right: price_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: r.current_price}))\nj4 = join.inner(left: j3, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: r.week_52_low}))\nj5 = join.inner(left: j4, right: high_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: r.week_52_high}))\njoin.inner(left: j5, right: target_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({\n  ticker: l.ticker,\n  rsi: l.rsi,\n  rsi_oversold: if l.rsi < 30.0 then 1 else 0,\n  macd: l.macd,\n  macd_signal: l.macd_signal,\n  macd_bullish: if l.macd > l.macd_signal then 1 else 0,\n  buy_signal: if l.rsi < 30.0 and l.macd > l.macd_signal then 1 else 0,\n  current_price: l.current_price,\n  week_52_low: l.week_52_low,\n  week_52_high: l.week_52_high,\n  pct_above_52low: (l.current_price - l.week_52_low) / l.week_52_low * 100.0,\n  analyst_target: r.analyst_target,\n  upside_pct: (r.analyst_target - l.current_price) / l.current_price * 100.0,\n  limit_conservative: l.week_52_low * 1.05,\n  limit_moderate: (l.week_52_low + l.current_price) / 2.0,\n  limit_aggressive: l.current_price * 0.95\n}))",
-          "refId": "A"
-        }
-      ],
-      "title": "Entry Point Screener (RSI + MACD Crossover)",
-      "type": "table"
     }
   ],
   "preload": false,
@@ -5598,19 +5446,19 @@
       },
       {
         "current": {
-          "text": "stocks",
-          "value": "stocks"
+          "text": "${INFLUXDB_BUCKET}",
+          "value": "${INFLUXDB_BUCKET}"
         },
         "label": "Bucket",
         "name": "bucket",
         "options": [
           {
             "selected": true,
-            "text": "stocks",
-            "value": "stocks"
+            "text": "${INFLUXDB_BUCKET}",
+            "value": "${INFLUXDB_BUCKET}"
           }
         ],
-        "query": "stocks",
+        "query": "${INFLUXDB_BUCKET}",
         "type": "textbox"
       },
       {
@@ -5635,6 +5483,6 @@
   "timezone": "browser",
   "title": "Stock Analysis Dashboard - ALL",
   "uid": "stock-analysis-dashboard-all",
-  "version": 2,
+  "version": 12,
   "weekStart": ""
 }
