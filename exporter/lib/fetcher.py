@@ -1,6 +1,7 @@
 import logging
 import math
 import time
+from datetime import datetime
 
 import pandas as pd
 import yfinance as yf
@@ -152,8 +153,13 @@ def _safe_info_get(info, key, default=None):
     return val
 
 
-def _get_implied_volatility(ticker_obj):
-    """Extract IV from nearest-expiry ATM call option.
+def _get_implied_volatility(ticker_obj, min_days_to_expiry=3, max_expiries=3):
+    """Extract IV from ATM call option, skipping near-expiry chains.
+
+    Tries up to ``max_expiries`` expiration dates, skipping any that expire
+    within ``min_days_to_expiry`` days (very short-dated options have
+    unreliable Greeks).  Rejects negative or zero IV values which can occur
+    from stale or illiquid option data.
 
     Returns:
         IV as a percentage (float) or None.
@@ -162,20 +168,37 @@ def _get_implied_volatility(ticker_obj):
         expirations = ticker_obj.options
         if not expirations:
             return None
-        chain = ticker_obj.option_chain(expirations[0])
-        calls = chain.calls
-        if calls.empty:
-            return None
         current_price = _safe_info_get(ticker_obj.info, "currentPrice") or \
                         _safe_info_get(ticker_obj.info, "regularMarketPrice")
         if current_price is None:
             return None
-        calls = calls.copy()
-        calls["distance"] = (calls["strike"] - current_price).abs()
-        atm = calls.loc[calls["distance"].idxmin()]
-        iv = atm.get("impliedVolatility")
-        if iv is not None and not (isinstance(iv, float) and math.isnan(iv)):
-            return round(iv * 100, 2)
+
+        today = datetime.now().date()
+
+        for exp_str in expirations[:max_expiries]:
+            # Skip expiries that are too close — unreliable Greeks
+            try:
+                exp_date = datetime.strptime(exp_str, "%Y-%m-%d").date()
+            except (ValueError, TypeError):
+                continue
+            if (exp_date - today).days < min_days_to_expiry:
+                continue
+
+            chain = ticker_obj.option_chain(exp_str)
+            calls = chain.calls
+            if calls.empty:
+                continue
+
+            calls = calls.copy()
+            calls["distance"] = (calls["strike"] - current_price).abs()
+            atm = calls.loc[calls["distance"].idxmin()]
+            iv = atm.get("impliedVolatility")
+
+            # IV must be positive — negative values are data errors
+            if iv is not None and isinstance(iv, (int, float)) \
+                    and not math.isnan(iv) and iv > 0:
+                return round(iv * 100, 2)
+
     except Exception as e:
         logger.warning(f"Could not fetch IV for {ticker_obj.ticker}: {e}")
     return None
