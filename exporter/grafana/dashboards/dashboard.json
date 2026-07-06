@@ -2215,7 +2215,7 @@
         "mode": "analyze",
         "prompt": "You are an expert financial analyst with a data science background reviewing RSI data for the given stock.\n\nGiven the panel configuration and query results below, provide:\n1. A summary of what metrics/data are being displayed\n2. Key trends or patterns in the data\n3. Any anomalies or notable observations\n4. Actionable market insights and/or recommendations\n\nBe concise but thorough. Use bullet points for clarity."
       },
-      "pluginVersion": "1.2.4",
+      "pluginVersion": "1.4.0",
       "targets": [
         {
           "datasource": {
@@ -2264,7 +2264,7 @@
         "mode": "analyze",
         "prompt": "You are an expert financial analyst with a data science background reviewing MACD data for the given stock. In the query, you will see MACD Signal and Histogram data points, as well as the stock's MACD.\n\nGiven the panel configuration and query results, provide:\n1. A summary of what metrics/data are being displayed\n2. Key trends or patterns in the data\n3. Any anomalies or notable observations\n4. Actionable market insights and/or recommendations\n\nBe concise but thorough. Use bullet points for clarity."
       },
-      "pluginVersion": "1.2.4",
+      "pluginVersion": "1.4.0",
       "targets": [
         {
           "datasource": {
@@ -2563,7 +2563,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": 0
               }
             ]
           }
@@ -2641,7 +2642,8 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "red"
+                      "color": "red",
+                      "value": 0
                     },
                     {
                       "color": "green",
@@ -2701,7 +2703,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential.\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced — gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward — same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
+      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential.\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced \u2014 gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward \u2014 same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -2838,8 +2840,8 @@
                   {
                     "options": {
                       "0": {
-                        "text": "Bearish",
-                        "color": "red"
+                        "color": "red",
+                        "text": "Bearish"
                       }
                     },
                     "type": "value"
@@ -2847,8 +2849,8 @@
                   {
                     "options": {
                       "1": {
-                        "text": "Bullish",
-                        "color": "green"
+                        "color": "green",
+                        "text": "Bullish"
                       }
                     },
                     "type": "value"
@@ -2880,8 +2882,8 @@
                   {
                     "options": {
                       "0": {
-                        "text": "No",
-                        "color": "text"
+                        "color": "text",
+                        "text": "No"
                       }
                     },
                     "type": "value"
@@ -2889,8 +2891,8 @@
                   {
                     "options": {
                       "1": {
-                        "text": "YES",
-                        "color": "dark-green"
+                        "color": "dark-green",
+                        "text": "YES"
                       }
                     },
                     "type": "value"
@@ -2922,8 +2924,8 @@
                   {
                     "options": {
                       "0": {
-                        "text": "-",
-                        "color": "text"
+                        "color": "text",
+                        "text": "-"
                       }
                     },
                     "type": "value"
@@ -2931,8 +2933,8 @@
                   {
                     "options": {
                       "1": {
-                        "text": "BUY",
-                        "color": "dark-green"
+                        "color": "dark-green",
+                        "text": "BUY"
                       }
                     },
                     "type": "value"
@@ -3088,7 +3090,7 @@
                   "steps": [
                     {
                       "color": "red",
-                      "value": -100
+                      "value": 0
                     },
                     {
                       "color": "orange",
@@ -3229,9 +3231,9 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 200
+        "y": 107
       },
-      "id": 120,
+      "id": 122,
       "options": {
         "cellHeight": "sm",
         "showHeader": true,
@@ -3255,6 +3257,86 @@
       ],
       "title": "Entry Point Screener (RSI + MACD Crossover)",
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "[Double bottom](https://www.investopedia.com/terms/d/doublebottom.asp) reversal pattern. Confirmed when two troughs form within 3% of each other and price breaks above the neckline (peak between troughs). Neckline price shown as secondary value.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "text",
+                  "text": "-"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "text": "CONFIRMED"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 9,
+        "y": 29
+      },
+      "id": 123,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"ticker\"] =~ /^${ticker:regex}$/)\n  |> filter(fn: (r) => r[\"_field\"] == \"double_bottom\")\n  |> group(columns: [\"ticker\", \"_field\"])\n  |> last()\n  |> map(fn: (r) => ({ticker: r.ticker, _value: r._value}))\n  |> group()",
+          "refId": "A"
+        }
+      ],
+      "title": "Double Bottom",
+      "type": "stat"
     }
   ],
   "preload": false,
@@ -3300,8 +3382,8 @@
       },
       {
         "current": {
-          "text": "AAPL",
-          "value": "AAPL"
+          "text": "CSCO",
+          "value": "CSCO"
         },
         "datasource": {
           "type": "influxdb",
@@ -3343,6 +3425,6 @@
   "timezone": "browser",
   "title": "Stock Analysis Dashboard",
   "uid": "stock-analysis-main",
-  "version": 19,
+  "version": 25,
   "weekStart": ""
 }

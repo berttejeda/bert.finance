@@ -7,6 +7,7 @@ import yfinance as yf
 
 from lib.indicators import (
     calc_bollinger_signal,
+    calc_double_bottom,
     calc_macd,
     calc_moving_averages,
     calc_rsi,
@@ -210,6 +211,7 @@ def fetch_ticker_data(ticker, history_df, delay=2):
         vroc = calc_vroc(history_df)
         bollinger = calc_bollinger_signal(history_df)
         iv = _get_implied_volatility(ticker_obj)
+        double_bottom = calc_double_bottom(history_df)
 
         piotroski = calc_piotroski_score(ticker_obj)
         earnings = _get_earnings_calendar(ticker_obj)
@@ -260,6 +262,9 @@ def fetch_ticker_data(ticker, history_df, delay=2):
             "earnings_estimate_high": earnings.get("earnings_estimate_high"),
             "revenue_estimate_avg": earnings.get("revenue_estimate_avg"),
             "earnings_price_changes": earnings_price_changes,
+            "double_bottom": double_bottom.get("double_bottom"),
+            "double_bottom_neckline": double_bottom.get("double_bottom_neckline"),
+            "double_bottom_trough": double_bottom.get("double_bottom_trough"),
         }
         return data
 

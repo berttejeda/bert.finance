@@ -1674,7 +1674,7 @@
         "h": 18,
         "w": 24,
         "x": 0,
-        "y": 128
+        "y": 141
       },
       "id": 221,
       "options": {
@@ -1682,8 +1682,8 @@
         "showHeader": true,
         "sortBy": [
           {
-            "desc": false,
-            "displayName": "Price"
+            "desc": true,
+            "displayName": "IV %"
           }
         ]
       },
@@ -2520,7 +2520,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 276
+        "y": 297
       },
       "id": 103,
       "panels": [],
@@ -3975,7 +3975,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential. Inspired by [this analysis](https://www.reddit.com/r/insiderData/comments/1teeent/now_buy_the_dip/).\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced — gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward — same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
+      "description": "Entry-point screener using the RSI + MACD crossover methodology.\n\n**Buy Signal** fires when:\n1. RSI is oversold (< 30)\n2. MACD has crossed above its signal line (bullish crossover)\n\n**Limit Price Tiers:**\n- **Conservative** = 5% above 52W low (strong support zone)\n- **Moderate** = midpoint of 52W low and current price\n- **Aggressive** = 5% below current price (quick fill)\n\nAnalyst Target shows consensus upside potential. Inspired by [this analysis](https://www.reddit.com/r/insiderData/comments/1teeent/now_buy_the_dip/).\n\n---\n\n**How to Use**\n\nWhen the BUY SIGNAL fires (RSI oversold + MACD bullish crossover), check the three limit prices:\n\n- **Conservative**: Set your limit at strong support. May take time to fill but maximum margin of safety.\n- **Moderate**: Balanced \u2014 gives you a decent discount while still having a reasonable chance of filling.\n- **Aggressive**: Small haircut from current price. Most likely to fill, still ensures you don't chase at the ask.\n\nCross-reference with Upside to Target to evaluate risk/reward \u2014 same methodology the Reddit user applied (entered at $82 against a $134 fair-value estimate = ~63% upside for a $545 max loss).",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -4496,6 +4496,386 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "days_until_earnings"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Days to Earnings"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 3
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 7
+                    },
+                    {
+                      "color": "green",
+                      "value": 14
+                    },
+                    {
+                      "color": "text",
+                      "value": 30
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "iv"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "IV %"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": 0
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 30
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 75
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "piotroski_score"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Piotroski"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 3
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 5
+                    },
+                    {
+                      "color": "green",
+                      "value": 7
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 8
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_earnings_pct"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Last Earnings \u0394%"
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": -100
+                    },
+                    {
+                      "color": "orange",
+                      "value": -5
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 2
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 10
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "quarterly_earnings_growth"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Earnings+(QoQ)"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": -0.5
+                    },
+                    {
+                      "color": "orange",
+                      "value": -0.1
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 0.25
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "profit_margin"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Profit Margin"
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "red",
+                      "value": 0
+                    },
+                    {
+                      "color": "orange",
+                      "value": 0
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.1
+                    },
+                    {
+                      "color": "green",
+                      "value": 0.2
+                    },
+                    {
+                      "color": "dark-green",
+                      "value": 0.4
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "double_bottom"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Dbl Bottom"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "text",
+                        "text": "-"
+                      }
+                    },
+                    "type": "value"
+                  },
+                  {
+                    "options": {
+                      "1": {
+                        "color": "dark-green",
+                        "text": "YES"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "gradient",
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "double_bottom_neckline"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Neckline"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "double_bottom_trough"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Trough"
+              },
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              }
+            ]
           }
         ]
       },
@@ -4523,7 +4903,7 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
-          "query": "import \"join\"\n\nrsi_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"rsi\"})\n  |> group()\n\nmacd_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd\"})\n  |> group()\n\nsignal_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_signal\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd_signal\"})\n  |> group()\n\nprice_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\nlow_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_low\"})\n  |> group()\n\nhigh_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_high\"})\n  |> group()\n\ntarget_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_target_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"analyst_target\"})\n  |> group()\n\nj1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))\nj2 = join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: r.macd_signal}))\nj3 = join.inner(left: j2, right: price_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: r.current_price}))\nj4 = join.inner(left: j3, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: r.week_52_low}))\nj5 = join.inner(left: j4, right: high_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: r.week_52_high}))\njoin.inner(left: j5, right: target_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({\n  ticker: l.ticker,\n  rsi: l.rsi,\n  rsi_oversold: if l.rsi < 30.0 then 1 else 0,\n  macd: l.macd,\n  macd_signal: l.macd_signal,\n  macd_bullish: if l.macd > l.macd_signal then 1 else 0,\n  buy_signal: if l.rsi < 30.0 and l.macd > l.macd_signal then 1 else 0,\n  current_price: l.current_price,\n  week_52_low: l.week_52_low,\n  week_52_high: l.week_52_high,\n  pct_above_52low: (l.current_price - l.week_52_low) / l.week_52_low * 100.0,\n  analyst_target: r.analyst_target,\n  upside_pct: (r.analyst_target - l.current_price) / l.current_price * 100.0,\n  limit_conservative: l.week_52_low * 1.05,\n  limit_moderate: (l.week_52_low + l.current_price) / 2.0,\n  limit_aggressive: l.current_price * 0.95\n}))",
+          "query": "import \"join\"\n\nrsi_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rsi\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"rsi\"})\n  |> group()\n\nmacd_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd\"})\n  |> group()\n\nsignal_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"price_history\")\n  |> filter(fn: (r) => r[\"_field\"] == \"macd_signal\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"macd_signal\"})\n  |> group()\n\nprice_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"current_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"current_price\"})\n  |> group()\n\nlow_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_low\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_low\"})\n  |> group()\n\nhigh_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"week_52_high\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"week_52_high\"})\n  |> group()\n\ntarget_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"analyst_target_price\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"analyst_target\"})\n  |> group()\n\ndays_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"days_until_earnings\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"days_until_earnings\"})\n  |> group()\n\niv_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"iv\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"iv\"})\n  |> group()\n\npiotroski_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"piotroski_score\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"piotroski_score\"})\n  |> group()\n\nearnings_change_data = from(bucket: \"${bucket}\")\n  |> range(start: -5y)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"earnings_price_change\")\n  |> filter(fn: (r) => r[\"_field\"] == \"pct_change\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"last_earnings_pct\"})\n  |> group()\n\nearnings_growth_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"quarterly_earnings_growth\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"quarterly_earnings_growth\"})\n  |> group()\n\nprofit_margin_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"eodhd_fundamentals\")\n  |> filter(fn: (r) => r[\"_field\"] == \"profit_margin\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"profit_margin\"})\n  |> group()\n\ndb_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"double_bottom\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"double_bottom\"})\n  |> group()\n\ndb_neckline_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"double_bottom_neckline\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"double_bottom_neckline\"})\n  |> group()\n\ndb_trough_data = from(bucket: \"${bucket}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"stock_data\")\n  |> filter(fn: (r) => r[\"_field\"] == \"double_bottom_trough\")\n  |> group(columns: [\"ticker\"])\n  |> last()\n  |> keep(columns: [\"ticker\", \"_value\"])\n  |> rename(columns: {_value: \"double_bottom_trough\"})\n  |> group()\n\nj1 = join.inner(left: rsi_data, right: macd_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: r.macd}))\nj2 = join.inner(left: j1, right: signal_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: r.macd_signal}))\nj3 = join.inner(left: j2, right: price_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: r.current_price}))\nj4 = join.inner(left: j3, right: low_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: r.week_52_low}))\nj5 = join.inner(left: j4, right: high_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: r.week_52_high}))\nj6 = join.left(left: j5, right: target_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: if exists r.analyst_target then r.analyst_target else 0.0}))\nj7 = join.left(left: j6, right: days_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: if exists r.days_until_earnings then r.days_until_earnings else 0.0}))\nj8 = join.left(left: j7, right: iv_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: if exists r.iv then r.iv else 0.0}))\nj9 = join.left(left: j8, right: piotroski_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: if exists r.piotroski_score then r.piotroski_score else 0.0}))\nj10 = join.left(left: j9, right: earnings_change_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: l.piotroski_score, last_earnings_pct: if exists r.last_earnings_pct then r.last_earnings_pct else 0.0}))\nj11 = join.left(left: j10, right: earnings_growth_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: l.piotroski_score, last_earnings_pct: l.last_earnings_pct, quarterly_earnings_growth: if exists r.quarterly_earnings_growth then r.quarterly_earnings_growth else 0.0}))\nj12 = join.left(left: j11, right: profit_margin_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: l.piotroski_score, last_earnings_pct: l.last_earnings_pct, quarterly_earnings_growth: l.quarterly_earnings_growth, profit_margin: if exists r.profit_margin then r.profit_margin else 0.0}))\nj13 = join.left(left: j12, right: db_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: l.piotroski_score, last_earnings_pct: l.last_earnings_pct, quarterly_earnings_growth: l.quarterly_earnings_growth, profit_margin: l.profit_margin, double_bottom: if exists r.double_bottom then r.double_bottom else 0.0}))\nj14 = join.left(left: j13, right: db_neckline_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({ticker: l.ticker, rsi: l.rsi, macd: l.macd, macd_signal: l.macd_signal, current_price: l.current_price, week_52_low: l.week_52_low, week_52_high: l.week_52_high, analyst_target: l.analyst_target, days_until_earnings: l.days_until_earnings, iv: l.iv, piotroski_score: l.piotroski_score, last_earnings_pct: l.last_earnings_pct, quarterly_earnings_growth: l.quarterly_earnings_growth, profit_margin: l.profit_margin, double_bottom: l.double_bottom, double_bottom_neckline: if exists r.double_bottom_neckline then r.double_bottom_neckline else 0.0}))\njoin.left(left: j14, right: db_trough_data, on: (l, r) => l.ticker == r.ticker, as: (l, r) => ({\n  ticker: l.ticker,\n  rsi: l.rsi,\n  rsi_oversold: if l.rsi < 30.0 then 1 else 0,\n  macd: l.macd,\n  macd_signal: l.macd_signal,\n  macd_bullish: if l.macd > l.macd_signal then 1 else 0,\n  buy_signal: if l.rsi < 30.0 and l.macd > l.macd_signal then 1 else 0,\n  current_price: l.current_price,\n  week_52_low: l.week_52_low,\n  week_52_high: l.week_52_high,\n  pct_above_52low: (l.current_price - l.week_52_low) / l.week_52_low * 100.0,\n  analyst_target: l.analyst_target,\n  upside_pct: if l.analyst_target > 0.0 then (l.analyst_target - l.current_price) / l.current_price * 100.0 else 0.0,\n  limit_conservative: l.week_52_low * 1.05,\n  limit_moderate: (l.week_52_low + l.current_price) / 2.0,\n  limit_aggressive: l.current_price * 0.95,\n  days_until_earnings: l.days_until_earnings,\n  iv: l.iv,\n  piotroski_score: l.piotroski_score,\n  last_earnings_pct: l.last_earnings_pct,\n  quarterly_earnings_growth: l.quarterly_earnings_growth,\n  profit_margin: l.profit_margin,\n  double_bottom: l.double_bottom,\n  double_bottom_neckline: l.double_bottom_neckline,\n  double_bottom_trough: if exists r.double_bottom_trough then r.double_bottom_trough else 0.0\n}))",
           "refId": "A"
         }
       ],
@@ -4775,7 +5155,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "[Dividend yield](https://www.investopedia.com/terms/d/dividendyield.asp) = annual dividend ÷ share price. >4–5% may indicate value or distress; compare within sector.",
+      "description": "[Dividend yield](https://www.investopedia.com/terms/d/dividendyield.asp) = annual dividend \u00f7 share price. >4\u20135% may indicate value or distress; compare within sector.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -5146,7 +5526,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "[Beta](https://www.investopedia.com/terms/b/beta.asp) — volatility relative to the market (S&P 500). 1.0 = moves with market; >1.0 = more volatile; <1.0 = less volatile; negative = inverse.",
+      "description": "[Beta](https://www.investopedia.com/terms/b/beta.asp) \u2014 volatility relative to the market (S&P 500). 1.0 = moves with market; >1.0 = more volatile; <1.0 = less volatile; negative = inverse.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -5265,7 +5645,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "Current price vs consensus [analyst target](https://www.investopedia.com/terms/p/pricetarget.asp). Upside % = (target − current) ÷ current. Positive = analysts expect appreciation.",
+      "description": "Current price vs consensus [analyst target](https://www.investopedia.com/terms/p/pricetarget.asp). Upside % = (target \u2212 current) \u00f7 current. Positive = analysts expect appreciation.",
       "fieldConfig": {
         "defaults": {
           "custom": {

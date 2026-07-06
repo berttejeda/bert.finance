@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-GRAFANA_DIR="${SCRIPT_DIR}/dashboards"
+GRAFANA_DIR="${SCRIPT_DIR}"
 
 # --- Required environment variables ---
 # GRAFANA_URL        - e.g. https://grafana.example.com
@@ -14,13 +14,21 @@ GRAFANA_DIR="${SCRIPT_DIR}/dashboards"
 # OLLAMA_ENDPOINT    - e.g. https://ollama.example.com
 # OLLAMA_MODEL       - e.g. gemma-4-E2B-it-uncensored-Q8_0:latest
 
-ENV_FILE="${SCRIPT_DIR}/.env"
-if [[ -f "$ENV_FILE" ]]; then
+ENV_FILE=""
+for candidate in "${PWD}/.env" "${SCRIPT_DIR}/.env" "../.env"; do
+  if [[ -f "$candidate" ]]; then
+    ENV_FILE="$candidate"
+    break
+  fi
+done
+
+if [[ -n "$ENV_FILE" ]]; then
+  echo "Loading env from ${ENV_FILE}"
   set -a
   source "$ENV_FILE"
   set +a
 else
-  echo "WARN: ${ENV_FILE} not found, relying on exported environment variables."
+  echo "WARN: .env not found in ${PWD} or ${SCRIPT_DIR}, relying on exported environment variables."
 fi
 
 REQUIRED_VARS=(
@@ -53,14 +61,33 @@ fi
 # \${datasource}, \${bucket}, \${ticker} untouched.
 ENVSUBST_VARS='${INFLUXDB_HOST} ${INFLUXDB_TOKEN} ${INFLUXDB_ORG} ${INFLUXDB_BUCKET} ${OLLAMA_ENDPOINT} ${OLLAMA_MODEL}'
 
-DASHBOARDS=(
-  "dashboard.json"
-  "dashboard-all.json"
-)
+DASH_DIR=""
+for candidate in "${PWD}/dashboards" "${SCRIPT_DIR}/dashboards" "../dashboards"; do
+  if [[ -d "$candidate" ]]; then
+    DASH_DIR="$candidate"
+    break
+  fi
+done
+
+if [[ -z "$DASH_DIR" ]]; then
+  echo "ERROR: dashboards directory not found in ${PWD}, ${SCRIPT_DIR}, or ../dashboards"
+  exit 1
+fi
+
+echo "Using dashboards from ${DASH_DIR}"
+DASHBOARDS=()
+for f in "${DASH_DIR}"/*.json; do
+  [[ -f "$f" ]] && DASHBOARDS+=("$(basename "$f")")
+done
+
+if [[ ${#DASHBOARDS[@]} -eq 0 ]]; then
+  echo "ERROR: No .json files found in ${DASH_DIR}"
+  exit 1
+fi
 
 upload_dashboard() {
   local file="$1"
-  local path="${GRAFANA_DIR}/${file}"
+  local path="${DASH_DIR}/${file}"
 
   if [[ ! -f "$path" ]]; then
     echo "WARN: ${path} not found, skipping."

@@ -6,6 +6,8 @@ influxdb:
 
 tickers:
   - AAPL
+  - ACGLN
+  - ADSK
   - AMAT
   - AMD
   - AMGN
@@ -14,52 +16,73 @@ tickers:
   - ASML
   - AVGO
   - AXP
+  - BSX
   - CAT
+  - CDW
   - CEG
   - CMG
   - COHR
   - COIN
   - COST
+  - CP
   - CSCO
   - CVNA
+  - DECK
   - DFS
   - DG
   - DIS
   - DOCN
   - DRAM
   - ECL
+  - ESTC
   - ETN
   - ETSY
+  - FISV
+  - FSLR
+  - JEF
+  - GDDY
   - GME
   - GOOGL
+  - GS
+  - HBANM
+  - HBANZ
   - HD
   - HIMS
   - IONQ
+  - KLAC
   - LLY
   - LMT
   - MCD
   - MELI
   - META
+  - MPLXP
   - MPWR
   - MRVL
+  - MS
   - MSFT
   - MU
   - NBIS
   - NET
   - NFLX
   - NOW
+  - NTAP
   - NVDA
   - NVO
+  - NXPI
   - OC
   - OKLO
+  - ORCL
   - PANW
   - PFE
   - PHM
   - PLTR
+  - PSX
   - QCOM
   - QQQ
   - QQQM
   - REGN
+  - RIO
+  - RVMDW
   - RYAAY
   - SBUX
   - SCHD
@@ -79,6 +102,7 @@ tickers:
   - V
   - VOO
   - VRT
+  - VST
   - VUG
   - WMT
   - XLV
