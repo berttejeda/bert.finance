@@ -19,11 +19,88 @@ from lib.piotroski import calc_piotroski_score
 logger = logging.getLogger("fetcher")
 
 
+def _extrapolate_next_earnings(ticker_obj, min_intervals=2):
+    """Find or estimate the next earnings date.
+
+    Strategy:
+    1. Check ``get_earnings_dates()`` for any known FUTURE date — use it
+       directly if found.
+    2. Otherwise, extrapolate from historical cadence by computing the average
+       interval between past reports and projecting forward.
+
+    Args:
+        ticker_obj: yfinance Ticker object.
+        min_intervals: Minimum number of intervals needed for a reliable
+                       extrapolation (default 2 = at least 3 past dates).
+
+    Returns:
+        Tuple of (earnings_date: pd.Timestamp, days_until: int) or
+        (None, None) if insufficient data.
+    """
+    try:
+        history = ticker_obj.get_earnings_dates()
+        if history is None or history.empty:
+            return None, None
+
+        now = pd.Timestamp.now()
+
+        # Normalize all dates to tz-naive for comparison
+        raw_dates = pd.to_datetime(history.index).dropna().unique()
+        dates = []
+        for d in raw_dates:
+            ts = pd.Timestamp(d)
+            if ts.tzinfo is not None:
+                ts = ts.tz_convert(None)
+            dates.append(ts)
+        dates = sorted(dates, reverse=True)
+
+        # 1. Check for a known future date already in the data
+        future_dates = [d for d in dates if d > now]
+        if future_dates:
+            nearest_future = min(future_dates)
+            days_until = max(int((nearest_future - now).days), 0)
+            return nearest_future, days_until
+
+        # 2. Extrapolate from historical intervals
+        if len(dates) < min_intervals + 1:
+            return None, None
+
+        intervals = [(dates[i] - dates[i + 1]).days for i in range(len(dates) - 1)]
+        # Drop outlier intervals (e.g. > 180 days or < 30 days)
+        filtered = [d for d in intervals if 30 <= d <= 180]
+        if not filtered:
+            filtered = intervals
+
+        avg_interval = round(pd.Series(filtered).mean())
+        if avg_interval < 1:
+            return None, None
+
+        estimated = dates[0] + pd.Timedelta(days=avg_interval)
+
+        # If the estimated date is in the past, keep adding intervals
+        # (cap at 8 to prevent runaway loops — ~2 years of quarterly reports)
+        for _ in range(8):
+            if estimated >= now:
+                break
+            estimated += pd.Timedelta(days=avg_interval)
+        else:
+            return None, None
+
+        delta = estimated - now
+        return estimated, max(int(delta.days), 0)
+
+    except Exception as e:
+        logger.debug(f"Could not extrapolate earnings for {ticker_obj.ticker}: {e}")
+    return None, None
+
+
 def _get_earnings_calendar(ticker_obj):
     """Extract upcoming earnings date and consensus estimates.
 
     Uses ``Ticker.calendar`` which returns a dict with keys like
     ``Earnings Date``, ``Earnings Average``, ``Revenue Average``, etc.
+    Falls back to extrapolating from historical earnings cadence when
+    no official upcoming date is available.
 
     Returns:
         Dict with available fields; empty dict on failure.
@@ -32,7 +109,7 @@ def _get_earnings_calendar(ticker_obj):
     try:
         cal = ticker_obj.calendar
         if cal is None:
-            return result
+            cal = {}
 
         # Newer yfinance returns a plain dict
         if isinstance(cal, dict):
@@ -67,6 +144,15 @@ def _get_earnings_calendar(ticker_obj):
 
     except Exception as e:
         logger.warning(f"Could not fetch earnings calendar for {ticker_obj.ticker}: {e}")
+
+    # Fallback: extrapolate from historical earnings cadence
+    if "days_until_earnings" not in result or result["days_until_earnings"] == 0:
+        est_date, est_days = _extrapolate_next_earnings(ticker_obj)
+        if est_date is not None:
+            result["next_earnings_date"] = est_date.isoformat()
+            result["days_until_earnings"] = est_days
+            result["earnings_date_estimated"] = 1
+
     return result
 
 
