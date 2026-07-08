@@ -373,7 +373,10 @@ def fetch_ticker_data(ticker, history_df, delay=2):
             "earnings_price_changes": earnings_price_changes,
             "double_bottom": double_bottom.get("double_bottom"),
             "double_bottom_neckline": double_bottom.get("double_bottom_neckline"),
-            "double_bottom_trough": double_bottom.get("double_bottom_trough"),
+            "double_bottom_first_low": double_bottom.get("double_bottom_first_low"),
+            "double_bottom_first_low_date": double_bottom.get("double_bottom_first_low_date"),
+            "double_bottom_second_low": double_bottom.get("double_bottom_second_low"),
+            "double_bottom_second_low_date": double_bottom.get("double_bottom_second_low_date"),
         }
         return data
 

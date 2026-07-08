@@ -180,122 +180,128 @@ def calc_bollinger_signal(df, window=20, std_multiplier=2):
     }
 
 
-def calc_double_bottom(df, sma_window=20, min_distance=20, tolerance=0.05,
-                        neckline_min_pct=0.03, lookback=250):
-    """Detect a double-bottom reversal pattern.
+def calc_double_bottom(df, low_tolerance=0.05, rebound_pct=0.03,
+                        bounce_confirm_days=3, lookback=180):
+    """Detect a double-bottom pattern and classify the current signal state.
 
-    Uses the Low price (support bounces are best captured at intraday lows)
-    with aggressive smoothing to identify structural troughs.  Evaluates all
-    pairs of detected troughs — not just the last two — to avoid missing
-    patterns when noise creates additional local minima.
+    Signal states (stored as integers for InfluxDB compatibility):
+      0 = NONE — no pattern detected
+      1 = ACTIVE — bouncing off the second low, still below neckline;
+          best entry window to ride the upswing
+      2 = COMPLETED — price broke above the neckline; pattern confirmed but
+          most easy upside has been captured
+      3 = APPROACHING — price is declining toward support but the bounce off
+          the second low is not yet confirmed
 
-    A double bottom is confirmed when:
-    1. Two troughs are within ``tolerance`` of each other
-    2. A neckline (peak between troughs) rises at least ``neckline_min_pct``
-       above the average trough price
-    3. Current price has broken above the neckline
+    Strategy:
+    1. Find the first significant low in the EARLIER 60% of bars.
+    2. Validate a meaningful rebound (neckline) occurred after it.
+    3. Find the second low AFTER the neckline.
+    4. Classify based on current price relative to second low & neckline.
 
     Args:
-        df: DataFrame with 'Low' and 'Close' columns indexed by date.
-        sma_window: Rolling window for noise smoothing (larger = fewer false
-                    minima).
-        min_distance: Minimum number of bars between troughs.
-        tolerance: Max percentage difference between trough prices (0.05 = 5%).
-        neckline_min_pct: Minimum neckline rise above troughs (0.03 = 3%).
+        df: DataFrame with 'Low', 'High', and 'Close' columns.
+        low_tolerance: Max % difference between the two lows (0.05 = 5%).
+        rebound_pct: Minimum % rebound from first low to qualify as neckline.
+        bounce_confirm_days: Days to check for upward movement confirming
+                            the bounce off the second low.
         lookback: Number of bars to scan for the pattern.
 
     Returns:
-        Dict with 'double_bottom' (0 or 1), 'double_bottom_neckline',
-        and 'double_bottom_trough' (float prices or None).
+        Dict with:
+          'double_bottom' (int 0-3),
+          'double_bottom_neckline' (float or None),
+          'double_bottom_first_low' (float or None),
+          'double_bottom_first_low_date' (str ISO date or None),
+          'double_bottom_second_low' (float or None),
+          'double_bottom_second_low_date' (str ISO date or None).
     """
     empty = {
         "double_bottom": 0,
-        "double_bottom_neckline": None,
-        "double_bottom_trough": None,
+        "double_bottom_neckline": 0.0,
+        "double_bottom_first_low": 0.0,
+        "double_bottom_first_low_date": "",
+        "double_bottom_second_low": 0.0,
+        "double_bottom_second_low_date": "",
     }
 
-    # Use Low for trough detection (captures intraday support bounces),
-    # fall back to Close if Low is unavailable.
-    price_col = "Low" if "Low" in df.columns else "Close"
-
-    min_bars = sma_window + min_distance * 3
-    if len(df) < min_bars:
+    if not {"Close", "Low", "High"}.issubset(df.columns):
         return empty
 
-    low = df[price_col].iloc[-lookback:]
-    close = df["Close"].iloc[-lookback:]
-    smoothed = low.rolling(window=sma_window).mean().dropna()
-
-    if len(smoothed) < min_distance * 3:
+    if len(df) < 30:
         return empty
 
-    vals = smoothed.values
-    n = len(vals)
-    half = min_distance // 2
+    # Trim to lookback window
+    data = df.iloc[-lookback:]
+    current_price = float(data["Close"].iloc[-1])
 
-    # Detect local minima: each point lower than its neighbourhood
-    trough_idx = []
-    for i in range(half, n - half):
-        window = vals[max(0, i - half): i + half + 1]
-        if vals[i] == window.min():
-            trough_idx.append(i)
-
-    # Enforce minimum spacing — keep the deeper trough when too close
-    if len(trough_idx) >= 2:
-        merged = [trough_idx[0]]
-        for idx in trough_idx[1:]:
-            if idx - merged[-1] >= min_distance:
-                merged.append(idx)
-            elif vals[idx] < vals[merged[-1]]:
-                merged[-1] = idx
-        trough_idx = merged
-
-    if len(trough_idx) < 2:
+    # Reject invalid price data
+    if current_price <= 0:
         return empty
 
-    # Evaluate ALL pairs of troughs (most recent pair first) to avoid
-    # missing valid patterns when extra noise-troughs exist.
-    current = float(close.iloc[-1])
-    best = None
+    # 1. Find the first low in the early 60% of bars
+    cutoff = int(len(data) * 0.60)
+    early = data.iloc[:cutoff]
 
-    for pair_i in range(len(trough_idx) - 1, 0, -1):
-        for pair_j in range(pair_i - 1, -1, -1):
-            i1, i2 = trough_idx[pair_j], trough_idx[pair_i]
-            date1 = smoothed.index[i1]
-            date2 = smoothed.index[i2]
-            t1 = float(low.loc[date1])
-            t2 = float(low.loc[date2])
+    first_low_price = float(early["Low"].min())
+    if first_low_price <= 0:
+        return empty
+    first_low_idx = early["Low"].idxmin()
+    first_low_pos = data.index.get_loc(first_low_idx)
 
-            # Troughs must be at a similar level
-            if abs(t1 - t2) / min(t1, t2) > tolerance:
-                continue
+    # 2. Find the neckline (middle peak) — highest High between first low
+    #    and the recent bounce_confirm_days bars.
+    peak_start = first_low_pos + 1
+    peak_end = len(data) - bounce_confirm_days
+    if peak_start >= peak_end:
+        return empty
 
-            # Neckline — highest low between the two troughs
-            between = low.loc[date1:date2]
-            neckline = float(between.max())
-            avg_trough = (t1 + t2) / 2.0
+    peak_window = data.iloc[peak_start:peak_end]
+    neckline = float(peak_window["High"].max())
+    neckline_idx = peak_window["High"].idxmax()
+    neckline_pos = data.index.get_loc(neckline_idx)
 
-            # Neckline must rise meaningfully above the troughs
-            if (neckline - avg_trough) / avg_trough < neckline_min_pct:
-                continue
+    # Validate meaningful rebound
+    rebound = (neckline - first_low_price) / first_low_price
+    if rebound < rebound_pct:
+        return empty
 
-            # Pattern confirmed only when price broke above neckline
-            if current < neckline:
-                continue
+    # 3. Find the second low — lowest Low AFTER the neckline
+    post_neckline = data.iloc[neckline_pos + 1:]
+    if post_neckline.empty:
+        return empty
 
-            # Prefer the pair with the lowest trough (strongest support)
-            trough_price = min(t1, t2)
-            if best is None or trough_price < best["trough_price"]:
-                best = {
-                    "trough_price": trough_price,
-                    "neckline": neckline,
-                }
+    second_low_price = float(post_neckline["Low"].min())
+    if second_low_price <= 0:
+        return empty
+    second_low_idx = post_neckline["Low"].idxmin()
 
-    if best:
-        return {
-            "double_bottom": 1,
-            "double_bottom_neckline": round(best["neckline"], 4),
-            "double_bottom_trough": round(best["trough_price"], 4),
-        }
+    # The two lows must be within tolerance — no valid pattern otherwise
+    pct_diff = abs(first_low_price - second_low_price) / first_low_price
+    if pct_diff > low_tolerance:
+        return empty
 
-    return empty
+    # 4. Classify signal
+    if current_price >= neckline:
+        signal = 2  # COMPLETED
+    elif current_price > second_low_price:
+        # Check if price is bouncing UP (not still falling)
+        recent = data["Close"].iloc[-bounce_confirm_days:]
+        is_bouncing = float(recent.iloc[-1]) > float(recent.iloc[0])
+        signal = 1 if is_bouncing else 3  # ACTIVE or APPROACHING
+    else:
+        signal = 3  # APPROACHING
+
+    # Extra guard: if still above neckline but price came from below,
+    # current_price must be below middle peak to be "active"
+    if signal == 1 and current_price >= neckline:
+        signal = 2
+
+    return {
+        "double_bottom": signal,
+        "double_bottom_neckline": round(neckline, 4),
+        "double_bottom_first_low": round(first_low_price, 4),
+        "double_bottom_first_low_date": str(first_low_idx.date()),
+        "double_bottom_second_low": round(second_low_price, 4),
+        "double_bottom_second_low_date": str(second_low_idx.date()),
+    }

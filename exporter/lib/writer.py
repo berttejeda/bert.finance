@@ -25,7 +25,10 @@ RETRIABLE_EXCEPTIONS = (
 TAG_FIELDS = {"ticker", "industry", "bollinger_signal"}
 
 # Fields stored as string fields (not tags, not numeric)
-STRING_FIELDS = {"company_info", "next_earnings_date", "next_earnings_date_end"}
+STRING_FIELDS = {
+    "company_info", "next_earnings_date", "next_earnings_date_end",
+    "double_bottom_first_low_date", "double_bottom_second_low_date",
+}
 
 # Fields to skip (not written to InfluxDB)
 SKIP_FIELDS = {"error", "earnings_price_changes"}

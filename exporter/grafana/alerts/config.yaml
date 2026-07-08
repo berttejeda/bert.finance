@@ -294,3 +294,53 @@ alerts:
       }))
         |> filter(fn: (r) => r._value == 1.0)
         |> group(columns: ["ticker"])
+
+  double_bottom_active:
+    enabled: true
+    severity: critical
+    evaluation_interval: 15m
+    for: 0s
+    annotations:
+      summary: "DBL BOTTOM ACTIVE: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} is bouncing off a double-bottom second low — best entry window"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      from(bucket: "stocks")
+        |> range(start: -1d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "double_bottom")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> filter(fn: (r) => r._value == 1.0)
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> group(columns: ["ticker"])
+
+  double_bottom_approaching:
+    enabled: true
+    severity: warning
+    evaluation_interval: 15m
+    for: 0s
+    annotations:
+      summary: "DBL BOTTOM APPROACHING: {{ $labels.ticker }}"
+      description: "{{ $labels.ticker }} is declining toward double-bottom support — bounce not yet confirmed"
+    labels:
+      team: trading
+      category: signals
+    condition:
+      type: threshold
+      above: 0
+    query: |-
+      from(bucket: "stocks")
+        |> range(start: -1d)
+        |> filter(fn: (r) => r["_measurement"] == "stock_data")
+        |> filter(fn: (r) => r["_field"] == "double_bottom")
+        |> group(columns: ["ticker"])
+        |> last()
+        |> filter(fn: (r) => r._value == 3.0)
+        |> keep(columns: ["_time", "ticker", "_value"])
+        |> group(columns: ["ticker"])

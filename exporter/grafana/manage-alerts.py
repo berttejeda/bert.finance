@@ -514,7 +514,7 @@ def _create_alerts(client, cfg, contact_point_name, args):
     )
 
     webhook_settings = {
-        "url": f"{ntfy_url}",
+        "url": f"{ntfy_url}/{ntfy_topic}",
         "httpMethod": "POST",
         "maxAlerts": "1",
         "message": ntfy_message_tpl,

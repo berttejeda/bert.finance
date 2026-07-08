@@ -3263,7 +3263,7 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
-      "description": "[Double bottom](https://www.investopedia.com/terms/d/doublebottom.asp) reversal pattern. Confirmed when two troughs form within 3% of each other and price breaks above the neckline (peak between troughs). Neckline price shown as secondary value.",
+      "description": "[Double bottom](https://www.investopedia.com/terms/d/doublebottom.asp) reversal pattern.\n- ACTIVE: Bouncing off second low, best entry window\n- COMPLETED: Broke above neckline, most upside captured\n- APPROACHING: Declining toward support, bounce not confirmed",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -3278,7 +3278,15 @@
                 },
                 "1": {
                   "color": "dark-green",
-                  "text": "CONFIRMED"
+                  "text": "ACTIVE"
+                },
+                "2": {
+                  "color": "dark-blue",
+                  "text": "COMPLETED"
+                },
+                "3": {
+                  "color": "dark-yellow",
+                  "text": "APPROACHING"
                 }
               },
               "type": "value"
@@ -3294,6 +3302,14 @@
               {
                 "color": "dark-green",
                 "value": 1
+              },
+              {
+                "color": "dark-blue",
+                "value": 2
+              },
+              {
+                "color": "dark-yellow",
+                "value": 3
               }
             ]
           }
