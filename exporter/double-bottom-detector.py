@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import datetime
 import yfinance as yf
 
@@ -14,6 +16,10 @@ def detect_double_bottom(
     low_tolerance=0.05,
     rebound_pct=0.03,
     bounce_confirm_days=3,
+    min_bars_between_lows=10,
+    max_bars_neckline_to_end=100,
+    neckline_max_pct=0.75,
+    max_rebound_pct=0.30,
 ):
     """Detect double-bottom pattern and classify current signal state.
 
@@ -34,6 +40,10 @@ def detect_double_bottom(
         first low to qualify as a valid neckline (0.03 = 3%)
     :param bounce_confirm_days: Int, number of recent trading days to check
         for upward movement when confirming the bounce off the second low
+    :param min_bars_between_lows: Int, minimum bars separating the two lows
+    :param max_bars_neckline_to_end: Int, max bars from neckline to end
+    :param neckline_max_pct: Float, neckline must occur within this fraction
+        of data (0.75 = first 75%)
     """
     # 1. Fetch data
     ticker = yf.Ticker(ticker_symbol)
@@ -57,9 +67,10 @@ def detect_double_bottom(
     first_low_pos = df.index.get_loc(first_low_idx)
 
     # 3. Find the middle peak (neckline) — highest point between the first
-    #    low and the recent portion of the chart.
+    #    low and a constrained boundary (first 75% of bars).
     peak_start = first_low_pos + 1
-    peak_end = len(df) - bounce_confirm_days
+    peak_end = min(int(len(df) * neckline_max_pct),
+                   len(df) - bounce_confirm_days)
     if peak_start >= peak_end:
         print(f"Not enough data after the first low for {ticker_symbol}.")
         return SIGNAL_NONE
@@ -78,13 +89,26 @@ def detect_double_bottom(
         )
         return SIGNAL_NONE
 
+    # Reject necklines unreasonably far above the troughs (rally/crash)
+    if rebound > max_rebound_pct:
+        print(
+            f"Neckline too high for {ticker_symbol} "
+            f"({rebound:.1%} > {max_rebound_pct:.1%} maximum)."
+        )
+        return SIGNAL_NONE
+
     # 4. Find the second low — lowest point AFTER the neckline
     post_neckline = df.iloc[neckline_pos + 1:]
     if post_neckline.empty:
         return SIGNAL_NONE
 
+    # Neckline must not be too far from end (prevents ultra-long formations)
+    if len(post_neckline) > max_bars_neckline_to_end:
+        return SIGNAL_NONE
+
     second_low_price = float(post_neckline["Low"].min())
     second_low_idx = post_neckline["Low"].idxmin()
+    second_low_pos = df.index.get_loc(second_low_idx)
 
     # The two lows must be within tolerance of each other
     pct_diff = abs(first_low_price - second_low_price) / first_low_price
@@ -101,6 +125,15 @@ def detect_double_bottom(
                 neckline, neckline_idx, upside_to_neckline, pct_diff,
             )
             return signal
+        return SIGNAL_NONE
+
+    # Enforce minimum separation between the two troughs
+    if (second_low_pos - first_low_pos) < min_bars_between_lows:
+        return SIGNAL_NONE
+
+    # Validate meaningful pullback from neckline to second low
+    pullback = (neckline - second_low_price) / neckline
+    if pullback < rebound_pct:
         return SIGNAL_NONE
 
     # 5. Classify the signal
